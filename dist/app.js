@@ -44,6 +44,15 @@ var _allowPrototypeAccess = require("@handlebars/allow-prototype-access");
 require('./models/Session');
 
 require('dotenv').config;
+
+require('./models/User/User');
+
+require('./models/Order/Order');
+
+require('./models/Stock/ItemCategory');
+
+require('./models/Stock/Item');
+
 var app = (0, _express["default"])();
 var multiHelpers = (0, _handlebarsHelpers["default"])(); // view engine setup
 
