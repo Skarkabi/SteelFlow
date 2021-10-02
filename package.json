@@ -1,0 +1,129 @@
+{
+  "name": "maintenancesystem",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@handlebars/allow-prototype-access": "^1.0.3",
+    "bcrypt": "^5.0.1",
+    "bluebird": "~3.5.1",
+    "body-parser": "^1.19.0",
+    "bootstrap": "^4.5.3",
+    "connect-mysql": "^4.0.0",
+    "connect-session-sequelize": "~7.1.1",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^6.1.0",
+    "excel": "^1.0.1",
+    "exceljs": "^4.3.0",
+    "express": "~4.16.1",
+    "express-breadcrumbs": "0.0.2",
+    "express-fileupload": "^1.2.1",
+    "express-flash": "0.0.2",
+    "express-handlebars": "^5.2.0",
+    "express-mysql-session": "^2.1.6",
+    "express-session": "^1.17.1",
+    "express-session-sequelize": "^2.3.0",
+    "express-validator": "^6.8.0",
+    "file-saver": "^2.0.5",
+    "generate-password": "^1.5.1",
+    "gherkin": "^9.0.0",
+    "handlebars": "^4.7.6",
+    "handlebars-helpers": "^0.10.0",
+    "http-errors": "^1.6.3",
+    "iconv": "^3.0.0",
+    "iconv-lite": "^0.6.3",
+    "jquery": "^3.6.0",
+    "jquery-cropper": "^1.0.1",
+    "lodash": "^4.17.20",
+    "morgan": "~1.9.1",
+    "multer": "^1.4.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
+    "node-blob": "0.0.2",
+    "nodemailer": "^6.4.16",
+    "open": "^8.2.1",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "popper.js": "^1.16.1",
+    "readline": "^1.3.0",
+    "sequelize": "^6.6.2",
+    "sequelize-cli": "^6.2.0",
+    "sqlite3": "^5.0.2",
+    "windows-1252": "^3.0.1",
+    "xlsx": "^0.17.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-stage-2": "^7.8.3",
+    "@babel/register": "^7.12.1",
+    "@cucumber/cucumber": "^7.0.0-rc.0",
+    "@types/file-saver": "^2.0.3",
+    "cpx": "^1.5.0",
+    "cross-env": "^7.0.2",
+    "cucumber-pretty": "^6.0.0",
+    "cypress": "^5.6.0",
+    "cypress-cucumber-preprocessor": "^4.0.0",
+    "cypress-file-upload": "^4.1.1",
+    "mocha": "^8.2.1",
+    "mochawesome": "^6.2.1",
+    "mochawesome-merge": "^4.2.0",
+    "mochawesome-report-generator": "^5.1.0",
+    "nodemon": "^2.0.7",
+    "npm-run-all": "^4.1.5",
+    "protractor-cucumber-framework": "^6.2.1",
+    "puppeteer": "^5.5.0",
+    "rimraf": "^3.0.2"
+  },
+  "nodemonConfig": {
+    "exec": "npm run prod",
+    "watch": [
+      "server/*"
+    ],
+    "ext": "js,hbs",
+    "ignore": []
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/transform-runtime"
+    ]
+  },
+  "scripts": {
+    "startMyComputer": "echo mosjsfskmo | sudo /usr/local/mysql/support-files/mysql.server start\nDB_PASSWORD=mosjsfskmo DB_HOST=localhost nodemon",
+    "startServerComputer": "cross-env DB_PASSWORD=199Sk2018 DB_HOST=192.168.0.95 nodemon",
+    "startComputerServer": "echo mosjsfskmo | sudo /usr/local/mysql/support-files/mysql.server start",
+    "startOnWindows": "cross-env DB_PASSWORD=mosjsfskmo nodemon",
+    "start": "nodemon",
+    "test": "npx cypress open",
+    "build": "npm-run-all clean transpile",
+    "server": "node ./dist/bin/www",
+    "dev": "cross-env NODE_ENV=development & npm-run-all build server",
+    "prod": "cross-env NODE_ENV=production & npm-run-all build server",
+    "transpile": "babel ./server --out-dir dist && cpx \"./server/views/**/*\" ./dist/views --clean && cpx \"./server/uploads/*\" ./dist/uploads --clean",
+    "clean": "rimraf dist"
+  },
+  "mdSeed": {
+    "seedersFolder": "./seeders"
+  },
+  "description": "This is my first attempt at connecting a SQL database into javascript",
+  "main": "protractorConfig.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Skarkabi/ConnectSQL.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Skarkabi/ConnectSQL/issues"
+  },
+  "homepage": "https://github.com/Skarkabi/ConnectSQL#readme",
+  "env": {
+    "DB_PASSWORD": "199Sk2018"
+  }
+}
