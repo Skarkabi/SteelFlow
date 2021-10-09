@@ -123,4 +123,29 @@ const Restrictions = sequelize.define('Restrictions', mappings, {
     ]
 });
 
+/**
+ * Function to add user restriction in system
+ * @param {*} newRestriction 
+ * @returns 
+ */
+Restrictions.createRestriction = newRestriction => {
+    return new Bluebird((resolve, reject) => {
+        Restrictions.create(newRestriction).then(() => {
+            resolve(`Restrictions for user ${newRestriction.user_id} added to system!`)
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+/**
+ * Function to update users restrictions
+ * @param {*} restrictions 
+ * @returns 
+ */
+Restrictions.updateRestrictions = restrictions => {
+    return new Bluebird((resolve, reject) => {
+        
+    });
+}
 export default Restrictions;
