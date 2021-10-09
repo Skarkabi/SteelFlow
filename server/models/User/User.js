@@ -123,6 +123,17 @@ const User = sequelize.define('Users', mappings, {
 });
 
 /**
+ * Funciton to add user into system
+ * @param {*} newUser 
+ * @returns 
+ */
+User.createUser = newUser => {
+    return new Bluebird((resolve, reject) => {
+
+    })
+}
+
+/**
  * Function to retreive all users in the system
  * @returns All Users In System
  */
