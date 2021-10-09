@@ -99,4 +99,63 @@ const Item = sequelize.define('Production_Items', mappings, {
     ]
 })
 
+/**
+ * Funciton to add order item into system
+ * @param {*} newOrderItem 
+ * @returns 
+ */
+Item.createOrderItem = newOrderItem => {
+    return new Bluebird((resolve, reject) => {
+        Item.create(newOrderItem).then(() => {
+            resolve('Item added to order!');
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+/**
+ * Funciton to retrieve specefic order item
+ * @param {*} itemId 
+ * @returns 
+ */
+Item.getOrderItemById = itemId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to retreive all for speceified order
+ * @param {*} orderId 
+ * @returns 
+ */
+Item.getAllOrderItems = orderId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to delete all items associated with order
+ * @param {*} orderId 
+ * @returns 
+ */
+Item.deleteAllOrderItems = orderId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to delete specefic order item
+ * @param {*} itemId 
+ * @returns 
+ */
+Item.deleteOrderItem = itemId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
 export default Item;
