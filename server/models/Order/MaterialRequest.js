@@ -76,4 +76,65 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
     ]
 });
 
+/**
+ * Function to add material request into system
+ * @param {*} newMaterialRequest 
+ * @returns 
+ */
+MaterialRequest.createMaterialRequest = newMaterialRequest => {
+    return new Bluebird((resolve, reject) => {
+        MaterialRequest.create(newMaterialRequest).then(() => {
+            resolve(`Material request ${newMaterialRequest.id} has been added in the system!`)
+        }).catch(err => {
+            reject(err);
+        })
+
+    })
+}
+
+/**
+ * Function to retreieve specefic material request
+ * @param {*} materialId 
+ * @returns 
+ */
+MaterialRequest.getOrderMaterialRequestById = materialId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to retrieve all material requests associated with specfied order
+ * @param {*} orderId 
+ * @returns 
+ */
+MaterialRequest.getAllOrderMaterialRequests = orderId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to delete all material requests associated with order
+ * @param {*} orderId 
+ * @returns 
+ */
+MaterialRequest.deleteAllOrderMaterialRequests = orderId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to delete specefic order material request
+ * @param {*} materialId 
+ * @returns 
+ */
+MaterialRequest.deleteMaterialRequest = materialId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+
 export default MaterialRequest;
