@@ -122,4 +122,79 @@ const User = sequelize.define('Users', mappings, {
     ]
 });
 
+/**
+ * Function to retreive all users in the system
+ * @returns All Users In System
+ */
+User.getAllUsers = () => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to retreive a specefic user from the system
+ * @param {*} userId 
+ * @returns 
+ */
+User.getUserById = userId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to update a user in the system
+ * @param {*} userId 
+ * @returns 
+ */
+User.updateUser = userId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to delete user from the system
+ * @param {*} userId 
+ * @returns 
+ */
+User.deleteUserById = userId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to retreive the users manager from the system
+ * @param {*} managerId 
+ * @returns 
+ */
+function getManager(managerId){
+    return new Bluebird((resolve, reject) => {
+        
+    });
+}
+
+/**
+ * Function to retreive all employees that work under manager 
+ * @param {*} userId 
+ * @returns 
+ */
+function getEmployees(userId){
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * function to retreive all orders user is involved with
+ * @returns 
+ */
+function getOrders(userId){
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
 export default User;
