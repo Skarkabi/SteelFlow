@@ -154,4 +154,95 @@ const Order = sequelize.define('Orders', mappings, {
     ]
 });
 
+/**
+ * Function to retrieve all orders in system
+ * @returns 
+ */
+Order.getAllOrders = () => {
+    return new Bluebird((resolve, reject) => {
+        Order.findAll().then(orders => {
+            resolve(orders);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+/**
+ * Function to retreive last order Id in system
+ * @returns 
+ */
+Order.getLastOrderId = () => {
+    return new Bluebird((resolve, reject) => {
+
+    })
+}
+
+/**
+ * Function to retrieve specific order in system
+ * @param {*} orderId 
+ * @returns 
+ */
+Order.getOrderById = orderId => {
+    return new Bluebird((resolve, reject) => {
+        
+    });
+}
+
+/**
+ * Function to delete specefied order in system
+ * @param {*} orderId 
+ * @returns 
+ */
+Order.deleteOrder = orderId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to update order in system
+ * @param {*} order 
+ * @returns 
+ */
+Order.updateOrder = order => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to set approvel status of order
+ * @param {*} orderId 
+ * @param {*} approved 
+ * @returns 
+ */
+Order.setApproved = (orderId, approved) => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to set all material requests for specefied order
+ * @param {*} orderId 
+ * @returns 
+ */
+function getMaterialRequests(orderId){
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to set all items needed for specefied order
+ * @param {*} orderId 
+ * @returns 
+ */
+function getOrderItems(orderId){
+    return new Bluebird((resolve, reject) => {
+
+    })
+}
+
 export default Order;
