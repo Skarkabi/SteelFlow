@@ -45,6 +45,9 @@ const mappings = {
     restrictions:{
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['restrictions']),
     },
+    orders: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['orders'])
+    },
     department: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false, 

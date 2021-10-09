@@ -43,9 +43,6 @@ const mappings = {
             key: 'id'
         },
     },
-    employees:{
-        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['employees']),
-    },
     approved: {
         type: Sequelize.DataTypes.BOOLEAN,
         allowNull: false,

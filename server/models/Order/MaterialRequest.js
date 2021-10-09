@@ -28,8 +28,8 @@ const mappings = {
         allowNull: false,
         defaultValue: "N/A"
     },
-    items: {
-        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['items'])
+    item: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['item'])
     },
     createdAt: {
         type: Sequelize.DataTypes.DATE,
