@@ -1,6 +1,6 @@
-import _ from 'lodash';
+import _, { reject } from 'lodash';
 import bcrypt from 'bcrypt';
-import Bluebird from 'bluebird';
+import Bluebird, { resolve } from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import User from './User';
@@ -56,5 +56,53 @@ const WorkFor = sequelize.define('Work_For', mappings, {
         },
     ]
 });
+
+/**
+ * Funciton to store manager emplyee relation in system
+ * @param {*} newRelation 
+ * @returns 
+ */
+WorkFor.setRelation = newRelation => {
+    return new Bluebird((resolve, reject) => {
+        WorkFor.create(newRelation).then(() => {
+            resolve("Employee Relations Saved!");
+        }).catch(err => {
+            reject(err);
+        });
+    })
+}
+
+/**
+ * Function to update manager employee relation in system
+ * @param {*} relation 
+ * @returns 
+ */
+WorkFor.updateRelation = relation => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to retreive all employees under manager
+ * @param {*} managerId 
+ * @returns 
+ */
+WorkFor.getEmployees = managerId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
+
+/**
+ * Function to retrieve employees manager
+ * @param {*} employeeId 
+ * @returns 
+ */
+WorkFor.getManager = employeeId => {
+    return new Bluebird((resolve, reject) => {
+
+    });
+}
 
 export default WorkFor;
