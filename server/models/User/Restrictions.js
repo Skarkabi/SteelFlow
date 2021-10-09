@@ -148,4 +148,15 @@ Restrictions.updateRestrictions = restrictions => {
         
     });
 }
+
+/**
+ * Function to retreive user restrictions
+ * @param {*} userId 
+ * @returns 
+ */
+Restrictions.getRestricitons = userId => {
+    return new Bluebird((resolve, reject) => {
+        
+    });
+}
 export default Restrictions;
