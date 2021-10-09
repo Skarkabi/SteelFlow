@@ -158,10 +158,5 @@ var Order = _mySQLDB["default"].define('Orders', mappings, {
   }]
 });
 
-Order.hasMany(_Item["default"]);
-Order.hasMany(_MaterialRequest["default"]);
-Order.hasMany(_User["default"], {
-  constraints: false
-});
 var _default = Order;
 exports["default"] = _default;

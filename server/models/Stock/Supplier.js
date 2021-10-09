@@ -2,6 +2,7 @@ import _ from 'lodash';
 import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
+import Item from './Item';
 
 const mappings = {
     id: {
@@ -21,6 +22,9 @@ const mappings = {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,
         defaultValue: "N/A"
+    },
+    items: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['items'])
     },
     createdAt: {
         type: Sequelize.DataTypes.DATE,
@@ -66,5 +70,6 @@ const Supplier = sequelize.define('Suppliers', mappings, {
         }
     ]
 });
+
 
 export default Supplier;

@@ -17,6 +17,8 @@ var _mySQLDB = _interopRequireDefault(require("../../mySQLDB"));
 
 var _ItemAttributes = _interopRequireDefault(require("./ItemAttributes"));
 
+var _Supplier = _interopRequireDefault(require("./Supplier"));
+
 var mappings = {
   id: {
     type: _sequelize["default"].INTEGER,
@@ -117,6 +119,5 @@ var Item = _mySQLDB["default"].define('Stock_Items', mappings, {
   }]
 });
 
-Item.hasMany(_ItemAttributes["default"]);
 var _default = Item;
 exports["default"] = _default;

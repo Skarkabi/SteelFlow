@@ -3,6 +3,7 @@ import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import ItemAttribute from './ItemAttributes';
+import Supplier from './Supplier';
 
 const mappings = {
     id: {
@@ -114,5 +115,4 @@ const Item = sequelize.define('Stock_Items', mappings, {
     ]
 });
 
-Item.hasMany(ItemAttribute);
 export default Item;

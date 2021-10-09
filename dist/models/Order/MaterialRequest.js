@@ -82,8 +82,5 @@ var MaterialRequest = _mySQLDB["default"].define('Material_Requests', mappings, 
   }]
 });
 
-MaterialRequest.hasMany(_Item["default"], {
-  constraints: false
-});
 var _default = MaterialRequest;
 exports["default"] = _default;

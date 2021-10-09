@@ -20,7 +20,7 @@ const mySQLDB = new Sequelize(dbName, dbUserName,process.env.DB_PASSWORD, {
 mySQLDB.sync().then(() => {
     console.log(`Database & tables created!`)
 }).catch(err => {
-    console.log("TESTT IS");
+    console.log("TESTT IS: " + err);
 console.log(process.env.DB_PASSWORD);
     console.log(`Could not connect to database ${err}`);
 });

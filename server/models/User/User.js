@@ -4,6 +4,7 @@ import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import Restrictions from './Restrictions'
+import WorkFor from './WorkFor';
 
 const mappings = {
     id: {
@@ -117,7 +118,5 @@ const User = sequelize.define('Users', mappings, {
         },
     ]
 });
-
-User.hasOne(Restrictions);
 
 export default User;

@@ -29,7 +29,7 @@ var mySQLDB = new _sequelize["default"](dbName, dbUserName, process.env.DB_PASSW
 mySQLDB.sync().then(function () {
   console.log("Database & tables created!");
 })["catch"](function (err) {
-  console.log("TESTT IS");
+  console.log("TESTT IS: " + err);
   console.log(process.env.DB_PASSWORD);
   console.log("Could not connect to database ".concat(err));
 });

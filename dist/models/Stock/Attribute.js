@@ -84,6 +84,5 @@ var Attribute = _mySQLDB["default"].define('Attributes', mappings, {
   }]
 });
 
-Attribute.hasMany(_Item["default"]);
 var _default = Attribute;
 exports["default"] = _default;

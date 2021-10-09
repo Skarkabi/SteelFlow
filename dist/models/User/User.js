@@ -19,6 +19,8 @@ var _mySQLDB = _interopRequireDefault(require("../../mySQLDB"));
 
 var _Restrictions = _interopRequireDefault(require("./Restrictions"));
 
+var _WorkFor = _interopRequireDefault(require("./WorkFor"));
+
 var mappings = {
   id: {
     type: _sequelize["default"].DataTypes.STRING,
@@ -120,6 +122,5 @@ var User = _mySQLDB["default"].define('Users', mappings, {
   }]
 });
 
-User.hasOne(_Restrictions["default"]);
 var _default = User;
 exports["default"] = _default;

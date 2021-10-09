@@ -85,7 +85,4 @@ const ItemCategory = sequelize.define('Item_Categories', mappings, {
     ]
 });
 
-ItemCategory.hasMany(Attribute);
-ItemCategory.hasMany(Bom);
-
 export default ItemCategory;

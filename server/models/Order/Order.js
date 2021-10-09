@@ -157,10 +157,4 @@ const Order = sequelize.define('Orders', mappings, {
     ]
 });
 
-Order.hasMany(Item);
-Order.hasMany(MaterialRequest);
-Order.hasMany(User, {
-    constraints: false
-});
-
 export default Order;

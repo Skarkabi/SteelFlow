@@ -79,5 +79,4 @@ const Attribute = sequelize.define('Attributes', mappings, {
     ]
 });
 
-Attribute.hasMany(Item);
 export default Attribute;

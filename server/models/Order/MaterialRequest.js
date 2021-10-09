@@ -76,8 +76,4 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
     ]
 });
 
-MaterialRequest.hasMany(Item,{
-    constraints: false
-});
-
 export default MaterialRequest;

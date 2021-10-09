@@ -91,7 +91,5 @@ var ItemCategory = _mySQLDB["default"].define('Item_Categories', mappings, {
   }]
 });
 
-ItemCategory.hasMany(_Attribute["default"]);
-ItemCategory.hasMany(_Bom["default"]);
 var _default = ItemCategory;
 exports["default"] = _default;

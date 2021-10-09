@@ -9,35 +9,32 @@ exports["default"] = void 0;
 
 var _lodash = _interopRequireDefault(require("lodash"));
 
+var _bcrypt = _interopRequireDefault(require("bcrypt"));
+
 var _bluebird = _interopRequireDefault(require("bluebird"));
 
 var _sequelize = _interopRequireDefault(require("sequelize"));
 
 var _mySQLDB = _interopRequireDefault(require("../../mySQLDB"));
 
-var _Item = _interopRequireDefault(require("./Item"));
+var _User = _interopRequireDefault(require("./User"));
 
 var mappings = {
-  id: {
-    type: _sequelize["default"].INTEGER,
+  mId: {
+    type: _sequelize["default"].DataTypes.STRING,
     primaryKey: true,
-    autoIncrement: true
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   },
-  name: {
+  eId: {
     type: _sequelize["default"].DataTypes.STRING,
-    allowNull: false
-  },
-  email: {
-    type: _sequelize["default"].DataTypes.STRING,
-    allowNull: false
-  },
-  phone: {
-    type: _sequelize["default"].DataTypes.STRING,
-    allowNull: false,
-    defaultValue: "N/A"
-  },
-  items: {
-    type: _sequelize["default"].DataTypes.VIRTUAL(_sequelize["default"].DataTypes.JSON, ['items'])
+    primaryKey: true,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   },
   createdAt: {
     type: _sequelize["default"].DataTypes.DATE,
@@ -49,33 +46,25 @@ var mappings = {
   }
 };
 
-var Supplier = _mySQLDB["default"].define('Suppliers', mappings, {
+var WorkFor = _mySQLDB["default"].define('Work_For', mappings, {
   indexes: [{
-    name: 'supplier_id_index',
+    name: 'work_for_mId_index',
     method: 'BTREE',
-    fields: ['id']
+    fields: ['mId']
   }, {
-    name: 'supplier_name_index',
+    name: 'work_for_eId_index',
     method: 'BTREE',
-    fields: ['name']
+    fields: ['eId']
   }, {
-    name: 'supplier_email_index',
-    method: 'BTREE',
-    fields: ['email']
-  }, {
-    name: 'supplier_phone_index',
-    method: 'BTREE',
-    fields: ['phone']
-  }, {
-    name: 'supplier_createdAt_index',
+    name: 'work_for_createdAt_index',
     method: 'BTREE',
     fields: ['createdAt']
   }, {
-    name: 'supplier_updatedAt_index',
+    name: 'work_for_updatedAt_index',
     method: 'BTREE',
     fields: ['updatedAt']
   }]
 });
 
-var _default = Supplier;
+var _default = WorkFor;
 exports["default"] = _default;

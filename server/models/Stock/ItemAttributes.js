@@ -75,5 +75,4 @@ const ItemAttribute = sequelize.define('Item_Attributes', mappings, {
     ]
 });
 
-
 export default ItemAttribute;
