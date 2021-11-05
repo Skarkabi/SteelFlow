@@ -17,11 +17,7 @@ import breadcrumbs from 'express-breadcrumbs';
 import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access';
 require('./models/Session');
 require('dotenv').config
-require('./models/User/User')
-require('./models/Order/Order')
-require('./models/Stock/ItemCategory');
-require('./models/Stock/Item');
-
+require('./models/index');
 
 const app = express();
 

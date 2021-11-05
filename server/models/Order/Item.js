@@ -9,13 +9,6 @@ const mappings = {
         autoIncrement: true,
         primaryKey: true
     },
-    order_id: {
-        type: Sequelize.DataTypes.STRING,
-        references:{
-            model: 'Orders',
-            key: 'order_id'
-        }
-    },
     production_or_stock: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false
@@ -55,11 +48,6 @@ const Item = sequelize.define('Production_Items', mappings, {
             name: 'items_id_index',
             method: 'BTREE',
             fields: ['id'],
-        }, 
-        {
-            name: 'items_order_id_index',
-            method: 'BTREE',
-            fields: ['order_id'],
         }, 
         {
             name: 'items_production_or_stock_index',

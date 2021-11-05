@@ -9,20 +9,6 @@ const mappings = {
         type: Sequelize.DataTypes.STRING,
         primaryKey: true
     },
-    order_id: {
-        type: Sequelize.DataTypes.STRING,
-        references:{
-            model: 'Orders',
-            key: 'order_id'
-        }
-    },
-    item_id: {
-        type: Sequelize.INTEGER,
-        references:{
-            model: 'Production_Items',
-            key: 'id'
-        }
-    },
     invoice: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -47,16 +33,6 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
             name: 'material_request_id_index',
             method: 'BTREE',
             fields: ['id'],
-        }, 
-        {
-            name: 'material_request_order_id_index',
-            method: 'BTREE',
-            fields: ['order_id'],
-        }, 
-        {
-            name: 'material_request_item_id_index',
-            method: 'BTREE',
-            fields: ['item_id'],
         }, 
         {
             name: 'material_request_invoice_index',

@@ -9,22 +9,8 @@ const mappings = {
         primaryKey: true,
         autoIncrement: true
     },
-    attribute_id: {
-        type: Sequelize.INTEGER,
-        references: {
-            model: 'Attributes',
-            key: 'id'
-        }
-    },
     attribute: {
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['attribute'])
-    },
-    item_id:{
-        type: Sequelize.INTEGER,
-        references: {
-            model: 'Stock_Items',
-            key: 'id'
-        }
     },
     unit: {
         type: Sequelize.DataTypes.DOUBLE,
@@ -46,16 +32,6 @@ const ItemAttribute = sequelize.define('Item_Attributes', mappings, {
             name: 'item_attribute_id_index',
             method: 'BTREE',
             fields: ['id'],   
-        },
-        {
-            name: 'item_attribute_attribute_id_index',
-            method: 'BTREE',
-            fields: ['attribute_id'],   
-        },
-        {
-            name: 'item_attribute_item_id_index',
-            method: 'BTREE',
-            fields: ['item_id'],   
         },
         {
             name: 'item_attribute_unit_index',

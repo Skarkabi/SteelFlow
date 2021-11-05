@@ -10,13 +10,6 @@ const mappings = {
         primaryKey: true,
         autoIncrement: true
     },
-    item_id: {
-        type: Sequelize.INTEGER,
-        references: {
-            model: 'Item_Categories',
-            key: 'id'
-        }
-    },
     position: {
         type: Sequelize.DataTypes.INTEGER,
         allowNull: false
@@ -45,11 +38,6 @@ const Attribute = sequelize.define('Attributes', mappings, {
             name: 'attribute_id_index',
             method: 'BTREE',
             fields: ['id'], 
-        },
-        {
-            name: 'attribute_item_id_index',
-            method: 'BTREE',
-            fields: ['item_id'], 
         },
         {
             name: 'attribute_position_index',

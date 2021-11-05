@@ -7,10 +7,6 @@ const mappings = {
     user_id: {
         type: Sequelize.DataTypes.STRING,
         primaryKey: true,
-        references: {
-            model: 'Users',
-            key: 'id'
-        },
     },
     view_users:{
         type: Sequelize.DataTypes.BOOLEAN,

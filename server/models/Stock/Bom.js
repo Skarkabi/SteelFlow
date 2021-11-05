@@ -9,20 +9,6 @@ const mappings = {
         primaryKey: true,
         autoIncrement: true
     },
-    category_id: {
-        type: Sequelize.INTEGER,
-        references: {
-            model: 'Item_Categories',
-            key: 'id'
-        },
-    },
-    attribute_id: {
-        type: Sequelize.INTEGER,
-        references: {
-            model: 'Attributes',
-            key: 'id'
-        },
-    },
     attribute: {
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['attribute'])
     },
@@ -46,16 +32,6 @@ const Bom = sequelize.define('Boms', mappings, {
             name: 'bom_id_index',
             method: 'BTREE',
             fields: ['id'],   
-        },
-        {
-            name: 'bom_category_id_index',
-            method: 'BTREE',
-            fields: ['category_id'],   
-        },
-        {
-            name: 'bom_attribute_id_index',
-            method: 'BTREE',
-            fields: ['attribute_id'],   
         },
         {
             name: 'bom_attribute_unit_index',

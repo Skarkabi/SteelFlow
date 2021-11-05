@@ -11,42 +11,10 @@ const mappings = {
         type: Sequelize.DataTypes.STRING,
         primaryKey: true
     },
-    sales_eid: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        },
-    },
-    sales_mid: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true,
-        references: {
-            model: 'Users',
-            key: 'id'
-        },
-    },
-    production_eid: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false,
-        references: {
-            model: 'Users',
-            key: 'id'
-        },
-    },
-    production_mid: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true,
-        references: {
-            model: 'Users',
-            key: 'id'
-        },
-    },
     approved: {
         type: Sequelize.DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: 0
+        defaultValue: false
     },
     delivery_date: {
         type: Sequelize.DataTypes.DATE,
@@ -90,26 +58,6 @@ const Order = sequelize.define('Orders', mappings, {
             name: 'orders_order_id_index',
             method: 'BTREE',
             fields: ['order_id'],
-        },
-        {
-            name: 'orders_sales_eid_index',
-            method: 'BTREE',
-            fields: ['sales_eid'],
-        },
-        {
-            name: 'orders_sales_mid_index',
-            method: 'BTREE',
-            fields: ['sales_mid'],
-        },
-        {
-            name: 'orders_production_eid_index',
-            method: 'BTREE',
-            fields: ['production_eid'],
-        },
-        {
-            name: 'orders_production_mid_index',
-            method: 'BTREE',
-            fields: ['production_mid'],
         },
         {
             name: 'orders_approved_index',

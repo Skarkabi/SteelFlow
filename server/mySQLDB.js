@@ -2,8 +2,8 @@ import 'dotenv';
 import Sequelize from 'sequelize';
 
 const dbName = 'steel_flow';
-const dbUserName = 'root';
-const dbPort = '3306';
+const dbUserName = 'saleemkarkabi';
+const dbPort = '5432';
 
 const readline = require("readline");
 const rl = readline.createInterface({
@@ -14,7 +14,7 @@ const rl = readline.createInterface({
 const mySQLDB = new Sequelize(dbName, dbUserName,process.env.DB_PASSWORD, {
     host: "localhost",
     port: dbPort,
-    dialect: 'mysql',
+    dialect: 'postgres',
 });
 
 mySQLDB.sync().then(() => {
