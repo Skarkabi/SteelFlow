@@ -13,7 +13,6 @@
                 <th scope="col">Category</th>
                 <th scope="col">Total Quantity</th>
                 <th scope="col">Reserved</th>
-                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -24,10 +23,6 @@
                     <td><a href="/stock/view/{{this.id}}">{{this.name}}</a></td>
                     <td><a href="/stock/view/{{this.id}}">{{this.totalQuantity}} ({{this.quantity_unit}})</a></td>
                     <td><a href="/stock/view/{{this.id}}">{{this.totalReserverd}} ({{this.quantity_unit}})</a></td>
-                    <td class = "table-actions">
-                        <a href="/stock/view/{{this.id}}" role="button"  id="view" class="button"><i class="fas fa-user-alt" aria-hidden="true"></i></a>
-                       <a href="/stock/delete/{{this.id}}" role="button" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{this.id}}?"><i class="fas fa-trash" aria-hidden="true"></i></a>
-                    </td>
                 </tr>
             {{/each}}
         </tbody>

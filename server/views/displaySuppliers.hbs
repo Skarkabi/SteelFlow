@@ -13,7 +13,6 @@
                 <th scope="col">Phone Number</th>
                 <th scope="col">E-mail</th>
                 <th scope="col">Quantity of Items in Stock</th>
-                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -24,10 +23,6 @@
                     <td><a href="/supplier/view/{{this.name}}">{{this.phone}}</a></td>
                     <td><a href="/supplier/view/{{this.name}}">{{this.email}}</a></td>
                     <td><a href="/supplier/view/{{this.name}}">{{this.Stock_Items.length}}</a></td>
-                    <td class = "table-actions">
-                        <a href="/supplier/view/{{this.name}}" role="button"  id="view" class="button"><i class="fas fa-user-alt" aria-hidden="true"></i></a>
-                       <a href="/supplier/delete/{{this.name}}" role="button" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{this.id}}?"><i class="fas fa-trash" aria-hidden="true"></i></a>
-                    </td>
                 </tr>
             {{/each}}
         </tbody>

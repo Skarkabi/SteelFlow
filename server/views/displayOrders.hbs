@@ -15,7 +15,6 @@
                 <th scope="col">Deliver By</th>
                 <th scope="col">Priority</th>
                 <th scope="col">Status</th>
-                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -28,10 +27,6 @@
                     <td><a href="/orders/view/{{this.order_id}}">{{this.delivery_date}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{this.priority}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{this.status}}</a></td>
-                    <td class = "table-actions">
-                        <a href="/users/view/{{this.order_id}}" role="button"  id="view" class="button"><i class="fas fa-user-alt" aria-hidden="true"></i></a>
-                       <a href="/users/delete/{{this.order_id}}" role="button" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{this.id}}?"><i class="fas fa-trash" aria-hidden="true"></i></a>
-                    </td>
                 </tr>
             {{/each}}
         </tbody>
