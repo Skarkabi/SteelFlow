@@ -9,16 +9,17 @@ const mappings = {
         autoIncrement: true,
         primaryKey: true
     },
-    production_or_stock: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false
-    },
     balance: {
         type: Sequelize.DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0
     },
-    quantity: {
+    production_quantity: {
+        type: Sequelize.DataTypes.DOUBLE,
+        allowNull: false,
+        defaultValue: 0
+    },
+    stock_quantity: {
         type: Sequelize.DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0
@@ -50,9 +51,9 @@ const Item = sequelize.define('Production_Items', mappings, {
             fields: ['id'],
         }, 
         {
-            name: 'items_production_or_stock_index',
+            name: 'items_production_quantity_index',
             method: 'BTREE',
-            fields: ['production_or_stock'],
+            fields: ['production_quantity'],
         }, 
         {
             name: 'items_balance_index',
@@ -60,9 +61,9 @@ const Item = sequelize.define('Production_Items', mappings, {
             fields: ['balance'],
         }, 
         {
-            name: 'items_quantity_index',
+            name: 'items_stock_quantity_index',
             method: 'BTREE',
-            fields: ['quantity'],
+            fields: ['stock_quantity'],
         }, 
         {
             name: 'items_status_index',

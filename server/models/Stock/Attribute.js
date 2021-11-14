@@ -67,4 +67,45 @@ const Attribute = sequelize.define('Attributes', mappings, {
     ]
 });
 
+Attribute.addAttributes = newAttributes => {
+    return new Bluebird((resolve, reject) => {
+        Promise.all(newAttributes.map(newAttribute => {
+            return new Bluebird((resolve, reject) => {
+                Attribute.findOne({
+                    where: {
+                        position: newAttribute.position,
+                        name: newAttribute.name,
+                        measurment: newAttribute.measurment,
+                        ItemCategoryId: newAttribute.ItemCategoryId
+                    }
+
+                }).then(found => {
+                    if(found){
+                        reject("Category already has this attribute")
+                    }else{
+                        resolve("Can Add");
+                    }
+            
+                }).catch(err => {
+                    reject(err);
+                
+                })
+            })
+
+        })).then(() => {
+            Attribute.bulkCreate(newAttributes).then(() => {
+                resolve("Attributes Added")
+
+            }).catch(err => {
+                reject(err);
+            
+            })
+        
+        }).catch(err => {
+            reject(err);
+        })
+
+    })
+}
+
 export default Attribute;

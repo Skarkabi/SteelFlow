@@ -1,6 +1,6 @@
 import Bluebird from 'bluebird';
 const LocalStrategy = require('passport-local').Strategy;
-
+import userQueries from './models/User/User';
 module.exports = (passport) => {
   passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -10,7 +10,7 @@ module.exports = (passport) => {
     .then(async () => {
       const dbUser = await userQueries.getUserById(id);
       const user = { username: dbUser.username, }
-      user.id = dbUser.id;
+      user.id = id;
       user.profilePicture = dbUser.profilePicture;
       Object.assign(user, getUserType(dbUser))
       done(null, user);
@@ -25,7 +25,7 @@ module.exports = (passport) => {
     },
     (req, firstName, lastName, done) => Bluebird.resolve()
       .then(async () => {
-        const user = await userQueries.getUserByUserName(firstName);
+        const user = await userQueries.getUserById(firstName);
         if (!user || !await user.comparePassword(lastName)) {
           return done(null, null);
         }

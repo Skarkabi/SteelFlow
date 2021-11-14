@@ -1,16 +1,14 @@
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
+import Attribute from './Attribute';
 
 const mappings = {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
-    },
-    attribute: {
-        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['attribute'])
     },
     unit: {
         type: Sequelize.DataTypes.DOUBLE,
@@ -50,5 +48,17 @@ const ItemAttribute = sequelize.define('Item_Attributes', mappings, {
         }
     ]
 });
+
+ItemAttribute.addItemAttributes = attributes => {
+    return new Bluebird((resolve, reject) => {
+        ItemAttribute.bulkCreate(attributes).then(() => {
+            resolve("Attribute Values Added");
+
+        }).catch(err => {
+            reject(err);
+
+        })
+    })   
+}
 
 export default ItemAttribute;

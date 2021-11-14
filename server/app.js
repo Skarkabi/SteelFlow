@@ -18,7 +18,59 @@ import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access
 require('./models/Session');
 require('dotenv').config
 require('./models/index');
+import User from './models/User/User'
+import signInRouter from './routes/sign-in';
+import homePageRouter from './routes/homePage';
+import userRouter from './routes/user';
+import orderRouter from './routes/order';
+import stockRouter from './routes/stock';
+import supplierRouter from './routes/supplier';
+import Order from './models/Order/Order';
+import ItemCategory from './models/Stock/ItemCategory';
+import { reject } from 'lodash';
+import Attribute from './models/Stock/Attribute';
+import StockItem from './models/Stock/Item';
+import ItemAttribute from './models/Stock/ItemAttributes';
+import Item from './models/Stock/Item';
+import Supplier from './models/Stock/Supplier';
 
+handlebars.registerHelper("counter", function (index){
+    return index + 1;
+});
+
+handlebars.registerHelper("getElement", function (array, index, property){
+    return array[parseInt(index)][property];
+});
+
+handlebars.registerHelper("add", function (a, b){
+    return a + b;
+});
+
+handlebars.registerHelper("multiply", function (a, b){
+    return a + b;
+});
+
+
+handlebars.registerHelper('isdefined', function (value, compare) {
+    return value === compare;
+  });
+
+  handlebars.registerHelper('console', function (value){
+    return console.log("Outputting " + JSON.stringify(value));
+})
+
+handlebars.registerHelper('stringify', function (value){
+    return JSON.stringify(value);
+})
+
+handlebars.registerHelper('formatDate', function (value){
+    if(value){
+        return value.toLocaleString(undefined, {year: 'numeric', month: 'long', day: '2-digit'})
+    }else{
+        return "Pending Confirmation"
+    }
+    
+})
 const app = express();
 
 const multiHelpers = hbshelpers()
@@ -58,6 +110,13 @@ app.use(function(req, res, next){
 passportConfig(passport);
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/login', signInRouter);
+app.use('/', homePageRouter);
+app.use('/users', userRouter);
+app.use('/orders', orderRouter);
+app.use('/stock', stockRouter);
+app.use('/supplier', supplierRouter);
 
 
 app.use(function (req, res, next){
@@ -102,5 +161,132 @@ app.use((err, req, res, next) =>
     res.status(err.status || 500);
     res.render('error');
 });
+
+const secondUser = {
+    id: "100944655",
+    password: "123456789",
+    email: "saleemkarkabi@cmail.carleton.ca",
+    firstName: "Saleem",
+    lastName: "Karkabi",
+    jobTitle: "Cheif Executive Officer",
+    division: "Administration",
+    accountType: "admin",
+    department: "Administration",
+    managerId: "100944655"
+}
+
+const newUser = {
+    id: "100944656",
+    password: "123456789",
+    email: "saleemkarkabi@test.com",
+    firstName: "John",
+    lastName: "Karkabi",
+    jobTitle: "Plant Engineer",
+    division: "Mesh",
+    accountType: "employee",
+    department: "production",
+    managerId: "100944657"
+}
+
+
+const newOrder = {
+    order_id: "10002",
+    priority: "High",
+    status: "In Progress",
+    invoiced_amount: 12312.98,
+    department: "Mesh",
+    requestedBy: "100944655",
+    salesEmployeeId: "100944655",
+    salesManagerId: "100944655",
+    productionEmployeeId: "100944656",
+    productionManagerId: "100944657",
+
+}
+
+/*
+Order.createOrder(newOrder).then(output => {
+    console.log(output)
+}).catch(err => {
+    console.log(err);
+})
+*/
+
+
+const newCategory = {
+    type: "Raw Material",
+    name: "GI Steel Coil",
+    attribute_amount: 3,
+    quantity_unit: "Tons"
+}
+
+const attributeOne = {
+    ItemCategoryId: 1,
+    position: 1,
+    name: "width",
+    measurment: "mm"
+}
+
+const attributeTwo = {
+    ItemCategoryId: 1,
+    position: 2,
+    name: "length",
+    measurment: "mm"
+}
+
+const attributeThree = {
+    ItemCategoryId: 1,
+    position: 3,
+    name: "thickness",
+    measurment: "mm"
+}
+
+const itemA1 = {
+    unit: 1220,
+    AttributeId: 1,
+    ProductionItemId: null
+}
+
+const itemA2 = {
+    unit: 400,
+    AttributeId: 2,
+    ProductionItemId: null
+}
+     
+const itemA3 = {
+    unit: 3,
+    AttributeId: 3,
+    ProductionItemId: null
+}
+
+const newItem = {
+    cost: 10,
+    ItemCategoryId: 1,
+    quantity: 20,
+    itemAttributes: [itemA1, itemA2, itemA3]
+}
+
+const newSupplier = {
+    name: "T.M.I.",
+    email: "skarkabi@tmico.ae",
+    phone: "0506660187",
+
+}
+/*
+ItemCategory.findAll({
+    where: {
+        name: "GI Steel Coil"
+    },
+    include: [
+        {model: Attribute},
+        {model: StockItem, 
+        include: [
+            {model: ItemAttribute, order: [Attribute, "position", "ASC"],
+            }
+        ]},
+    ],
+    order: [[Attribute, "position", "ASC"]]
+}).then(found => {
+    console.log(found[0].Stock_Items[0].Item_Attributes);
+})*/
 
 export default app;

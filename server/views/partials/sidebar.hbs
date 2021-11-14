@@ -1,0 +1,135 @@
+<nav
+    id="sidebar"
+    >
+    <div id="accordion" class="sticky-top" style="padding-top: 10%; justify-content: space-between;"> 
+     
+        <div class="sidebar-header sticky-top" id="sidebarHeader" onclick="home()">
+            <h3 class="font-effect-shadow-multiple">STEEL-FLOW</h3>
+        </div>
+    
+      <a
+        id="headingJob"
+        class="btn btn-link collapsed"
+        data-toggle="collapse"
+        data-parent="#accordion"
+        data-target="#jobSubmenu"
+        aria-expanded="false"
+        aria-controle="jobSubmenu"
+        role="button"
+        >
+        <i class="fas fa-tools fa-lg"></i>
+        <span>Orders</span>
+      </a>
+        <!-- Collapsed content -->
+      <ul 
+        id="jobSubmenu" 
+        class="collapse" 
+        aria-labelledby="headingJob" 
+        data-parent="#accordion"
+        >
+        <li class="list-group-item py-1">
+          <a href="/orders/create" id="createJob"><i class="fas fa-plus"></i>Create New Order Request</a>
+        </li>
+        <li class="list-group-item py-1">
+          <a href="/orders/view"><i class="fab fa-buffer"></i>View Order Requests</a>
+        </li>
+      </ul>
+      <a
+        id="headingUser"
+        class="btn btn-link collapsed"
+        data-toggle="collapse"
+        data-parent="#accordion"
+        data-target="#userSubmenu"
+        aria-expanded="false"
+        aria-controls="userSubmenu"
+        role="button"
+        >
+        <i class="fas fa-user fa-lg"></i>
+        <span>Users</span>
+      </a>       
+        <!-- Collapsed content -->
+      <ul 
+        id="userSubmenu"
+        class="collapse" 
+        aria-labelledby="headingUser" 
+        data-parent="#accordion"
+        >
+        <li class="list-group-item py-1">
+            <a href="/users/create" id="createUser"><i class="fas fa-plus"></i> Create New User</a>
+          </li>
+          <li class="list-group-item py-1">
+            <a href="/users/view"><i class="fab fa-buffer"></i> View All Users</a>
+          </li>
+      </ul>
+        <!-- Collapse 2 -->
+      <a
+        id="headingConsumable"
+        class="btn btn-link collapsed"
+        data-toggle="collapse"
+        data-parent="#accordion"
+        data-target="#consumablesSubmenu"
+        aria-expanded="false"
+        aria-controls="consumablesSubmenu"
+        >
+        <i class="fas fa-boxes fa-lg"></i>
+        <span>Stock/Items</span>
+      </a>
+      <ul
+        id="consumablesSubmenu"
+        class="collapse"
+        aria-labelledby="headingConsumable" 
+        data-parent="#accordion"
+        >
+        <li class="list-group-item py-1">
+          <a href="/stock/add/category" id="addConsumable"><i class="fas fa-plus"></i> Create New Item Category</a>
+        </li>
+        <li class="list-group-item py-1">
+          <a href="/stock/add" id="addConsumable"><i class="fas fa-plus"></i> Add New Stock Item</a>
+        </li>
+        <li class="list-group-item py-1">
+          <a href="/stock/view"><i class="fab fa-buffer"></i>View Stock</a>
+        </li>
+      </ul>
+      <a
+        id="headingSupplier"
+         class="btn btn-link collapsed"
+        data-toggle="collapse"
+        data-parent="#accordion"
+        data-target="#supplierSubmenu"
+        aria-expanded="false"
+        aria-controls="supplierSubmenu"
+        role="button"
+        >
+        <i class="fas fa-store fa-lg"></i>
+        <span>Suppliers</span>
+      </a>
+        <!-- Collapsed content -->
+      <ul
+        id="supplierSubmenu"
+        class="collapse" 
+        aria-labelledby="headingJob" 
+        data-parent="#accordion"
+        >
+        <li class="list-group-item py-1">
+          <a href="/supplier/register" id="addSupplier"><i class="fas fa-plus"></i> Register New Supplier</a>
+        </li>
+        <li class="list-group-item py-1">
+          <a href="/supplier/view"><i class="fab fa-buffer"></i>View Suppliers</a>
+        </li>
+      </ul>
+      <a
+        id="headingSupplier"
+         class="btn btn-link collapsed"
+        role="button"
+        >
+        <i class="fas fa-chart-bar fa-lg"></i>
+        <span>Reports</span>
+      </a>
+    </div>
+  </nav>
+
+  <script>
+    function home(){
+      window.location.href = "/"
+    }
+  </script>

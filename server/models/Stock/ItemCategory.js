@@ -4,6 +4,9 @@ import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import Attribute from './Attribute';
 import Bom from './Bom';
+import StockItem from './Item';
+import ItemAttribute from './ItemAttributes';
+import ProducitonItem from '../Order/Item';
 
 const mappings = {
     id:{
@@ -85,4 +88,217 @@ const ItemCategory = sequelize.define('Item_Categories', mappings, {
     ]
 });
 
+ItemCategory.createCategory = (itemCategory, categoryAttributes) => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findOne({
+            where: {
+                type: itemCategory.type,
+                name: itemCategory.name,
+                attribute_amount: itemCategory.attribute_amount,
+                quantity_unit: itemCategory.quantity_unit
+            }
+        }).then(found => {
+            if(found){
+                reject("Item Category alreadt exists")
+            }else{
+                ItemCategory.create(itemCategory).then(newCategory => {
+                    categoryAttributes.map(attribute => {
+                        attribute.ItemCategoryId = newCategory.id
+                    })
+                    Attribute.addAttributes(categoryAttributes).then(() => {
+                        resolve("Item Category Added to System");
+                    }).catch(err => {
+                        newCategory.destroy().then(() => {
+                            reject(err);
+                        }).catch(err => {
+                            reject(err);
+                        })
+                        
+                    })
+                    
+                }).catch(err => {
+                    reject(err);
+                })
+            }
+        }).catch(err => {
+            reject(err)
+        })
+    })
+}
+
+ItemCategory.getAllCategoryStockItems = () => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findAll({
+            include: [
+                {model: StockItem},
+                {model: Attribute}
+            ]
+        }).then(found => {
+            found.map(category => {
+                let totalQuantity = 0;
+                let totalReserverd = 0
+                category.Stock_Items.map(item => {
+                    totalQuantity = totalQuantity + item.quantity;
+                    totalReserverd = totalReserverd + item.reserved
+                })
+                category.totalQuantity = totalQuantity
+                category.totalReserverd = totalReserverd
+            })
+            resolve(found);
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+ItemCategory.getCategoryAndAttributes = () => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findAll({
+            include: [
+                {model: Attribute}
+            ]
+        }).then(found => {
+            resolve(found)
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+ItemCategory.getProductionItems = orderId => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findAll({
+            include: [
+                {model: Attribute},
+                {model:ProducitonItem,
+                    where: {
+                        OrderOrderId: orderId
+                    },
+                    include: [
+                        {model: ItemAttribute}
+                    ],
+                    order: ["unit", "ASC"]
+                }
+            ],
+            order: [[Attribute, "position", "ASC"]]
+        }).then(found => {
+            found.map(foundItems => {
+                foundItems.Production_Items.map(item => {
+                    let attributes = [];
+                    item.Item_Attributes.map(attribute => {
+                        const foundAttribute = foundItems.Attributes.find(attr => {
+                            return attr.id === attribute.AttributeId
+                        })
+                        attribute.position = foundAttribute.position
+                        attribute.measurment = foundAttribute.measurment
+                        attributes[attribute.position - 1] = attribute
+                    })
+                    item.Item_Attributes = attributes;
+                    item.name = foundItems.name
+                    let details = ""
+                    for(let i = 0; i < attributes.length; i++){
+                        if(details !== ""){
+                            details = `${details} x ${attributes[i].unit} ${attributes[i].measurment}`
+                        }else{
+                            details = `${attributes[i].unit} ${attributes[i].measurment}`
+                        }
+                        
+                    };
+                    item.details = details
+                })
+            })
+            
+            resolve(found);
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+ItemCategory.getSpecificStock = id => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findOne({
+            where: {
+                id: id
+            },
+            include: [
+                {model: Attribute},
+                {model: StockItem,
+                    include: [
+                        {model: ItemAttribute}
+                    ],
+                    order: ["unit", "ASC"]
+                }
+            ],
+            order: [[Attribute, "position", "ASC"]]
+        }).then(found => {
+            found.Stock_Items.map(item => {
+                let attributes = [];
+                item.Item_Attributes.map(attribute => {
+                    const foundAttribute = found.Attributes.find(attr => {
+                        return attr.id === attribute.AttributeId
+                    })
+                    attribute.position = foundAttribute.position
+                    attributes[attribute.position - 1] = attribute
+                })
+                item.Item_Attributes = attributes;
+                
+            })
+            resolve(found);
+        }).catch(err => {
+            reject(err);
+        })
+    })
+    
+}
+
+ItemCategory.getSupplierItems = supplierName => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findAll({
+            include: [
+                {model: Attribute},
+                {model:StockItem,
+                    where: {
+                        SupplierName: supplierName
+                    },
+                    include: [
+                        {model: ItemAttribute}
+                    ],
+                    order: ["unit", "ASC"]
+                }
+            ],
+            order: [[Attribute, "position", "ASC"]]
+        }).then(found => {
+            let stockItems = [];
+            found.map(foundItems => {
+                foundItems.Stock_Items.map(item => {
+                    let attributes = [];
+                    item.Item_Attributes.map(attribute => {
+                        const foundAttribute = foundItems.Attributes.find(attr => {
+                            return attr.id === attribute.AttributeId
+                        })
+                        attribute.position = foundAttribute.position
+                        attribute.measurment = foundAttribute.measurment
+                        attributes[attribute.position - 1] = attribute
+                    })
+                    item.Item_Attributes = attributes;
+                    item.name = foundItems.name
+                    let details = ""
+                    for(let i = 0; i < attributes.length; i++){
+                        if(details !== ""){
+                            details = `${details} x ${attributes[i].unit} ${attributes[i].measurment}`
+                        }else{
+                            details = `${attributes[i].unit} ${attributes[i].measurment}`
+                        }
+                        
+                    };
+                    item.details = details
+                    stockItems.push(item);
+                })
+            })
+            
+            resolve(stockItems);
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
 export default ItemCategory;

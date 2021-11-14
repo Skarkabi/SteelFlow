@@ -6,6 +6,10 @@ import sequelize from '../../mySQLDB';
 import User from './User';
 
 const mappings = {
+    managerId: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false
+    },
     createdAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
@@ -31,12 +35,16 @@ const WorkFor = sequelize.define('Work_For', mappings, {
     ]
 });
 
+async function getManagerName(id){
+    return await User.findOne({where: {id: id}})
+}
 /**
  * Funciton to store manager emplyee relation in system
  * @param {*} newRelation 
  * @returns 
  */
 WorkFor.setRelation = newRelation => {
+    console.log(newRelation)
     return new Bluebird((resolve, reject) => {
         WorkFor.create(newRelation).then(() => {
             resolve("Employee Relations Saved!");
@@ -75,7 +83,15 @@ WorkFor.getEmployees = managerId => {
  */
 WorkFor.getManager = employeeId => {
     return new Bluebird((resolve, reject) => {
-
+        WorkFor.findOne({
+            where: {
+                employeeId: employeeId
+            }
+        }).then(found => {
+            User.getUserById(found.managerId).then(manager => {
+                return {managerId: manager.id, firstName: manager.firstName,  lastName: manager.lastName}
+            })
+        })
     });
 }
 

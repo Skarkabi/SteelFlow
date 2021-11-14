@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import bcrypt from 'bcrypt';
-import Bluebird from 'bluebird';
-import Sequelize from 'sequelize';
+import Bluebird, { resolve } from 'bluebird';
+import Sequelize, { Op } from 'sequelize';
 import sequelize from '../../mySQLDB';
 import Restrictions from './Restrictions'
 import WorkFor from './WorkFor';
+import Order from '../Order/Order';
 
 const mappings = {
     id: {
@@ -47,6 +48,9 @@ const mappings = {
     },
     orders: {
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['orders'])
+    },
+    manager: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON ['manager'])
     },
     department: {
         type: Sequelize.DataTypes.STRING,
@@ -122,6 +126,28 @@ const User = sequelize.define('Users', mappings, {
     ]
 });
 
+function setManager(user){
+    return new Bluebird((resolve, reject) => {
+        User.findOne({
+            where: {
+                id: user.Work_For.managerId
+            },
+            attributes: ["firstName", "lastName"],
+        }).then(found => {
+            user.setDataValue('manager', {firstName: found.firstName, lastName: found.lastName})
+            resolve(user)
+        }).catch(err => {
+            reject(err)
+        })
+    })
+    
+}
+
+function setOrders(user, orders){
+    return new Bluebird((resolve, reject) => {
+        resolve(user.setDataValue('orders', orders))
+    })
+}
 /**
  * Funciton to add user into system
  * @param {*} newUser 
@@ -129,8 +155,43 @@ const User = sequelize.define('Users', mappings, {
  */
 User.createUser = newUser => {
     return new Bluebird((resolve, reject) => {
+         //using bcrypt to encrypt the password for the user before saving
+     bcrypt.genSalt(10, function (err, salt)
+     {
+      bcrypt.hash(newUser.password, salt, function (e, hash)
+      {
+        if(e) reject (e);
+        //Checking if the user id already exists
+        User.getUserById(newUser.id).then(isUserRegestered => 
+          {
+          //If user id exists reject user input
+          if(isUserRegestered){
+            reject ("Employee with ID# " + newUser.id+ " Already Registered");
 
-    })
+          }else{
+                newUser.password = hash;
+                User.create(newUser).then(() => {
+                    WorkFor.setRelation({employeeId: newUser.id, managerId: newUser.managerId}).then(output => {
+                        resolve("Emplyee With ID# " + newUser.id + " Was Sucessfully Added!");
+                    
+                    }).catch(err => {
+                        reject(err);
+
+                    })
+                
+                }).catch(err => {
+                  reject(err);
+
+                });
+
+          }
+
+        });
+
+      });
+
+    });
+    });
 }
 
 /**
@@ -139,7 +200,11 @@ User.createUser = newUser => {
  */
 User.getAllUsers = () => {
     return new Bluebird((resolve, reject) => {
-
+        User.findAll().then(found => {
+            resolve(found)
+        }).catch(err => {
+            reject(err);
+        })
     });
 }
 
@@ -150,10 +215,91 @@ User.getAllUsers = () => {
  */
 User.getUserById = userId => {
     return new Bluebird((resolve, reject) => {
-
+        User.findOne({
+            where: {
+                id: userId
+            },
+            include:[
+                { model: WorkFor },
+                { model: Order, as: "salesEmployee", required:false,
+                    where: {
+                        requestedBy: {
+                            [Op.not]: userId
+                        },
+                    }
+                },
+                { model: Order, as: "salesManager", required:false, 
+                    where: {
+                        requestedBy: {
+                            [Op.not]: userId
+                        },
+                    }
+                },
+                { model: Order, as: "productionManager", required:false,
+                    where: {
+                        requestedBy: {
+                            [Op.not]: userId
+                        },
+                    }
+                },
+                { model: Order, as: "productionEmployee", required:false,
+                    where: {
+                        requestedBy: {
+                            [Op.not]: userId
+                        },
+                    }
+                },
+                { model: Order, as: "requestEmployee", required:false},
+            ]
+        }).then(found => {
+            if(found){
+                const orders = []
+                orders.push(...found.salesEmployee, ...found.salesManager, ...found.productionManager, ...found.productionEmployee, ...found.requestEmployee);
+                delete found.salesEmployee;
+                delete found.salesManager;
+                delete found.productionManager;
+                delete found.productionEmployee;
+                delete found.requestEmployee;
+                setRequestedBy(orders).then(finalOrders => {
+                    found.Orders = finalOrders
+                    setManager(found).then(user => {
+                        resolve(user)
+                    })   
+                })
+                 
+            }else{
+                resolve(null)
+            }
+            
+        }).catch(err => {
+            reject(err);
+        })
     });
 }
 
+function setRequestedBy(orders){
+    return new Bluebird((resolve, reject) => {
+        Promise.all(orders.map(order => {
+            return new Bluebird((resolve, reject) => {
+                User.findOne({
+                    where: {
+                        id: order.requestedBy
+                    },
+                    attributes: ["firstName", "lastName"]
+                }).then(found => {
+                    resolve(order.requested = `${found.firstName} ${found.lastName}`)
+                }).catch(err => {
+                    reject(err);
+                })
+            })
+        })).then(() => {
+            resolve(orders)
+        }).catch(err => {
+            reject(err);
+        })
+    })
+       
+}
 /**
  * Function to update a user in the system
  * @param {*} userId 
@@ -202,10 +348,27 @@ function getEmployees(userId){
  * function to retreive all orders user is involved with
  * @returns 
  */
-function getOrders(userId){
+function getOrders(user){
     return new Bluebird((resolve, reject) => {
-
+        
     });
 }
 
+/**
+ * Function to decypt password and check if it is a match
+ * @param {*} password 
+ * @returns false if password does not match
+ */
+ User.prototype.comparePassword = function (password) {
+    return Bluebird.resolve().then(() => 
+      bcrypt.compare(password, this.password)).catch(
+        (err) => {
+          return false;
+  
+        }
+  
+      );
+  
+  };
+  
 export default User;

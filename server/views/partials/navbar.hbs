@@ -1,0 +1,84 @@
+<nav 
+  class="navbar navbar-expand-lg sticky-top"
+  >
+  <!-- Container wrapper -->
+  <div class="container-fluid">
+    <!-- Toggle button -->
+    <div class="row">
+      <div class="col">
+        <a type="button" id="sidebarCollapse" class="btn">
+		      <i class="fas fa-align-left fa-lg"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Brand -->
+  <a class="navbar-brand" href="#"></a>
+  <!-- Right links -->
+  <ul class="navbar-nav ms-auto d-flex flex-row">
+    <!-- Notification dropdown -->
+	  <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+		  <li class="nav-item dropdown">
+        <a
+          class="nav-link me-3 me-lg-0 hidden-arrow"
+          href="#"
+          id="bell"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+          >
+          <span class="fa-stack">
+				    <i class="far fa-bell fa-lg fa-stack-1x"></i> 
+				    {{#unless (isdefined minimums "Satisfactory Stock Levels")}}
+				      <i class="fas fa-certificate fa-xs fa-stack-1x" style="color:Tomato"></i> 
+				    {{/unless}}
+			    </span>
+        </a>
+        <ul
+          class="dropdown-menu hidden-arrow dropdown-menu-right"
+          aria-labelledby="bell"
+          >
+        </ul>
+      </li>
+      <!-- Avatar -->
+      <li class="nav-item dropdown">
+        <a
+          class="nav-link hidden-arrow align-items-left"
+          href="#"
+          id="userInfoNav"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+          >
+          {{user.id}}
+        </a>
+        <ul
+          class="dropdown-menu hidden-arrow dropdown-menu-right"
+          aria-labelledby="userInfoNav"
+          >
+          <li><a class="dropdown-item" id="editAccount" href="/users/edit/{{user.id}}">Edit Account</a></li>
+          <li><a class="dropdown-item" href="/users/display-user/{{user.id}}" id="viewAccount"><i class="far fa-user"></i> View Account</a></li>
+          <li><a class="dropdown-item" href="/users/update/{{user.id}}" id="updateAccount"><i class="fas fa-cog"></i> View Jobs</a></li>
+          <li><a class="dropdown-item" id="logout" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+      </li>
+	  </div>
+  </ul>
+</nav>
+
+{{#if breadcrumbs}}
+	{{!-- Breadcrumb --}}
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			{{#each breadcrumbs}}
+				<li class="breadcrumb-item"><a href="{{this.url}}">{{this.name}}</a></li>
+			{{/each}}
+		</ol>
+	</nav>
+
+	<style>
+		.breadcrumb {
+			margin-top: -2rem;
+		}
+	</style>
+{{/if}}

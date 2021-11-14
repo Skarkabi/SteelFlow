@@ -3,7 +3,9 @@ import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import ItemAttribute from './ItemAttributes';
+import Attribute from './Attribute';
 import Supplier from './Supplier';
+import ItemCategory from './ItemCategory';
 
 const mappings = {
     id: {
@@ -30,10 +32,10 @@ const mappings = {
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.STRING, ['supplier_name'])
     },
     stock_attributes: {
-        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['attributes'])
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['stock_attributes'])
     },
     item_category: {
-        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['category'])
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['item_category'])
     },
     invoice: {
         type: Sequelize.DataTypes.STRING,
@@ -47,7 +49,8 @@ const mappings = {
     updatedAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
-    }
+    },
+    
 }
 
 const Item = sequelize.define('Stock_Items', mappings, {
@@ -89,5 +92,105 @@ const Item = sequelize.define('Stock_Items', mappings, {
         }
     ]
 });
+
+Item.createItem = newItem => {
+    return new Bluebird((resolve, reject) => {
+        Item.findAll({
+            where: {
+                ItemCategoryId: newItem.ItemCategoryId,
+                cost: newItem.cost
+            },
+            include: [
+                {model: ItemAttribute, attributes: ["unit", "AttributeId", "ProductionItemId"], raw: true}
+            ],
+        }).then(found => {
+            let updateItem = null
+            if(found){
+                found.map(item => {
+                    let foundAttributes = 0;
+                    item.Item_Attributes.map(attribute => {
+                        const foundItem = newItem.itemAttributes.find(attr => {
+
+                            const attObj = attribute.get({plainText: true});
+                            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA")
+                            console.log( attObj)
+                            console.log("B");
+                            console.log(attr)
+                            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA")
+                            return (JSON.stringify(attObj.unit) === attr.unit && JSON.stringify(attObj.AttributeId) === attr.AttributeId);
+                        })
+                        if(foundItem){
+                            foundAttributes = foundAttributes + 1
+                        
+                        }
+                    })
+
+                    if(foundAttributes === item.Item_Attributes.length){
+                        updateItem = item
+                    }
+                    
+                })
+            }
+            
+            if(updateItem){
+                updateItem.quantity = updateItem.quantity + newItem.quantity;
+                updateItem.save().then(() => {
+                    resolve("Item Added To Stock");
+                }).catch(err => {
+                    reject(err);
+                })
+            }else{
+                Item.create(newItem).then(createdItem => {
+                    newItem.itemAttributes.map(attribute => {
+                        attribute.StockItemId = createdItem.id
+                    });
+                    ItemAttribute.addItemAttributes(newItem.itemAttributes).then(() => {
+                        resolve("Item Added To Stock");
+                    }).catch(err => {
+                        createdItem.destroy().then(() => {
+                            reject("An Error Occured Item Could not be added")
+                        
+                        }).catch(err => {
+                            reject(err);
+
+                        });
+
+                        reject(err);
+                    
+                    });
+                    
+                }).catch(err => {
+                    reject(err);
+                
+                });
+            
+            }
+        
+        }).catch(err => {
+            reject(err);
+        
+        })
+    
+    })
+
+}
+
+Item.getStock = itemCategory => {
+    return new Bluebird((resolve, reject) => {
+        Item.findAll({
+            where: {
+                ItemCategoryId: itemCategory
+            },
+            include: [
+                {model: ItemAttribute}
+            ]
+
+        }).then(items => {
+            resolve(items)
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
 
 export default Item;

@@ -5,6 +5,7 @@ import sequelize from '../../mySQLDB';
 import Item from './Item';
 import MaterialRequest from './MaterialRequest';
 import User from '../User/User';
+import ItemCategory from '../Stock/ItemCategory';
 
 const mappings = {
     order_id: {
@@ -102,6 +103,26 @@ const Order = sequelize.define('Orders', mappings, {
     ]
 });
 
+Order.createOrder = newOrder => {
+    return new Bluebird((resolve, reject) => {
+        Order.findOne({
+            where: {
+                order_id: newOrder.order_id
+            }
+        }).then(found => {
+            if(found){
+                reject("Order Number already exists in system")
+            }else{
+                Order.create(newOrder).then(() => {
+                    resolve("Order Added in system");
+                }).catch(err => {
+                    reject(err);
+                })
+            }
+        })
+    })
+}
+
 /**
  * Function to retrieve all orders in system
  * @returns 
@@ -133,7 +154,19 @@ Order.getLastOrderId = () => {
  */
 Order.getOrderById = orderId => {
     return new Bluebird((resolve, reject) => {
-        
+        Order.findOne({
+            where: {
+                order_id: orderId
+            },
+        }).then(found => {
+            ItemCategory.getProductionItems(orderId).then(items => {
+                found.setDataValue('items', items)
+                resolve(found);
+            })
+            
+        }).catch(err => {
+            reject(err);
+        })
     });
 }
 
@@ -171,6 +204,31 @@ Order.setApproved = (orderId, approved) => {
     });
 }
 
+Order.getOrderByEmployee = (employeeId, department, position) => {
+    return new Bluebird((resolve, reject) => {
+        let condition = null;
+        if(department === "sales"){
+            if(position === "manager"){
+                condition = {salesManagerId: employeeId}
+            }else{
+                condition = {salesEmployeeId: employeeId}
+            }
+        }else if(department === "production"){
+            if(position === "manager"){
+                condition = {productionManagerId: employeeId}
+            }else{
+                condition = {productionEmployeeId: employeeId}
+            }
+        }
+        Order.findAll({
+            where: condition
+        }).then(found => {
+            resolve(found)
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
 /**
  * Function to set all material requests for specefied order
  * @param {*} orderId 

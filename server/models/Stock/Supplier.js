@@ -2,21 +2,19 @@ import _ from 'lodash';
 import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
-import Item from './Item';
+import StockItem from './Item';
+import ItemCategory from './ItemCategory';
 
 const mappings = {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
     name: {
         type: Sequelize.DataTypes.STRING,
+        primaryKey: true,
         allowNull: false
     },
     email: {
         type: Sequelize.DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "N/A"
     },
     phone: {
         type: Sequelize.DataTypes.STRING,
@@ -38,11 +36,6 @@ const mappings = {
 
 const Supplier = sequelize.define('Suppliers', mappings, {
     indexes: [
-        {
-            name: 'supplier_id_index',
-            method: 'BTREE',
-            fields: ['id'], 
-        },
         {
             name: 'supplier_name_index',
             method: 'BTREE',
@@ -70,6 +63,53 @@ const Supplier = sequelize.define('Suppliers', mappings, {
         }
     ]
 });
+
+Supplier.addSuplier = newSupplier => {
+    return new Bluebird((resolve, reject) => {
+        Supplier.create(newSupplier).then(() => {
+            resolve("Supplier Registered In System");
+        }).catch(err => {
+            reject(`Supplier ${newSupplier.name} has already been registered in the system`);
+        })
+    })
+}
+
+Supplier.getAllSuppliers = () => {
+    return new Bluebird((resolve, reject) => {
+        Supplier.findAll({
+            include: [
+                {model: StockItem}
+            ]
+        }).then(found => {
+            resolve(found);
+        }).catch(err => {
+            console.log(err);
+        })
+    })
+}
+
+Supplier.getSpecificSupplier = supplierName => {
+    return new Bluebird((resolve, reject) => {
+        Supplier.findOne({
+            where: {
+                name: supplierName
+            },
+        }).then(found => {
+            let totalValue = 0
+            ItemCategory.getSupplierItems(supplierName).then(items => {
+                items.map(item => {
+                    totalValue = (item.cost * item.quantity) + totalValue;
+                })
+                items.totalValue = totalValue
+                found.setDataValue('items', items)
+                
+                resolve(found);
+            })
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
 
 
 export default Supplier;

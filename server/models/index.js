@@ -10,18 +10,16 @@ import StockItems from './Stock/Item';
 import ItemAttribute from './Stock/ItemAttributes';
 import ItemCategory from './Stock/ItemCategory';
 import Supplier from './Stock/Supplier';
+import Order from './Order/Order';
 
 Users.hasOne(Restrictions);
-Users.hasOne(WorkFor);
-Users.hasMany(Orders);
+Users.hasOne(WorkFor, {foreignKey: "employeeId"});
+Users.hasMany(Orders, { foreignKey: "requestedBy", as: "requestEmployee" });
+Users.hasMany(Orders, { foreignKey: "salesEmployeeId", as: "salesEmployee" });
+Users.hasMany(Orders, { foreignKey: "salesManagerId", as: "salesManager" });
+Users.hasMany(Orders, { foreignKey: "productionManagerId", as: "productionManager" });
+Users.hasMany(Orders, { foreignKey: "productionEmployeeId", as: "productionEmployee" });
 Restrictions.belongsTo(Users);
-WorkFor.belongsTo(Users, { as: "manager" });
-WorkFor.belongsTo(Users, { as: "employee" })
-Orders.belongsTo(Users, { as: "sales_employee" });
-Orders.belongsTo(Users, { as: "sales_manager" });
-Orders.belongsTo(Users, { as: "production_employee" }); 
-Orders.belongsTo(Users, { as: "production_manager" });
-
 Orders.hasMany(MaterialRequest);
 Orders.hasMany(OrderItems);
 MaterialRequest.belongsTo(Orders);
@@ -30,7 +28,7 @@ MaterialRequest.hasMany(OrderItems);
 OrderItems.belongsTo(MaterialRequest);
 
 ItemCategory.hasMany(StockItems);
-ItemCategory.hasOne(Attribute);
+ItemCategory.hasMany(Attribute);
 ItemCategory.hasOne(Bom);
 ItemCategory.hasMany(OrderItems);
 StockItems.belongsTo(ItemCategory);
@@ -42,9 +40,10 @@ StockItems.hasMany(ItemAttribute);
 OrderItems.hasMany(ItemAttribute);
 ItemAttribute.belongsTo(StockItems);
 ItemAttribute.belongsTo(OrderItems);
+ItemAttribute.belongsTo(Attribute);
 
-StockItems.hasOne(Supplier);
-Supplier.belongsTo(StockItems);
+StockItems.belongsTo(Supplier);
+Supplier.hasMany(StockItems);
 
 export default {
     Users, 

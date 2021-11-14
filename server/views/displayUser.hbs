@@ -1,0 +1,185 @@
+<div class="col-md-12">
+    {{!-- Action Buttons --}}
+    <div class="header-action-buttons pull-right">
+        {{#if user.admin}}
+        <a href="/users/delete/{{existingUser.id}}" role="button" class="btn btn-danger delete" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{existingUser.id}}?"><i class="fas fa-trash" aria-hidden="true"></i> Delete</a>
+        {{/if}}
+    </div>
+
+    {{!-- User Information --}}
+    <div class="section-wrapper">
+        <div class="section-title">
+            <h4><i class="fas fa-user-alt"></i> User Information</h4>
+            <hr class="my-3">
+        </div>
+        <div class="section-content">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <div class="form-row" style="padding-bottom: 15px;">
+                        <div class="form-group col">
+                            <button type="button" id="staff" name="staff" class="btn btn-outline-primary" style="margin-right: 15px;">View Staff</button>
+                            <div class="btn-group" role="group" style="float:right" aria-label="Basic example">
+                                <button type="button" id="update" name="update" class="btn btn-outline-success">Update</button>
+                                <button type="button" id="delete" name="delete" class="btn btn-outline-danger">Delete</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col display-user">
+                            <label for="id">Employee ID</label>
+                            <input type="text" class="form-control" name="id" id="id" value="{{existingUser.id}}" readonly>
+                        </div>
+                        <div class="form-group col display-user">
+                            <label for="managerId">Manager ID</label>
+                            <input type="text" class="form-control" name="managerId" id="managerId" value="{{existingUser.Work_For.managerId}}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col display-user">
+                            <label for="firstName">First Name</label>
+                            <input type="text" class="form-control" name="firstName" id="firstName" value="{{existingUser.firstName}}" readonly>
+                        </div>
+                        <div class="form-group col display-user">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" class="form-control" name="lastName" id="lastName" value="{{existingUser.lastName}}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col display-user">
+                            <label for="managerFirstName">Manager First Name</label>
+                            <input type="text" class="form-control" name="managerFirstName" id="managerFirstName" value="{{existingUser.manager.firstName}}" readonly>
+                        </div>
+                        <div class="form-group col display-user">
+                            <label for="managerLastName">Manager Last Name</label>
+                            <input type="text" class="form-control" name="managerLastName" id="managerLastName" value="{{existingUser.manager.lastName}}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col display-user">
+                            <label for="division">Division</label>
+                            <input type="text" class="form-control" name="division" id="division" value="{{existingUser.division}}" readonly>
+                        </div>
+                        <div class="form-group col display-user">
+                            <label for="department">Department</label>
+                            <input type="text" class="form-control" name="department" id="department" value="{{existingUser.department}}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col display-user">
+                            <label for="jobTitle">Job Title</label>
+                            <input type="text" class="form-control" name="jobTitle" id="jobTitle" value="{{existingUser.jobTitle}}" readonly>
+                        </div>
+                        <div class="form-group col display-user">
+                            <label for="email">E-mail</label>
+                            <input type="text" class="form-control" name="email" id="email" value="{{existingUser.email}}" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-8" style="padding-left: 20px">
+                    <ul class="nav" style="background-color: #222222;">
+                        <li class="nav-item active">
+                            <a class="nav-link active" href="#">All</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Not Started</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">In Progress</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Completed</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Pending</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Requested</a>
+                        </li>
+                    </ul>
+                     <div id="ordersList" name="ordersList">
+                         {{>userAllOrders}}
+                     </div>
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Courses --}}
+    <div class="section-wrapper" hidden>
+        <div class="section-title">
+            <h4><i class="fas fa-cogs"></i> Assigned Jobs</h4>
+            <hr class="my-3">
+        </div>
+        <div class="section-content">
+            <table id="filterable-table" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Date Created</th>
+                        <th scope="col">Job #</th>
+                        <th scope="col">Vehicle #</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Status</th>
+                        {{#if showPii}}
+                        <th scope="col">Actions</th>
+                        {{/if}}
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each courses}}
+                    <tr>
+                        <td><a href="/courses/course/{{this._id}}" id="courseCode-{{this.code}}">{{this.code}}</a></td>
+                        <td><a href="/courses/course/{{this._id}}">{{this.section}}</a></td>
+                        <td><a href="/courses/course/{{this._id}}">{{this.instructorFullName}}</a></td>
+                        <td><a href="/courses/course/{{this._id}}">{{this.termName}}</a></td>
+                        {{#if ../showPii}}
+                        <td class="table-actions">
+                            <a href="/gradeBooks/{{this._id}}/{{../existingUser._id}}" id="viewGrade-{{this.code}}"><i class="far fa-hand-spock"></i> View Grades</a>
+                        </td>
+                        {{/if}}
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('.nav-link').click(function(){
+
+            $('.nav-link.active').removeClass('active')
+            $(this).addClass('active')
+
+            const selectedOption = $(this).text()
+            $("#ordersList").html("")
+
+            if(selectedOption === "All"){
+                $("#ordersList").append(`{{>userAllOrders}}`)
+            }else if(selectedOption === "Not Started"){
+                $("#ordersList").append(`{{>userNotStartedOrders}}`)
+            }else if(selectedOption === "In Progress"){
+                $("#ordersList").append(`{{>userInProgressOrders}}`)
+            }else if(selectedOption === "Completed"){
+                $("#ordersList").append(`{{>userCompletedOrders}}`)
+            }else if(selectedOption === "Pending"){
+                $("#ordersList").append(`{{>userPendingOrders}}`)
+            }else if(selectedOption === "Requested"){
+                $("#ordersList").append(`{{>userRequestedOrders}}`)
+            }
+        })
+    })
+</script>
+ <style>
+  
+        .nav-item>a:hover {
+           background-color: #BF2B45;
+        }
+  
+        /*code to change background color*/
+        .nav-item>a.nav-link.active {
+            background-color: #BF2B45;
+        }
+    </style>
