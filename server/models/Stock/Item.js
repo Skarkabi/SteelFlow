@@ -110,13 +110,7 @@ Item.createItem = newItem => {
                     let foundAttributes = 0;
                     item.Item_Attributes.map(attribute => {
                         const foundItem = newItem.itemAttributes.find(attr => {
-
                             const attObj = attribute.get({plainText: true});
-                            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA")
-                            console.log( attObj)
-                            console.log("B");
-                            console.log(attr)
-                            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA")
                             return (JSON.stringify(attObj.unit) === attr.unit && JSON.stringify(attObj.AttributeId) === attr.AttributeId);
                         })
                         if(foundItem){
