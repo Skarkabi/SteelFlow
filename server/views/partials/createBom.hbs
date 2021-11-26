@@ -1,0 +1,40 @@
+<div class="col-md-12">
+    <form action="POST" method="POST">
+        {{!-- User Information --}}
+        <div class="section-wrapper">
+            <div class="section-title">
+                <h4><i class="fas fa-store-alt"></i> B.O.M.</h4>
+                <hr class="my-3">
+            </div>
+            <div class="section-content">
+                <div class="form-row">
+                    <div class="form-group col required">
+                        <label for="materialType">Material Type</label>
+                        <select type="text" id="materialType" name="materialType" class="form-control" onchange="setItems('{{items}}')" required>
+                            {{#each types}}
+                                <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                            
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form group col">
+                        <div id="materialItems" style="height:100%; padding:16px; padding-bottom:0px" name="materialItems">
+                       
+                        </div>
+                    </div>
+                    <div class="form group col">
+                        <div id="selectedItems" style="height:100%; padding:16px; padding-bottom:0px" name="selectedItems">
+                        </div>
+                    </div>
+                </div>
+                    
+           
+            </div>
+            <div style="float:right; padding-top:10px">
+                <button type="button" id="addBom" name="addBom" class="btn btn-primary justfiy-content-end" onclick="confirmBom()"><i class="far fa-save"></i> Add</button>
+            </div>
+        </div>
+    </form>
+</div>

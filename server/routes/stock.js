@@ -110,13 +110,16 @@ router.post('/add', (req, res, next) => {
 })
 
 router.post('/add/category', (req, res, next) => {
+    console.log("THISSSSS");
+
     const newCategory = {
         type: req.body.itemType,
         name: req.body.categoryName,
         attribute_amount: req.body.attributeNumber,
         quantity_unit: req.body.unitType
     }
-
+    const newBom = JSON.parse(req.body.BomAdded);
+    console.log(newBom);
     let newAttribtues = [];
     if(Array.isArray(req.body.attributeName)){
         for(let i = 0; i < req.body.attributeName.length; i++){
@@ -137,25 +140,39 @@ router.post('/add/category', (req, res, next) => {
     }
     
 
-    ItemCategory.createCategory(newCategory, newAttribtues).then(output => {
+    ItemCategory.createCategory(newCategory, newAttribtues, newBom).then(output => {
         req.flash('success_msg', output);
         res.redirect('/stock/add/category')
     }).catch(err => {
+        console.log(err);
         req.flash('error_msg', err);
         req.session.save(function() {
             res.redirect('/stock/add/category')
         });
     })
     console.log(req.body);
+
 })
 
 router.get('/add/category', (req, res, next) => {
-    res.render('addItemCategory', {
-        title:"Create Item Category",
-        jumbotronDescription: "Add a new Item Category to System",
-        user: req.user,
-        msgType: req.flash()
-    });
+    ItemCategory.getAllCategoryStockItems().then(items => {
+        let jsonItems = [];
+        let categoryTypes = items.map(item => {
+            jsonItems.push({name: item.name, id: item.id, type: item.type});
+            return item.type;
+        });
+        let types = [ ...new Set(categoryTypes)]
+        console.log(types);
+        res.render('addItemCategory', {
+            title:"Create Item Category",
+            jumbotronDescription: "Add a new Item Category to System",
+            user: req.user,
+            items: JSON.stringify(jsonItems),
+            types: types,
+            msgType: req.flash()
+        });
+    })
+    
 })
 
 export default router;

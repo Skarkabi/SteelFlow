@@ -27,18 +27,75 @@
                         <input type="text" id="unitType" name="unitType" class="form-control" required>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <input type="text" id="BomAdded" name="BomAdded" class="form-control"  style="border: 0;" value="B.O.M. Added">
+                        <input type="text" id="confirmBomAdded" name="confirmBomAdded"  class="form-control"  style="border: 0;" value="">
+                    </div>
+                </div>
                 <div id="startSpot" name="startSpot">
             
                 </div>
                  <div style="float:right;">
                 <button type="submit" id="submit" name="submit" class="btn btn-primary justfiy-content-end"><i class="far fa-save"></i> Confirm</button>
+                <button type="button" id="bom" name="bom" class="btn btn-primary justfiy-content-end" onclick="requestModel()"><i class="far fa-save"></i> B.O.M.</button>
+                
             </div>
+                <div id="requestModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <div id="requestContent"></div>
+
+                    </div>
+                </div>
+                  <!-- Modal content -->
             </div>
         </div>
     </form>
 </div>
 
 <script>
+
+    function requestModel(){
+        var modal = document.getElementById("requestModal");
+        var mContent = document.getElementById("requestContent")
+        // Get the button that opens the modal
+        var btn = document.getElementById("bom");
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        // When the user clicks on the button, open the modal
+        modal.style.display = "block";
+        mContent.insertAdjacentHTML("beforeend",`{{>createBom}}`
+        )
+        span.onclick = function() {
+            modal.style.display = "none";
+            mContent.innerHTML='';
+        }
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                mContent.innerHTML='';
+            }
+        }
+
+        if(document.getElementById("confirmBomAdded").value === "true"){
+            let existingBom = JSON.parse(document.getElementById("BomAdded").value)
+            existingBom.map(item => {
+                selectItem(item.name, item.id)
+            })
+            $('#materialItems').css({"border-color": "#00b300", 
+             "border-width":"1px", 
+             "border-style":"solid"});
+
+             $('#selectedItems').css({"border-color": "#C70000", 
+             "border-width":"1px", 
+             "border-style":"solid"});
+            console.log(existingBom);
+        }
+        
+   }
+
     $(document).ready(function(){
         $('#attributeNumber').change(function(){
             $("#startSpot").html("")
@@ -61,7 +118,106 @@
             }
         })
     })
+    /*
+    $(document).ready(function(){
+        $(document).on("change", "#materialType", function(){
+            let selectedType = $("#materialType").val();
+            {{#each items}}
+             $("#materialItems").append(`
+                
+                <div class="form-row">
+                        <div class="form-group col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                    {{this.name}}
+                                    {{this.type}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+            `);
+            {{/each}}
+           
+           
+        })
+         
+    })*/
+        
+    function setItems(items){
+        const jsonItems = JSON.parse(items);
+        const type = document.getElementById("materialType").value;
+        const filteredItems = jsonItems.filter(item => {
+            return item.type === type;
+        })
+        $("#materialItems").html('');
+        filteredItems.map(item => {
+             $("#materialItems").append(`
+                
+                <div class="form-row">
+                        <div class="form-group col">
+                            <div class="form-control" style="border: 0;">
+                                <label value="${item.id}" id="add ${item.id}"><i class="fas fa-plus-circle" style="color: #00b300" onclick="selectItem('${item.name}', '${item.id}')"></i> ${item.name} </label>
+                            </div>
+                        </div>
+                    </div>
+            `);
+        })
+        $('#materialItems').css({"border-color": "#00b300", 
+             "border-width":"1px", 
+             "border-style":"solid"});
 
+             $('#selectedItems').css({"border-color": "#C70000", 
+             "border-width":"1px", 
+             "border-style":"solid"});
+        console.log(filteredItems);
+    }
+
+    function selectItem(name, id){
+        const itemToAdd = document.getElementById(`remove ${id}`);
+        console.log(itemToAdd);
+        if(itemToAdd === null){
+            $("#selectedItems").append(`
+                <div id="remove ${id} div" class="form-row">
+                    <div class="form-group col">
+                        <div class="form-control" style="border: 0;">
+                            <label value="${id}" id="remove ${id}"><i class="fas fa-times-circle" style="color: #C70000" onclick="removeItem(${id})"></i> ${name} </label>
+                            <input value="${id}" placeholder="${name}" hidden>
+                        </div>
+                    </div>
+                </div>
+            `)
+        }
+
+    }
+
+    function removeItem(id){
+        const itemDiv = document.getElementById(`remove ${id} div`)
+        console.log(itemDiv);
+        itemDiv.remove();
+
+    }
+
+    function confirmBom(){
+        let bomMaterials = document.getElementById("selectedItems").getElementsByTagName("input");
+        let bom = []
+        for(let i = 0; i < bomMaterials.length; i++){
+            bom.push({id: bomMaterials[i].value, name: bomMaterials[i].placeholder})
+        }
+        console.log(bom);
+        document.getElementById("BomAdded").value = JSON.stringify(bom)
+        if(bom.length === 0){
+            document.getElementById("confirmBomAdded").value = "";
+        }else {
+            document.getElementById("confirmBomAdded").value = "true";
+        }
+        
+        var modal = document.getElementById("requestModal");
+        var mContent = document.getElementById("requestContent");
+        modal.style.display = "none";
+        mContent.innerHTML='';
+        
+    }
     /**
     * Displays the password
     * Retrieved from https://www.w3schools.com/howto/howto_js_toggle_password.asp

@@ -71,6 +71,11 @@ handlebars.registerHelper('formatDate', function (value){
     }
     
 })
+
+handlebars.registerHelper("getArray", function(array, spot){
+    return (array[parseInt(spot)]);
+})
+
 const app = express();
 
 const multiHelpers = hbshelpers()

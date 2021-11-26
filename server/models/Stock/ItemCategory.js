@@ -88,7 +88,7 @@ const ItemCategory = sequelize.define('Item_Categories', mappings, {
     ]
 });
 
-ItemCategory.createCategory = (itemCategory, categoryAttributes) => {
+ItemCategory.createCategory = (itemCategory, categoryAttributes, categoryBom) => {
     return new Bluebird((resolve, reject) => {
         ItemCategory.findOne({
             where: {
@@ -102,11 +102,23 @@ ItemCategory.createCategory = (itemCategory, categoryAttributes) => {
                 reject("Item Category alreadt exists")
             }else{
                 ItemCategory.create(itemCategory).then(newCategory => {
+                    categoryBom.map(bom => {
+                        bom.ItemCategoryId = newCategory.id;
+                    })
                     categoryAttributes.map(attribute => {
                         attribute.ItemCategoryId = newCategory.id
                     })
                     Attribute.addAttributes(categoryAttributes).then(() => {
-                        resolve("Item Category Added to System");
+                        Bom.createBom(categoryBom).then(() => {
+                            resolve("Item Category Added to System");
+                        }).catch(err => {
+                            newCategory.destroy().then(() => {
+                                reject(err);
+                            }).catch(err => {
+                                reject(err);
+                            })
+                        })
+                        
                     }).catch(err => {
                         newCategory.destroy().then(() => {
                             reject(err);

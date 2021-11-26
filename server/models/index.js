@@ -29,7 +29,7 @@ OrderItems.belongsTo(MaterialRequest);
 
 ItemCategory.hasMany(StockItems);
 ItemCategory.hasMany(Attribute);
-ItemCategory.hasOne(Bom);
+ItemCategory.hasMany(Bom);
 ItemCategory.hasMany(OrderItems);
 StockItems.belongsTo(ItemCategory);
 Attribute.belongsTo(ItemCategory);

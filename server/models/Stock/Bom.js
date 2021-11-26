@@ -9,12 +9,14 @@ const mappings = {
         primaryKey: true,
         autoIncrement: true
     },
-    attribute: {
-        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['attribute'])
+    item_id:{
+        type: Sequelize.DataTypes.INTEGER,
     },
-    attribute_unit: {
+    measurment: {
+        type: Sequelize.DataTypes.STRING,
+    },
+    quantity: {
         type: Sequelize.DataTypes.DOUBLE,
-        allowNull: false
     },
     createdAt: {
         type: Sequelize.DataTypes.DATE,
@@ -34,9 +36,19 @@ const Bom = sequelize.define('Boms', mappings, {
             fields: ['id'],   
         },
         {
-            name: 'bom_attribute_unit_index',
+            name: 'bom_item_id_index',
             method: 'BTREE',
-            fields: ['attribute_unit'],   
+            fields: ['item_id'],   
+        },
+        {
+            name: 'bom_measurment_index',
+            method: 'BTREE',
+            fields: ['measurment'],   
+        },
+        {
+            name: 'bom_quantity_index',
+            method: 'BTREE',
+            fields: ['quantity'],   
         },
         {
             name: 'bom_createdAt_index',
@@ -50,5 +62,16 @@ const Bom = sequelize.define('Boms', mappings, {
         }
     ]
 });
+
+Bom.createBom = bom => {
+    return new Bluebird((resolve, reject) => {
+        Bom.bulkCreate(bom).then(() => {
+            resolve("Bom Added");
+        }).catch(err => {
+            reject(err);
+        })
+    })
+    
+}
 
 export default Bom;
