@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Bluebird from 'bluebird';
-import Sequelize from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import sequelize from '../../mySQLDB';
 import Attribute from './Attribute';
 import Bom from './Bom';
@@ -17,6 +17,11 @@ const mappings = {
     type:{
         type: Sequelize.DataTypes.STRING,
         allowNull: false
+    },
+    division: {
+        type: Sequelize.DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "All"
     },
     bom: {
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['bom'])
@@ -57,6 +62,11 @@ const ItemCategory = sequelize.define('Item_Categories', mappings, {
         },
         {
             name: 'item_category_type_index',
+            method: 'BTREE',
+            fields: ['type'], 
+        },
+        {
+            name: 'item_category_division_index',
             method: 'BTREE',
             fields: ['type'], 
         },
@@ -102,12 +112,16 @@ ItemCategory.createCategory = (itemCategory, categoryAttributes, categoryBom) =>
                 reject("Item Category alreadt exists")
             }else{
                 ItemCategory.create(itemCategory).then(newCategory => {
-                    categoryBom.map(bom => {
-                        bom.ItemCategoryId = newCategory.id;
-                    })
+                    if(categoryBom){
+                        categoryBom.map(bom => {
+                            bom.ItemCategoryId = newCategory.id;
+                        });
+                    }
                     categoryAttributes.map(attribute => {
                         attribute.ItemCategoryId = newCategory.id
                     })
+                    console.log("MY BOM *************");
+                    console.log(categoryBom);
                     Attribute.addAttributes(categoryAttributes).then(() => {
                         Bom.createBom(categoryBom).then(() => {
                             resolve("Item Category Added to System");
@@ -141,6 +155,37 @@ ItemCategory.createCategory = (itemCategory, categoryAttributes, categoryBom) =>
 ItemCategory.getAllCategoryStockItems = () => {
     return new Bluebird((resolve, reject) => {
         ItemCategory.findAll({
+            include: [
+                {model: StockItem},
+                {model: Attribute}
+            ]
+        }).then(found => {
+            found.map(category => {
+                let totalQuantity = 0;
+                let totalReserverd = 0
+                category.Stock_Items.map(item => {
+                    totalQuantity = totalQuantity + item.quantity;
+                    totalReserverd = totalReserverd + item.reserved
+                })
+                category.totalQuantity = totalQuantity
+                category.totalReserverd = totalReserverd
+            })
+            resolve(found);
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+ItemCategory.getDivisionCategoryStockItems = division => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findAll({
+            where: {
+                division: division,
+                type: {
+                    [Op.not]: "Raw Material"
+                }
+            },
             include: [
                 {model: StockItem},
                 {model: Attribute}

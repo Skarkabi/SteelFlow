@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Bluebird from 'bluebird';
-import Sequelize from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import sequelize from '../../mySQLDB';
 import Item from './Item';
 import MaterialRequest from './MaterialRequest';
@@ -103,7 +103,7 @@ const Order = sequelize.define('Orders', mappings, {
     ]
 });
 
-Order.createOrder = newOrder => {
+Order.createOrder = (newOrder, orderItems) => {
     return new Bluebird((resolve, reject) => {
         Order.findOne({
             where: {
@@ -113,8 +113,22 @@ Order.createOrder = newOrder => {
             if(found){
                 reject("Order Number already exists in system")
             }else{
-                Order.create(newOrder).then(() => {
-                    resolve("Order Added in system");
+                Order.create(newOrder).then(created => {
+                    orderItems.map(item => {
+                        item.OrderOrderId = created.order_id
+                    })
+                    Promise.all(orderItems.map(item => {
+                        Item.createOrderItem(item).then(output =>{
+                            return output
+                        }).catch(err => {
+                            return err
+                        })
+                    })).then(() =>{
+                        resolve("Order Added in system");
+                    }).catch(err => {
+                        reject(err);
+                    });
+                    
                 }).catch(err => {
                     reject(err);
                 })
@@ -129,7 +143,9 @@ Order.createOrder = newOrder => {
  */
 Order.getAllOrders = () => {
     return new Bluebird((resolve, reject) => {
-        Order.findAll().then(orders => {
+        Order.findAll({
+            order: [['createdAt', 'DESC']]
+        }).then(orders => {
             resolve(orders);
         }).catch(err => {
             reject(err);
@@ -143,10 +159,42 @@ Order.getAllOrders = () => {
  */
 Order.getLastOrderId = () => {
     return new Bluebird((resolve, reject) => {
-
+        Order.findOne({
+            order: [ [ 'createdAt', 'DESC' ]],
+        }).then(found => {
+            if(!found){
+                resolve(10001);
+            }
+            const orderNumber = parseInt(found.order_id) + 1
+            resolve(orderNumber);
+        }).catch(err => {
+            reject(err)
+        });
     })
 }
 
+Order.approveOrder = (employeeId, department, orderId) => {
+    return new Bluebird((resolve, reject) => {
+        Order.findOne({
+            where: {order_id: orderId}
+        }).then(found => {
+            if(department === "Sales" ){
+                found.approved = true;
+                found.status = "Pending Production Approval"
+            }else if(department === "Production"){
+                found.productionManagerId = employeeId
+                found.status = "Not Started"
+            }
+            found.save().then(() => {
+                resolve("Order Status has been updated");
+            }).catch(err => {
+                reject(err);
+            })
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
 /**
  * Function to retrieve specific order in system
  * @param {*} orderId 
@@ -204,6 +252,42 @@ Order.setApproved = (orderId, approved) => {
     });
 }
 
+Order.getPendingOrders = (employeeId, position, division, department) => {
+    return new Bluebird((resolve, reject) => {
+        if(position !== "employee"){
+            if(department === "Sales"){
+                Order.findAll({
+                    where:{
+                        [Op.or]: {
+                            productionManagerId: employeeId,
+                            salesManagerId: employeeId,
+                        },
+                        status: "Pending Sales Approval"
+                    }
+                }).then(found => {
+                    resolve(found);
+                }).catch(err => {
+                    reject(err);
+                })
+            }else{
+                Order.findAll({
+                    where:{
+                        department: division,
+                        approved: true,
+                        productionManagerId: null
+                    }
+                }).then(found => {
+                    resolve(found);
+                }).catch(err => {
+                    reject(err);
+                })
+            }
+           
+        }else{
+            reject("Employee is can not approve any orders");
+        }
+    })
+}
 Order.getOrderByEmployee = (employeeId, department, position) => {
     return new Bluebird((resolve, reject) => {
         let condition = null;

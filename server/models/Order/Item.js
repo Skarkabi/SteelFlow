@@ -2,6 +2,7 @@ import _ from 'lodash';
 import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
+import ItemAttribute from '../Stock/ItemAttributes';
 
 const mappings = {
     id: {
@@ -93,10 +94,18 @@ const Item = sequelize.define('Production_Items', mappings, {
  * @param {*} newOrderItem 
  * @returns 
  */
-Item.createOrderItem = newOrderItem => {
+Item.createOrderItem = newOrderItems => {
     return new Bluebird((resolve, reject) => {
-        Item.create(newOrderItem).then(() => {
-            resolve('Item added to order!');
+        Item.create(newOrderItems).then(created => {
+            newOrderItems.attributes.map(attribute => {
+                attribute.ProductionItemId = created.id
+            })
+            ItemAttribute.addItemAttributes(newOrderItems.attributes).then(() =>{
+                resolve('Item added to order!');
+            }).catch(err => {
+                reject(err);
+            });
+            
         }).catch(err => {
             reject(err);
         });

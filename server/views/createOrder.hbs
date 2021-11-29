@@ -1,0 +1,223 @@
+<div class="col-md-12">
+    <form action="{{action}}" method="POST">
+        {{!-- User Information --}}
+        <div class="section-wrapper">
+            <div class="section-title">
+                <h4><i class="fas fa-user-alt"></i> Request Production Order</h4>
+                <hr class="my-3">
+            </div>
+            <div class="section-content">
+                <div class="form-row">
+                    <div class="form-group col required">
+                        <label for="orderNumber">Order Number</label>
+                        <input type="text" id="orderNumber" name="orderNumber" class="form-control" readonly required value="{{orderNumber}}">
+                    </div>
+                    <div class="form-group col required">
+                        <label for="id">Division</label>
+                        <input type="text" id="division" name="division" class="form-control" value="Mesh" readonly required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col required">
+                        <label for="deliverBy">Delivery Date</label>
+                        <input type="date" id="deliverBy" name="deliverBy" class="form-control" value="" required>
+                    </div>
+                    <div class="form-group col required">
+                        <label for="priority">Priority</label>
+                        <input type="text" value="" id="priority" name="priority" class="form-control" required>
+                    </div>
+                     <div class="form-group col required">
+                        <label for="invoiced">Invoiced</label>
+                        <input type="number" value="" id="invoiced" name="invoiced" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <table id="filterable-table" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Category</th>
+        
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each items}}
+                                    <tr onclick="requestModel('{{this.name}}', '{{this.Attributes}}', '{{this.id}}')">
+                                        <td><a> {{counter @index}}</a></td>
+                                        <td><a id="userId-{{this.id}}">{{this.type}}</a></td>
+                                        <td><a >{{this.name}}</a></td>
+                                    </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="requestModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close">&times;</span>
+                            <div id="requestContent"></div>
+
+                        </div>
+                    </div>
+                  <!-- Modal content -->
+                </div>
+            </div>
+            <div class="form-row">
+                 <div class="form-group col">
+                         <table id="filterable-table-next"  class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Item</th>
+                                    <th scope="col">Details</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productionItems" name="productionItems">
+                                  
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            <div style="float:right;">
+                <button type="submit" id="submit" name="submit" class="btn btn-primary justfiy-content-end"><i class="far fa-save"></i> {{submitButtonText}}</button>
+            </div>
+            
+        </div>
+    </form>
+</div>
+
+<script>
+    let attributeNumber = 0;
+    let orderItems = [];
+    let selectedCategory = null
+    function requestModel(category, itemAttributes, categoryId){
+        attributeNumber = 0;
+         console.log("Gellp");
+         console.log(categoryId);
+         selectedCategory = categoryId;
+         let attributes = JSON.parse(itemAttributes).reverse()
+         console.log((attributes));
+        var modal = document.getElementById("requestModal");
+        var mContent = document.getElementById("requestContent")
+        // Get the button that opens the modal
+        var btn = document.getElementById("bom");
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        // When the user clicks on the button, open the modal
+        modal.style.display = "block";
+        mContent.insertAdjacentHTML("beforeend",`{{>orderItemDetails}}`
+        )
+        let count = 0;
+        for(let i = 0; i < attributes.length; i++){
+            if(i % 2 === 0){
+                count = i;
+                $("#startSpot").append(`<div name="attribute-${count}" id="attribute-${count}" class="form-row"></div>`);
+            }
+            let attribute = attributes[i]
+                $(`#attribute-${count}`).append( `
+                    <div class="form-group col required" style="">
+                        <label for="attributes-${attributeNumber}">${attribute.name}</label>
+                        <input type=text id="attributes-${attributeNumber}" name="attributes" class="form-control" required>
+                        <input type=text id="attributeIds-${attributeNumber}" name="attributeIds" class="form-control" value="${attribute.id}" hidden>
+                        <input type=text id="attributeMeasurment-${attributeNumber}" name="attributeMeasurment" class="form-control" value="${attribute.measurment}" hidden>
+                    </div>`)
+            attributeNumber++;
+        }
+        document.getElementById('itemCategory').value=category;
+        span.onclick = function() {
+            modal.style.display = "none";
+            mContent.innerHTML='';
+        }
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                mContent.innerHTML='';
+            }
+        }
+    }
+
+    $(document).ready(function(){
+        $(document).on("click", "#confirmDetails", function(e){
+            let modal = document.getElementById("requestModal");
+            let mContent = document.getElementById("requestContent")
+            let itemAttributesArray = []
+            let valid = true;
+            if($("#quantity").val() === ""){
+                valid = false;
+            }
+            for(let i = 0; i < attributeNumber; i++){
+                if( $(`#attributes-${i}`).val() === ""){
+                    valid = false;
+                }
+            }
+            if(valid){
+                if( $('.dataTables_empty').length > 0){
+                    $('#filterable-table-next >tbody >tr').remove();
+                }
+                let rowCount = $('#filterable-table-next >tbody >tr').length + 1;
+                let itemDetails = $(`#attributes-${0}`).val() + " " + $(`#attributeMeasurment-${0}`).val();
+                itemAttributesArray.push({unit: $(`#attributes-${0}`).val(), AttributeId: $(`#attributeIds-${0}`).val()})
+                for(let i = 1; i < attributeNumber; i++){
+                    itemDetails = itemDetails + " x " + $(`#attributes-${i}`).val() + " " + $(`#attributeMeasurment-${i}`).val();
+                    itemAttributesArray.push({unit: $(`#attributes-${i}`).val(), AttributeId: $(`#attributeIds-${i}`).val()})
+                }
+                let table = $('#filterable-table-next').DataTable();
+                table.row.add([
+                    rowCount,
+                    $("#itemCategory").val(),
+                    itemDetails,
+                    $("#quantity").val(),
+                    "Action",
+                ]).draw(false);
+                modal.style.display = "none";
+                mContent.innerHTML='';
+                orderItems.push({ItemCategoryId: selectedCategory, attributes:itemAttributesArray, balance:$("#quantity").val(), status:"Not Started"});
+            }else{
+                alert("please fill all required input")
+            }
+        })
+    })
+
+      $(document).ready(function(){
+          $("#submit").click(function(e){
+                e.preventDefault();
+                var postData = { 
+                    orderItems: orderItems,
+                    orderNumber: $("#orderNumber").val(),
+                    deliverBy: $("#deliverBy").val(),
+                    priority: $("#priority").val(),
+                    invoiced: $("#invoiced").val(),
+                    division: $("#division").val(),
+                };                
+               
+                $.ajax({
+                   url: "/orders/request",
+                   type : "POST",
+                   data : postData,
+                   //dataType: "json",
+                   //traditional: true,
+                   //contentType: "application/json; charset=utf-8",
+                   success: function (data) {
+                        window.location = "/orders/request/sucess";
+                   },
+                   error: function () {
+                       window.location = "/orders/request/error";   
+                   }
+                });
+          })
+      })
+</script>
+
+<style>
+    #filterable-table>tbody>tr:hover {
+        cursor: pointer;
+        color: #fff;
+        background-color:#BF2B45;
+        transition: background-color 0.3s;
+    }
+
+</style>

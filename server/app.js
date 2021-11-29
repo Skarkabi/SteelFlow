@@ -20,6 +20,7 @@ require('dotenv').config
 require('./models/index');
 import User from './models/User/User'
 import signInRouter from './routes/sign-in';
+import signOutRouter from './routes/sign-out';
 import homePageRouter from './routes/homePage';
 import userRouter from './routes/user';
 import orderRouter from './routes/order';
@@ -122,6 +123,7 @@ app.use('/users', userRouter);
 app.use('/orders', orderRouter);
 app.use('/stock', stockRouter);
 app.use('/supplier', supplierRouter);
+app.use('/logout', signOutRouter);
 
 
 app.use(function (req, res, next){

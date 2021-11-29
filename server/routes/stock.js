@@ -111,14 +111,19 @@ router.post('/add', (req, res, next) => {
 
 router.post('/add/category', (req, res, next) => {
     console.log("THISSSSS");
-
     const newCategory = {
         type: req.body.itemType,
         name: req.body.categoryName,
         attribute_amount: req.body.attributeNumber,
-        quantity_unit: req.body.unitType
+        quantity_unit: req.body.unitType,
+        division: req.body.division
     }
-    const newBom = JSON.parse(req.body.BomAdded);
+    console.log(req.body.BomAdded)
+    let newBom = null;
+    if(req.body.BomAdded !== ""){
+        newBom = JSON.parse(req.body.BomAdded);
+    }
+    
     console.log(newBom);
     let newAttribtues = [];
     if(Array.isArray(req.body.attributeName)){

@@ -6,7 +6,7 @@
 $(document).ready(function () {
     $('#filterable-table').DataTable({
         responsive: true,
-        pageLength: 25,
+        pageLength: 10,
     });
     $('#filterable-table-consumable').DataTable({
         responsive: true,
@@ -16,7 +16,7 @@ $(document).ready(function () {
         responsive: true,
         pageLength: 10,
     });
-    $('#filterable-table-job-batteries').DataTable({
+    $('#filterable-table-next').DataTable({
         responsive: true,
         pageLength: 10,
     });

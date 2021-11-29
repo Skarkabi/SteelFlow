@@ -1,6 +1,6 @@
 <div class="col-md-12">
     <div class="table-buttons" id="table-buttons">
-        <a href="/users/create" role="button" class="btn btn-outline-dark" id="create-new"><i class="fas fa-plus"></i>  Request New Order</a>
+        <a href="/orders/request" role="button" class="btn btn-outline-dark" id="create-new"><i class="fas fa-plus"></i>  Request New Order</a>
     </div>
 </div>
 {{!-- Displays all users --}}
@@ -24,7 +24,7 @@
                     <td><a href="/orders/view/{{this.order_id}}" id="orderId-{{this.order_id}}">{{this.order_id}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{this.department}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{formatDate this.createdAt}}</a></td>
-                    <td><a href="/orders/view/{{this.order_id}}">{{this.delivery_date}}</a></td>
+                    <td><a href="/orders/view/{{this.order_id}}">{{formatDate this.delivery_date}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{this.priority}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{this.status}}</a></td>
                 </tr>
@@ -40,3 +40,13 @@
         }
     }
 </script>
+
+<style>
+    #filterable-table>tbody>tr:hover {
+        cursor: pointer;
+        color: #fff;
+        background-color:#BF2B45;
+        transition: background-color 0.3s;
+    }
+
+</style>

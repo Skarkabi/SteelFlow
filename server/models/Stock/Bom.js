@@ -65,11 +65,16 @@ const Bom = sequelize.define('Boms', mappings, {
 
 Bom.createBom = bom => {
     return new Bluebird((resolve, reject) => {
-        Bom.bulkCreate(bom).then(() => {
-            resolve("Bom Added");
-        }).catch(err => {
-            reject(err);
-        })
+        if(bom){
+            Bom.bulkCreate(bom).then(() => {
+                resolve("Bom Added");
+            }).catch(err => {
+                reject(err);
+            })
+        }else{
+            resolve("No Bom to Add");
+        }
+        
     })
     
 }

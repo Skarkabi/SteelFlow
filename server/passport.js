@@ -12,6 +12,10 @@ module.exports = (passport) => {
       const user = { username: dbUser.username, }
       user.id = id;
       user.profilePicture = dbUser.profilePicture;
+      user.manager = dbUser.Work_For.managerId
+      user.accountType = dbUser.accountType
+      user.department = dbUser.department
+      user.division = dbUser.division
       Object.assign(user, getUserType(dbUser))
       done(null, user);
     })
