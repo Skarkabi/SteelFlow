@@ -64,6 +64,7 @@ router.post('/create', (req, res, next) => {
         req.flash('success_msg', output);
         res.redirect('/users/create')
     }).catch(err => {
+        console.error(err);
         req.flash('error_msg', err);
         req.session.save(function() {
             res.redirect('/users/create')

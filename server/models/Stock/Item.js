@@ -37,6 +37,9 @@ const mappings = {
     item_category: {
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['item_category'])
     },
+    name: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.STRING, ['name'])
+    },
     invoice: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,
@@ -187,4 +190,52 @@ Item.getStock = itemCategory => {
     })
 }
 
+Item.getStockForProduction = item => {
+    return new Bluebird((resolve, reject) => {
+        Item.findAll({
+            where: {
+                ItemCategoryId: item.ItemCategoryId
+            },
+            include: [
+                {model: ItemAttribute}
+            ],
+        }).then(items => {
+            let itemsToReturn = [];
+            items.map(stockItem => {
+                let stockAttributes = new Map();
+                stockItem.Item_Attributes.map(attribute => {
+                    stockAttributes.set(attribute.AttributeId, attribute.unit);
+                })
+                let matching = 0;
+                item.Item_Attributes.map(produce => {
+                    if(stockAttributes.get(produce.AttributeId) === produce.unit){
+                        matching++
+                    }
+                })
+                if(matching === item.Item_Attributes.length){
+                    itemsToReturn.push(stockItem);
+                }
+                
+            })
+            resolve(itemsToReturn);
+            
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+Item.getFullStock = () => {
+    return new Bluebird((resolve, reject) => {
+        Item.findAll({
+            include: [
+                {model: ItemAttribute}
+            ]
+        }).then(items => {
+            resolve(items);
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
 export default Item;

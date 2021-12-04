@@ -103,6 +103,12 @@
                   
                 </div>
             </div>
+            <div id="requestModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="requestContent"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -171,6 +177,35 @@
             }
         })
     })
+
+    $(document).ready(function() {
+        $("#staff").click(function(){
+            const modal = document.getElementById("requestModal");
+            const mContent = document.getElementById("requestContent")
+            // Get the button that opens the modal
+      
+            // Get the <span> element that closes the modal
+            const span = document.getElementsByClassName("close")[0];
+            // When the user clicks on the button, open the modal
+            modal.style.display = "block";
+            mContent.insertAdjacentHTML("beforeend",`{{>displayUserEmployees}}`)
+
+            span.onclick = function() {
+                modal.style.display = "none";
+                mContent.innerHTML='';
+            }
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                    mContent.innerHTML='';
+                }
+            }
+        })
+    })
+
+           
+
 </script>
  <style>
   

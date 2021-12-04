@@ -1,6 +1,7 @@
 import express from 'express';
 import { reject } from 'lodash';
 import Order from '../models/Order/Order';
+import Item from '../models/Stock/Item';
 import ItemAttribute from '../models/Stock/ItemAttributes';
 import ItemCategory from '../models/Stock/ItemCategory';
 
@@ -42,25 +43,28 @@ router.get('/view/approval', (req,res,next) => {
 router.get('/view/:id', (req,res,next) => {
     let msg = req.flash();
     Order.getOrderById(req.params.id).then(order => {
-        res.render("displayOrder", {
-            title: `Order # ${order.order_id}`,
-            jumbotronDescription: `Details for  Order # ${order.order_id}.`,
-            order: order,
-            msgType: msg,
+        order.items.map(item => {
+            console.log(item.Production_Items);
         })
+        
+            res.render("displayOrder", {
+                title: `Order # ${order.order_id}`,
+                jumbotronDescription: `Details for  Order # ${order.order_id}.`,
+                order: order,
+                msgType: msg,
+            })
+       
     }).catch(err => {
         console.log(err);
     })
 });
 
 router.get('/request', (req, res, next) => {
-    ItemCategory.getDivisionCategoryStockItems("Mesh").then(output => {
+    ItemCategory.getDivisionCategoryStockItems("C.M.S.").then(output => {
         Order.getLastOrderId().then(orderNumber => {
-            console.log(orderNumber)
             output.map(item => {
                 item.Attributes = JSON.stringify(item.Attributes);
             })
-            console.log(output[0]);
             res.render("createOrder", {
                 title: `Request New Order`,
                 jumbotronDescription: 'Creating a new order request',
@@ -89,7 +93,8 @@ router.post('/request', (req,res,next) => {
         invoiced_amount: req.body.invoiced,
         department: req.body.division,
         salesEmployeeId: req.user.id,
-        salesManagerId: req.user.manager
+        salesManagerId: req.user.manager,
+        requestedBy: req.user.id
     };
     
     if(req.user.accountType !== "employee"){
@@ -104,19 +109,16 @@ router.post('/request', (req,res,next) => {
         newOrder.productionEmployeeId = req.user.id
     }
     Order.createOrder(newOrder, req.body.orderItems).then(output => {
-        console.log("Posting Work");
         req.flash('success_msg', "output");
         req.session.save(function() {
             res.redirect('/')
         });
         
     }).catch(err => {
-        console.log("Posting Fail");
         console.error(err)
         next();
         
     })
-    console.log(req.body.orderItems[0]);
 
 });
 
@@ -145,6 +147,20 @@ router.post('/update/:id', (req,res,next) => {
 
 });
 
+router.post('/assign/:id', (req, res, next) =>{
+    Order.setProductionEmployee(req.params.id, req.body.productionEmployee).then(output => {
+        req.flash('success_msg', output);
+        req.session.save(function() {
+            res.redirect('back')
+        });
+        
+    }).catch(err => {
+        req.flash('error_msg', err);
+        req.session.save(function() {
+            res.redirect('back')
+        });
+    })
+})
 //Express Route to approve/reject order
 router.post('/approved/:id', (req,res,next) => {
     Order.approveOrder(req.user.id, req.user.department, req.params.id).then(output => {

@@ -11,6 +11,7 @@
                     <div class="form-group col required">
                         <label for="materialType">Material Type</label>
                         <select type="text" id="materialType" name="materialType" class="form-control" onchange="setItems('{{items}}')" required>
+                            <option value="" disabled selected>Choose One</option>
                             {{#each types}}
                                 <option value="{{this}}">{{this}}</option>
                             {{/each}}

@@ -170,12 +170,15 @@ User.createUser = newUser => {
 
           }else{
                 newUser.password = hash;
-                User.create(newUser).then(() => {
+                User.create(newUser).then(addedUser => {
                     WorkFor.setRelation({employeeId: newUser.id, managerId: newUser.managerId}).then(output => {
                         resolve("Emplyee With ID# " + newUser.id + " Was Sucessfully Added!");
                     
                     }).catch(err => {
-                        reject(err);
+                        addedUser.destroy().then(() => {
+                            reject(err);
+                        })
+                        
 
                     })
                 
@@ -263,7 +266,14 @@ User.getUserById = userId => {
                 setRequestedBy(orders).then(finalOrders => {
                     found.Orders = finalOrders
                     setManager(found).then(user => {
-                        resolve(user)
+                        getEmployees(user).then(user =>{
+                            resolve(user)
+                        }).catch(err => {
+                            reject(err);
+                        })
+                        
+                    }).catch(err => {
+                        reject(err)
                     })   
                 })
                  
@@ -338,9 +348,31 @@ function getManager(managerId){
  * @param {*} userId 
  * @returns 
  */
-function getEmployees(userId){
+function getEmployees(user){
     return new Bluebird((resolve, reject) => {
-
+        WorkFor.findAll({
+            where: {
+                managerId: user.id
+            }
+        }).then(employees => {
+            let employeeIds = [];
+            employees.map(employee => {
+                employeeIds.push(employee.employeeId)
+            })
+            User.findAll({
+                where: {
+                    id: employeeIds
+                }
+            }).then(employeeDetails => {
+                user.setDataValue('employees', employeeDetails)
+                resolve(user)
+            }).catch(err => {
+                reject(err);
+            })
+            
+        }).catch(err => {
+            reject(err);
+        })
     });
 }
 

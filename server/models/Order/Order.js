@@ -207,10 +207,33 @@ Order.getOrderById = orderId => {
                 order_id: orderId
             },
         }).then(found => {
-            ItemCategory.getProductionItems(orderId).then(items => {
-                found.setDataValue('items', items)
-                resolve(found);
-            })
+            if(found.productionManagerId && !found.productionEmployeeId){
+                User.findAll({
+                    where: {
+                        department: "Production",
+                        division: found.department
+                    },
+                    attributes: ["id", "firstName", "lastName"]
+                }).then(productionTeam => {
+                    found.productionTeam = productionTeam
+                    console.log("Stuck");
+                    ItemCategory.getProductionItems(orderId).then(items => {
+                        found.setDataValue('items', items)
+                        resolve(found);
+                    }).catch(err => {
+                        reject(err);
+                    })
+                }).catch(err => {
+                    reject(err);
+                })
+            }else{
+                ItemCategory.getProductionItems(orderId).then(items => {
+                    found.setDataValue('items', items)
+                    resolve(found);
+                }).catch(err => {
+                    reject(err);
+                })
+            }
             
         }).catch(err => {
             reject(err);
@@ -308,6 +331,29 @@ Order.getOrderByEmployee = (employeeId, department, position) => {
             where: condition
         }).then(found => {
             resolve(found)
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+Order.setProductionEmployee = (orderId, productionId) => {
+    return new Bluebird((resolve, reject) => {
+        Order.findOne({
+            where: {
+                order_id: orderId
+            }
+        }).then(found => {
+            found.update({ productionEmployeeId: productionId });
+            found.save().then(() => {
+                console.log("Saving");
+                found.reload().then(reloaded => {
+                    console.log(productionId)
+                })
+                resolve("Production Employee Assigned")
+            }).catch(err => {
+                reject(err);
+            })
         }).catch(err => {
             reject(err);
         })

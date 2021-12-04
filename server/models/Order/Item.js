@@ -34,6 +34,9 @@ const mappings = {
         allowNull: false,
         defaultValue: 0
     },
+    stock_items: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['stock_item'])
+    },
     createdAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,

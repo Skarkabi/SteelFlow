@@ -7,6 +7,9 @@
     </div>
 
     {{!-- User Information --}}
+    {{#if order.productionTeam}}
+    <form action="/orders/assign/{{order.order_id}}" method="POST">
+    {{/if}}
     <div class="section-wrapper">
         <div class="section-title">
             <h4><i class="fas fa-cogs"></i> Order Information</h4>
@@ -18,10 +21,14 @@
                     <div class="form-row" style="padding-bottom: 15px;">
                         <div class="form-group col">
                             <div class="btn-group" role="group" aria-label="Basic example">
-                               
-                                <form action="/orders/approved/{{order.id}}" method="POST">
+                                {{#if order.productionTeam}}
+                                        <button type="submit" id="employees" name="employees" class="btn btn-outline-success">Assign Production</button>
+                                    
+                                {{else}}
+                                <form action="/orders/approved/{{order.order_id}}" method="POST">
                                     <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
                                 </form>
+                                {{/if}}
                                 
                                 <button type="button" id="staff" name="staff" class="btn btn-outline-danger">Reject</button>
                             </div>
@@ -47,10 +54,22 @@
                             <label for="firstName">Sales</label>
                             <input type="text" class="form-control" name="firstName" id="firstName" value="{{order.salesEmployeeId}}" readonly>
                         </div>
+                        {{#if order.productionTeam}}
+                        <div class="form-group col display-user">
+                            <label for="lastName">Production</label>
+                            <select type="text" class="form-control" name="productionEmployee" id="productionEmployee" value="{{order.productionEmployeeId}}">
+                                <option value="">Choose One</option>
+                                {{#each order.productionTeam}}
+                                    <option value="{{this.id}}">{{this.firstName}} {{this.lastName}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                         {{else}}
                         <div class="form-group col display-user">
                             <label for="lastName">Production</label>
                             <input type="text" class="form-control" name="lastName" id="lastName" value="{{order.productionEmployeeId}}" readonly>
                         </div>
+                        {{/if}}
                     </div>
                     <div class="form-row">
                         <div class="form-group col display-user">
@@ -61,6 +80,7 @@
                             <label for="managerLastName">Production Manager</label>
                             <input type="text" class="form-control" name="managerLastName" id="managerLastName" value="{{order.productionManagerId}}" readonly>
                         </div>
+                        
                     </div>
                     <div class="form-row">
                         <div class="form-group col display-user">
@@ -119,13 +139,13 @@
                                     <th scope="col">Status</th>
                                     <th scope="col">Total</th>
                                     <th scope="col">Balance</th>
-                                    <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {{#each order.items}}
                                     {{#each this.Production_Items}}
-                                    <tr>
+
+                                    <tr  onclick='getModel({{stringify this}})'>
                                         <td><a>{{counter @index}}</a></td>
                                         <td><a>{{this.name}}</a></td>
                                         <td><a>{{this.details}}
@@ -135,10 +155,6 @@
                                         <td><a>{{this.status}}</a></td>
                                         <td><a>{{add this.stock_quantity this.production_quantity}}</a></td>
                                         <td><a>{{this.balance}}</a></td>
-                                        <td class = "table-actions">
-                                            <a href="/users/view/{{this.id}}" role="button"  id="view" class="button">Request</a>
-                                            <a href="/users/delete/{{this.id}}" role="button" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{this.id}}?">Status Update</a>
-                                        </td>
                                     </tr>
                                     {{/each}}
                                 {{/each}}
@@ -147,8 +163,17 @@
                     </div>
                 </div>
             </div>
+            <div id="requestModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="requestContent"></div>
+                </div>
+            </div>
         </div>
     </div>
+    {{#if order.productionTeam}}
+    </form >
+    {{/if}}
 
     {{!-- Courses --}}
     <div class="section-wrapper" hidden>
@@ -197,15 +222,85 @@
             $(this).addClass('active')
         })
     })
+    function output(t){
+        console.log(t);
+    }
+    function getModel(items){
+        let model = document.getElementById('requestModal');
+        let mContent = document.getElementById("requestContent");
+        var span = document.getElementsByClassName("close")[0];
+
+        model.style.display = "block";
+        mContent.insertAdjacentHTML("beforeend",`{{>produceItem}}`);
+        console.log(items);
+        
+        let table = $('#filterable-table-next').DataTable();
+        for(let i = 0; i < items.stock_item.length; i++){
+           table.row.add($(`
+                <tr>
+                    <td hidden> <input id='stockId' name='stockId' value='${items.stock_item[i].id}'> </td>
+                    <td> ${i + 1} </td>
+                    <td> ${items.stock_item[i].SupplierName} </td>
+                    <td> ${(items.stock_item[i].quantity - items.stock_item[i].reserved)} </td>
+                    <td> ${items.stock_item[i].cost} </td>
+                    <td style='width: 10%'> <input class='form-control prevent-max' style='background: inherit; font-size: 0.86vw; text-size-adjust: auto;' id='ammountToReserve-${items.stock_item[i].id}' type='number' max='${(items.stock_item[i].quantity - items.stock_item[i].reserved)}' </td>
+                </tr>
+            `)).draw();
+           
+        }
+
+        $('.prevent-max').on('keydown keyup change', function(e){
+            console.log($(this).attr('max'));
+            if ($(this).val() > parseFloat($(this).attr('max'))
+                && e.keyCode !== 46 // keycode for delete
+                && e.keyCode !== 8 // keycode for backspace
+            ) {
+                e.preventDefault();
+                $(this).val($(this).attr('max'));
+            }
+        });
+
+
+        span.onclick = function() {
+            model.style.display = "none";
+            mContent.innerHTML='';
+        }
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == model) {
+                model.style.display = "none";
+                mContent.innerHTML='';
+            }
+        }
+    }
+
+    function getItems(location){
+        if(location === "stock"){
+            let ids = document.getElementsByName('stockId');
+            for(let i = 0; i < ids.length; i++){
+                let reserveAmmount = document.getElementById(`ammountToReserve-${ids[i].value}`).value;
+                console.log(`id: ${ids[i].value}, reserve: ${reserveAmmount} `);
+            }
+           
+        }
+    }
+    
 </script>
- <style>
+<style>
+    .nav-item>a:hover {
+        background-color: #BF2B45;
+    }
   
-        .nav-item>a:hover {
-           background-color: #BF2B45;
-        }
-  
-        /*code to change background color*/
-        .nav-item>a.nav-link.active {
-            background-color: #BF2B45;
-        }
-    </style>
+    /*code to change background color*/
+    .nav-item>a.nav-link.active {
+        background-color: #BF2B45;
+    }
+
+    #filterable-table>tbody>tr:hover {
+        cursor: pointer;
+        color: #fff;
+        background-color:#BF2B45;
+        transition: background-color 0.3s;
+    }
+
+</style>

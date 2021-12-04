@@ -14,6 +14,10 @@ const mappings = {
         type: Sequelize.DataTypes.DOUBLE,
         allowNull:false
     },
+    name: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.STRING, ['name']),
+
+    },
     createdAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,

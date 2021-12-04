@@ -238,33 +238,42 @@ ItemCategory.getProductionItems = orderId => {
             ],
             order: [[Attribute, "position", "ASC"]]
         }).then(found => {
-            found.map(foundItems => {
+            Promise.all(found.map(foundItems => {
                 foundItems.Production_Items.map(item => {
-                    let attributes = [];
-                    item.Item_Attributes.map(attribute => {
-                        const foundAttribute = foundItems.Attributes.find(attr => {
-                            return attr.id === attribute.AttributeId
+                    StockItem.getStockForProduction(item).then(stockItems=>{
+                        let attributes = [];
+                        item.Item_Attributes.map(attribute => {
+                            const foundAttribute = foundItems.Attributes.find(attr => {
+                                return attr.id === attribute.AttributeId
+                            })
+                            attribute.position = foundAttribute.position
+                            attribute.measurment = foundAttribute.measurment
+                            attributes[attribute.position - 1] = attribute
                         })
-                        attribute.position = foundAttribute.position
-                        attribute.measurment = foundAttribute.measurment
-                        attributes[attribute.position - 1] = attribute
+                        item.Item_Attributes = attributes;
+                        item.name = foundItems.name
+                        let details = ""
+                        for(let i = 0; i < attributes.length; i++){
+                            if(details !== ""){
+                                details = `${details} x ${attributes[i].unit} ${attributes[i].measurment}`
+                            }else{
+                                details = `${attributes[i].unit} ${attributes[i].measurment}`
+                            }
+                            
+                        };
+                        item.details = details
+                        console.log("Finding Stock");
+                        item.setDataValue('stock_item', stockItems)
+    
                     })
-                    item.Item_Attributes = attributes;
-                    item.name = foundItems.name
-                    let details = ""
-                    for(let i = 0; i < attributes.length; i++){
-                        if(details !== ""){
-                            details = `${details} x ${attributes[i].unit} ${attributes[i].measurment}`
-                        }else{
-                            details = `${attributes[i].unit} ${attributes[i].measurment}`
-                        }
-                        
-                    };
-                    item.details = details
                 })
+                
+            })).then(() => {
+                console.log("Resolving Stock");
+                resolve(found);
             })
             
-            resolve(found);
+            
         }).catch(err => {
             reject(err);
         })
@@ -297,9 +306,49 @@ ItemCategory.getSpecificStock = id => {
                     attributes[attribute.position - 1] = attribute
                 })
                 item.Item_Attributes = attributes;
-                
+                item.name = found.name
             })
             resolve(found);
+        }).catch(err => {
+            reject(err);
+        })
+    })
+    
+}
+
+ItemCategory.getFullStock = () => {
+    return new Bluebird((resolve, reject) => {
+        ItemCategory.findAll({
+            include: [
+                {model: Attribute},
+                {model: StockItem,
+                    include: [
+                        {model: ItemAttribute}
+                    ],
+                    order: ["unit", "ASC"]
+                }
+            ],
+            order: [[Attribute, "position", "ASC"]]
+        }).then(found => {
+            let final = []
+            found.map(items => {
+                items.Stock_Items.map(item => {
+                    let attributes = [];
+                    item.Item_Attributes.map(attribute => {
+                        const foundAttribute = items.Attributes.find(attr => {
+                            return attr.id === attribute.AttributeId
+                        })
+                        attribute.position = foundAttribute.position
+                        attribute.name = foundAttribute.name
+                        attributes[attribute.position - 1] = attribute
+                    })
+                    item.Item_Attributes = attributes;
+                    item.setDataValue('name', items.name)
+                    final.push(item)
+                })
+            })
+
+            resolve(final);
         }).catch(err => {
             reject(err);
         })
