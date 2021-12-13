@@ -1,9 +1,13 @@
 import express from 'express';
 import { reject } from 'lodash';
 import Order from '../models/Order/Order';
+import Reserve from '../models/Order/Reserve';
 import Item from '../models/Stock/Item';
 import ItemAttribute from '../models/Stock/ItemAttributes';
 import ItemCategory from '../models/Stock/ItemCategory';
+import MaterialRequest from '../models/Order/MaterialRequest';
+import RequestedItem from '../models/Order/RequestedItem';
+import OrderItem from '../models/Order/Item';
 
 const router = express.Router();
 
@@ -41,17 +45,13 @@ router.get('/view/approval', (req,res,next) => {
 
 //Express Route to view specefic order
 router.get('/view/:id', (req,res,next) => {
-    let msg = req.flash();
     Order.getOrderById(req.params.id).then(order => {
-        order.items.map(item => {
-            console.log(item.Production_Items);
-        })
-        
+        console.log(order.items[0].Production_Items[0].Material_Requests[0])
             res.render("displayOrder", {
                 title: `Order # ${order.order_id}`,
                 jumbotronDescription: `Details for  Order # ${order.order_id}.`,
                 order: order,
-                msgType: msg,
+                msgType: req.flash(),
             })
        
     }).catch(err => {
@@ -59,8 +59,40 @@ router.get('/view/:id', (req,res,next) => {
     })
 });
 
+router.post('/complete', (req, res,next) => {
+    console.log(req.body)
+    Order.setComplete(req.body.orderId).then(output => {
+        req.flash('success_msg', output);
+        req.session.save(function() {
+            res.redirect('/')
+        });
+    }).catch(err => {
+        console.error(err)
+        next();
+    });
+    
+})
+router.post('/start', (req, res, next) => {
+    console.log(req.body)
+    RequestedItem.receiveItem(req.body.items).then(output => {
+        OrderItem.startProduction(req.body.production).then(output => {
+            req.flash('success_msg', "Items have been reserved");
+            req.session.save(function() {
+                res.redirect('/')
+            });
+        }).catch(err => {
+            console.error(err);
+            next();
+        })
+       
+    }).catch(err => {
+        console.log(req.body.items)
+        console.error(err);
+        next();
+    })
+})
 router.get('/request', (req, res, next) => {
-    ItemCategory.getDivisionCategoryStockItems("C.M.S.").then(output => {
+    ItemCategory.getDivisionCategoryStockItems("Mesh").then(output => {
         Order.getLastOrderId().then(orderNumber => {
             output.map(item => {
                 item.Attributes = JSON.stringify(item.Attributes);
@@ -82,6 +114,42 @@ router.get('/request', (req, res, next) => {
    
 })
 
+router.post('/bomMaterial', (req, res, next) =>{
+    let bomItems = req.body.items;
+    let materialRequest = req.body.materialRequest
+    materialRequest.items.map(item => {
+        item.quantity = parseFloat(item.quantity).toFixed(2);
+    })
+    
+    MaterialRequest.createMaterialRequest(materialRequest).then(output => {
+        Reserve.createReserve(bomItems).then(() => {
+            req.flash('success_msg', "Items have been reserved");
+            req.session.save(function() {
+                res.redirect('/')
+            });
+        }).catch(err => {
+            console.error(err)
+            next();
+        })
+    }).catch(err => {
+        console.error(err);
+    })
+    
+   
+})
+router.post('/reserve', (req, res, next) => {
+    let reserveItems = req.body.items
+    Reserve.createReserve(reserveItems).then(() => {
+        req.flash('success_msg', "Items have been reserved");
+        req.session.save(function() {
+            res.redirect('/')
+        });
+    }).catch(err => {
+        console.error(err)
+        next();
+        
+    });
+})
 //Express Route to create order request
 router.post('/request', (req,res,next) => {
     
@@ -129,6 +197,41 @@ router.get('/request/sucess', (req, res, next) =>{
     });
 })
 
+router.get('/complete/success', (req, res, next) =>{
+    req.flash('success_msg', "Order Status Changed to completed");
+    req.session.save(function() {
+        res.redirect('back')
+    });
+})
+
+router.get('/reserve/sucess', (req, res, next) =>{
+    req.flash('success_msg', "Items have been reserved");
+    req.session.save(function() {
+        res.redirect('back')
+    });
+})
+
+router.get('/bomMaterial/sucess', (req, res, next) =>{
+    req.flash('success_msg', "Items have been reserved");
+    req.session.save(function() {
+        res.redirect('back')
+    });
+})
+
+router.get('/reserve/error', (req, res, next) =>{
+    req.flash('error_msg', "An Error has occured and Items could not be reserved");
+    req.session.save(function() {
+        res.redirect('/orders/view')
+    });
+})
+
+router.get('/complete/error', (req, res, next) =>{
+    req.flash('error_msg', "An Error has occured order status could not be changed");
+    req.session.save(function() {
+        res.redirect('back')
+    });
+})
+
 router.get('/request/error', (req, res, next) =>{
     req.flash('error_msg', "An Error has occured and order could not be requested");
     req.session.save(function() {
@@ -136,6 +239,12 @@ router.get('/request/error', (req, res, next) =>{
     });
 })
 
+router.get('/bomMaterial/error', (req, res, next) =>{
+    req.flash('error_msg', "An Error has occured and order could not be requested");
+    req.session.save(function() {
+        res.redirect('/orders/view')
+    });
+})
 
 //Exporess Route to delete order
 router.post('/delete/:id', (req,res,next) => {

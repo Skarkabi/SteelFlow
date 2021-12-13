@@ -9,15 +9,15 @@
             <div class="section-content">
                 <div class="form-row">
                     <div class="form-group col required">
-                        <label for="materialType">Stock/Production</label>
-                        <select type="text" id="materialType" name="materialType" class="form-control" required>
+                        <label for="location">Stock/Production</label>
+                        <select type="text" id="location" name="location" class="form-control" required>
                             <option value="" disabled selected>Choose One</option>
                             <option value="Stock">Stock</option>
                             <option value="Production">Production</option>
                         </select>
                     </div>
                 </div>
-               
+                <div id="stockTable" hidden>
                     <table id="filterable-table-next" class="table table-bordered table-striped">
                         <thead style="width:100%">
                             <tr>
@@ -32,10 +32,18 @@
     
                         </tbody>
                     </table>
+                </div>
+                <div id="bomTable" hidden>
+                    
+                </div>
+                    
 
             </div>
             <div style="float:right; padding-top:10px">
-                <button type="button" id="addItems" name="addItems" class="btn btn-primary justfiy-content-end" onclick="getItems('stock')"><i class="far fa-save"></i> Add</button>
+                <form action="/orders/reserve" method="POST">
+                    <button type="button" id="checkItems" name="checkItems" class="btn btn-success justify-content-end" hidden="true">Check</button>
+                    <button type="submit" id="addItems" name="addItems" class="btn btn-primary justfiy-content-end"><i class="far fa-save"></i> Add</button>
+                </form>
             </div>
         </div>
     </form>

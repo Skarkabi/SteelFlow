@@ -6,7 +6,6 @@ const router = express.Router();
  * Express Route to Displays login page.
  */
 router.get('/', (req, res, next) => {
-    console.log(req);
     //Checking if a user is already logged in
     if (req.user){
             res.render('dashboardForAdmins', 

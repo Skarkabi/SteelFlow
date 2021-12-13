@@ -206,7 +206,7 @@
         let bomMaterials = document.getElementById("selectedItems").getElementsByTagName("input");
         let bom = []
         for(let i = 0; i < bomMaterials.length; i++){
-            bom.push({id: bomMaterials[i].value, name: bomMaterials[i].placeholder})
+            bom.push({item_id: bomMaterials[i].value, name: bomMaterials[i].placeholder})
         }
         console.log(bom);
         document.getElementById("BomAdded").value = JSON.stringify(bom)

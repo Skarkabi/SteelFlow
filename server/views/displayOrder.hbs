@@ -17,7 +17,7 @@
         </div>
         <div class="section-content">
             <div class="form-row">
-                <div class="form-group col-md-4">
+                <div class="form-group col">
                     <div class="form-row" style="padding-bottom: 15px;">
                         <div class="form-group col">
                             <div class="btn-group" role="group" aria-label="Basic example">
@@ -32,7 +32,7 @@
                                 
                                 <button type="button" id="staff" name="staff" class="btn btn-outline-danger">Reject</button>
                             </div>
-                            <div class="btn-group" role="group" style="float:right" aria-label="Basic example">
+                            <div class="btn-group" id="editGroup" role="group" style="float:right" aria-label="Basic example">
                                 <button type="button" id="update" name="update" class="btn btn-outline-primary">Update</button>
                                 <button type="button" id="delete" name="delete" class="btn btn-outline-danger">Delete</button>
                             </div>
@@ -103,7 +103,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8" style="padding-left: 40px">
+            </div>
+            <div class="form-row">
+                <div class="form-group col">
                     <ul class="nav" style="background-color: #222222;">
                         <li class="nav-item active">
                             <a class="nav-link active" href="#">All</a>
@@ -135,27 +137,33 @@
                                     <th scope="col">Item</th>
                                     <th scope="col">Details</th>
                                     <th scope="col">Stock</th>
-                                    <th scope="col">Produce</th>
+                                    <th scope="col">Production</th>
+                                    <th scope="col">Produced</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Total</th>
                                     <th scope="col">Balance</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {{#each order.items}}
+                                    
                                     {{#each this.Production_Items}}
-
-                                    <tr  onclick='getModel({{stringify this}})'>
-                                        <td><a>{{counter @index}}</a></td>
-                                        <td><a>{{this.name}}</a></td>
-                                        <td><a>{{this.details}}
-                                        </a></td>
-                                        <td><a>{{this.stock_quantity}}</a></td>
-                                        <td><a>{{this.production_quantity}}</a></td>
-                                        <td><a>{{this.status}}</a></td>
-                                        <td><a>{{add this.stock_quantity this.production_quantity}}</a></td>
-                                        <td><a>{{this.balance}}</a></td>
-                                    </tr>
+                                        <tr  >
+                                            <td>{{counter @index}}</td>
+                                            <td>{{this.name}}</td>
+                                            <td>{{this.details}}</td>
+                                            <td>{{this.stock_quantity}}</td>
+                                            <td>{{this.production_quantity}}</td>
+                                            <td>{{this.produced_quantity}}</td>
+                                            <td>{{this.status}}</td>
+                                            <td>{{this.total_order_quantity}}</td>
+                                            <td>{{this.balance}}</td>
+                                            <td>
+                                                <a onclick='getModel({{stringify this}}, {{stringify  ../this.Boms}})'><i class="fas fa-clipboard-list"></i></a>
+                                                <a onclick='getStatusModel({{stringify this}})'><i class="fas fa-business-time"></i></a>
+                                            </td>
+                                        </tr>
                                     {{/each}}
                                 {{/each}}
                             </tbody>
@@ -222,23 +230,289 @@
             $(this).addClass('active')
         })
     })
-    function output(t){
-        console.log(t);
-    }
-    function getModel(items){
+
+    $(document).ready(function(){
+        let productionTable = $("#filterable-table").DataTable();
+        let completedItems = 0;
+        const completed = productionTable.rows().columns().data()[6].filter(status => {
+            return status === "Completed"
+        })
+        if (completed.length === productionTable.rows().columns().data()[6].length){
+            $("#editGroup").prepend(`
+                <button type="submit" id="complete" name="complete" class="btn btn-outline-success">Complete</button>
+                <input type="string" id="orderId" name="orderId" class="form-control" value="{{order.order_id}}" hidden>
+            `)
+            $('#complete').click(function(e){
+                e.preventDefault();
+                console.log($("#orderId").val())
+                $.ajax({
+                url: "/orders/complete",
+                type: "POST",
+                data: {orderId: $("#orderId").val()},
+                success: function (data){
+                     window.location = "/orders/complete/success"
+                },
+                error: function(){
+                    window.location = "/orders/complete/error";   
+                }
+            })
+            })
+        }
+       
+        
+        
+        
+    })
+    $(document).ready(function(){
+        $(document).on("change", "#location", function(){
+            if($("#location").val() === "Stock"){
+                $("#stockTable").removeAttr( "hidden" )
+                $("#bomTable").attr( "hidden", "true" )
+                $("#checkItems").attr( "hidden", "true" )
+            }else{
+                $("#bomTable").removeAttr( "hidden" )
+                $("#checkItems").removeAttr( "hidden" )
+                $("#stockTable").attr( "hidden", "true" )
+                
+            }
+            
+        })
+
+        $(document).on("click", "#checkItems", function(){
+            let bomStockItems = originalBomStockItems
+            let userItems = [];
+            let stockItems = [];
+            for(let i = 0; i < bomStockItems.length; i++){
+                let userAttributes = [];
+                for(let j = 0; j < bomStockItems[i].Attributes.length; j++){
+                    userAttributes.push({id: $(`#attributeIds-${i}${j}`).val(), unit: $(`#attribtues-${i}${j}`).val()})
+                }  
+
+                let stockAttributes = []
+                let matchingAttributes = 0
+                bomStockItems[i].stock_item.map(stockItem => {
+                    console.log(stockItem)
+                    stockAttributes.push({attribute: stockItem.Item_Attributes, quantity: stockItem.quantity, stockItem:stockItem});
+                    
+                })
+                stockItems.push(stockAttributes);
+                userItems.push({user: userAttributes, stock: stockAttributes});
+                stockItems = []
+            }
+            
+            for(let z = 0; z < userItems.length; z++){
+                $(`#filterable-table-nextt${z}`).DataTable().rows().remove().draw();
+                let stockItems = []
+                let stockItem = 0
+                for(let j = 0; j < userItems[z].stock.length; j++){
+                    let matchingAtts = 0
+                    
+                    for(let i = 0; i < userItems[z].user.length; i++){
+                        const stockAttr = userItems[z].stock[j].attribute.filter(stockAttribute => {
+                            return (
+                                JSON.stringify(stockAttribute.AttributeId) === userItems[z].user[i].id &&  JSON.stringify(stockAttribute.unit) === userItems[z].user[i].unit
+                            )
+                        })
+                        if(stockAttr.length > 0){
+                            matchingAtts++;
+                           
+                        }
+                        
+                    }
+                    if(matchingAtts === userItems[z].user.length ){
+                        stockItem = stockItem + userItems[z].stock[j].quantity
+                        $(`#availableQuantity-${z}`).val(`${stockItem}`)
+                        stockItems.push(userItems[z].stock[j])
+                        let col = ""
+                        userItems[z].stock[j].attribute.map(attr => {
+                            col = `${col} <td>${attr.unit}</td>`
+                        })
+                        $(`#filterable-table-nextt${z}`).DataTable().row.add($(`
+                            <tr>
+                                <td>${userItems[z].stock[j].stockItem.SupplierName}</td>
+                                <td>${userItems[z].stock[j].stockItem.cost}</td>
+                                <td>${userItems[z].stock[j].stockItem.quantity}</td>
+                                <td style='width: 10%'><input class="form-control" id="reserve" type="number"></td>
+                                <td>${userItems[z].stock[j].stockItem.id}</td>
+                                <td>${selectedItem.id}</td>  
+                            </tr>`
+                        
+                        )).draw()
+                    }
+                    
+                }
+                
+            }
+            
+        })
+       
+    })
+
+    $(document).ready(function(){
+        $(document).on("click", "#confirmProduction", function(e){
+            e.preventDefault();
+            let table = document.getElementById("filterable-table-items" );
+            let receivedItems = [];
+            if(table.rows.length > 1){
+            for(let i = 1; i < table.rows.length; i++){
+                let row = table.rows[i]
+                let receivedQuantity = ''
+                let receivedItemId = null;
+                console.log(row.cells[5])
+                if(row.cells[5]){
+                    receivedQuantity = row.cells[5].childNodes[1].value;
+                    receivedItemId = row.cells[5].childNodes[3].value;
+                }
+                 
+                if(receivedQuantity === ''){
+                    receivedQuantity = 0;
+                }
+
+                receivedItems.push({
+                    id: receivedItemId,
+                    received: receivedQuantity
+                });
+           
+            }
+             }else{
+                receivedItems.push({
+                    id: null,
+                    received: null
+                });
+            }
+            const produceItemId = $("#itemId").val()
+            const startQuant = $('#startQuantity').val()
+            const finishQuant = $('#finishQuantity').val()
+            const productionItem = {id: produceItemId, startQuant: startQuant, finishQuant: finishQuant}
+            const data = {items : receivedItems, production: productionItem}
+            
+            $.ajax({
+                url: "/orders/start",
+                type: "POST",
+                data: data,
+                success: function (data){
+                     window.location = "/orders/reserve/sucess"
+                },
+                error: function(){
+                    window.location = "/orders/reserve/error";   
+                }
+            })
+            console.log(receivedItems)
+        })
+    })
+
+    $(document).ready(function(){
+        $(document).on("click", "#addItems", function(e){
+            e.preventDefault()
+            if($("#location").val() === "Stock"){
+                var table = document.getElementById('filterable-table-next');
+                let reserveItems = [];
+                for (var r = 1, n = table.rows.length; r < n; r++) {
+                    let row = table.rows[r]
+                    let stockId = row.cells[0].childNodes[1].value
+                    let orderId = row.cells[1].childNodes[1].value
+                    let itemQuantity = row.cells[6].childNodes[1].value
+                    if(itemQuantity === ''){
+                        itemQuantity = 0;
+                    }
+                    reserveItems.push({quantity: itemQuantity, ProductionItemId: orderId, StockItemId: stockId})
+                }
+                console.log(reserveItems);
+
+                $.ajax({
+                    url: "/orders/reserve",
+                    type: "POST",
+                    data: {items:  reserveItems},
+                    success: function (data) {
+                        window.location = "/orders/reserve/sucess"
+                    },
+                    error: function () {
+                        window.location = "/orders/reserve/error";   
+                    },
+                })
+            }else if($("#location").val() === "Production"){
+                let bomStockItems = [];
+                let materialRequestItems = [];
+                for(let i = 0; i < originalBomStockItems.length; i++){
+                    let bomTable = document.getElementById(`filterable-table-nextt${i}`)
+                    console.log(bomTable.rows[1].children[0])
+                   
+                    if(bomTable.rows[1].children[0].className !== "dataTables_empty"){
+                        for(let j = 1; j < bomTable.rows.length; j++){
+                            if(bomTable.rows[j].cells[3].children[0].value !== "" &&  bomTable.rows[j].cells[3].children[0].value !== "0"){
+                                let newItem = {
+                                    supplier: bomTable.rows[j].cells[0].innerHTML, 
+                                    cost: bomTable.rows[j].cells[1].innerHTML,
+                                    quantity: parseFloat(bomTable.rows[j].cells[3].children[0].value).toFixed(2),
+                                    ProductionItemId: parseInt(bomTable.rows[j].cells[5].innerHTML),
+                                    StockItemId: parseInt(bomTable.rows[j].cells[4].innerHTML),
+                                    production: true
+                                }
+                            
+                                bomStockItems.push(newItem);
+                            }
+                            
+                        } 
+                        
+                    }else{
+                        console.log("No Data")
+                    }
+
+                    let itemAttributes = []
+                    for(let j = 0; j < originalBomStockItems[i].Attributes.length; j++){
+                        itemAttributes.push({
+                            unit: $(`#attribtues-${i}${j}`).val(),
+                            AttributeId:  $(`#attributeIds-${i}${j}`).val() ,
+
+                        })
+                    }
+                    if($(`#quantity-${i}`).val() !== ""){
+                        materialRequestItems.push({
+                            quantity: $(`#quantity-${i}`).val(),
+                            ProductionItemId: selectedItem.id,
+                            ItemCategoryId: originalBomStockItems[i].Attributes[0].ItemCategoryId,
+                            itemAttributes: itemAttributes,
+                            name: selectedItem.name,
+                            itemPosition: (i + 1)
+                        })
+                    }
+                    
+                    
+                }
+                let materialRequest = {ProductionItemId: selectedItem.id, items: materialRequestItems}
+                console.log(materialRequest)
+                    
+                $.ajax({
+                    url: "/orders/bomMaterial",
+                    type: "POST",
+                    data: {items: bomStockItems, materialRequest: materialRequest},
+                     success: function (data) {
+                        window.location = "/orders/bomMaterial/sucess"
+                    },
+                    error: function () {
+                        window.location = "/orders/bomMaterial/error"
+                    },
+                })
+            }
+        })
+    })
+
+    let originalBomStockItems;
+    let selectedItem;
+    function getModel(items, attributes){
+        originalBomStockItems = attributes;
+        selectedItem = items
         let model = document.getElementById('requestModal');
         let mContent = document.getElementById("requestContent");
         var span = document.getElementsByClassName("close")[0];
-
         model.style.display = "block";
         mContent.insertAdjacentHTML("beforeend",`{{>produceItem}}`);
-        console.log(items);
-        
         let table = $('#filterable-table-next').DataTable();
         for(let i = 0; i < items.stock_item.length; i++){
            table.row.add($(`
                 <tr>
                     <td hidden> <input id='stockId' name='stockId' value='${items.stock_item[i].id}'> </td>
+                     <td hidden> <input id='orderId' name='orderId' value='${items.id}'> </td>
                     <td> ${i + 1} </td>
                     <td> ${items.stock_item[i].SupplierName} </td>
                     <td> ${(items.stock_item[i].quantity - items.stock_item[i].reserved)} </td>
@@ -247,6 +521,90 @@
                 </tr>
             `)).draw();
            
+        }
+
+        for(let i = 0; i < attributes.length; i++){
+            let attributeNames = ""
+            let attributeDivs = `
+                <div class="form-row">
+                    <div class="form-group col required" style="">
+                        <label for="quantity">Quantity to Purchase</label>
+                        <input type="number" id="quantity-${i}"  name="quantity" class="form-control" required>
+                        <input list="attributeIds"  name="attributeIds" class="form-control" value="0" hidden>
+                    </div>
+                    <div class="form-group col required" style="">
+                        <label for="availableQuantity">Available In Stock</label>
+                        <input type="number" id="availableQuantity-${i}"  name="availableQuantity" class="form-control" required readonly>
+                        <input list="attributeIds"  name="attributeIds" class="form-control" value="0" hidden>
+                    </div>
+                </div>`
+
+            for(let j = 0; j < attributes[i].Attributes.length; j = j + 2){
+                if( attributes[i].Attributes[j+1]){
+                    attributeDivs = `${attributeDivs}
+                        <div class="form-row">
+                            <div class="form-group col required" style="">
+                                <label for="attributes">${ attributes[i].Attributes[j].name}</label>
+                                <input type="text" id="attribtues-${i}${j}"  name="attribtues-${i}${j}"  class="form-control" required>
+                                <input type="text" id= "attributeIds-${i}${j}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j].id}" hidden>
+                            </div>
+                            <div class="form-group col required" style="">
+                                <label for="attributes">${ attributes[i].Attributes[j + 1].name}</label>
+                                <input type="text" id="attribtues-${i}${j+1}"  name="attribtues-${i}" class="form-control" required>
+                                <input type="text" id="attributeIds-${i}${j+1}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j + 1].id}" hidden>
+                            </div>
+                        </div>`
+                    attributeNames = `${attributeNames}
+                        <th scope="col">${ attributes[i].Attributes[j].name}</th>
+                        <th scope="col">${ attributes[i].Attributes[j + 1].name}</th>
+                    `
+                }else{
+                    attributeNames = `${attributeNames}
+                        <th scope="col">${ attributes[i].Attributes[j].name}</th>
+                    `
+                    attributeDivs = `${attributeDivs}
+                        <div class="form-row">
+                            <div class="form-group col required" style="">
+                                <label for="attributes">${ attributes[i].Attributes[j].name}</label>
+                                <input type="text" id="attribtues-${i}${j}"  name="attribtues-${i}"  class="form-control" required>
+                                <input type="text" id="attributeIds-${i}${j}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j].id}" hidden>
+                            </div>
+                        </div>
+                    `
+                }  
+                   
+            }
+            attributeDivs = `${attributeDivs} 
+                <div class = form-row">
+                    <table id = "filterable-table-nextt${i}" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Supplier</th>
+                                <th scope="col">Cost</th>
+                                <th scope="col">Available</th>
+                                <th scope="col">Reserve</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bom-${i}">
+            
+                        </tbody>
+                    </table>
+                </div>
+            `
+            
+            $("#bomTable").append(`
+                <div class="form-row">
+                    ${attributes[i].name}
+                </div>
+                <div>
+                    ${attributeDivs}
+                </div>
+            `)
+
+            $(`#filterable-table-nextt${i}`).DataTable({
+                responsive: true,
+                pageLength: 10,
+            });
         }
 
         $('.prevent-max').on('keydown keyup change', function(e){
@@ -274,6 +632,78 @@
         }
     }
 
+    function getStatusModel(item){
+        let model = document.getElementById('requestModal');
+        let mContent = document.getElementById("requestContent");
+        var span = document.getElementsByClassName("close")[0];
+        model.style.display = "block";
+        mContent.insertAdjacentHTML("beforeend",`{{>productionStatus}}`);
+        let table = $('#filterable-table-items').DataTable();
+        document.getElementById("itemId").value = item.id
+        item.Material_Requests.map(materialRequest => {
+            for(let i = 0; i < materialRequest.Requested_Items.length; i++){
+                if(i === 0){
+                    table.row.add($(`
+                        <tr>
+                            <td rowspan=${materialRequest.Requested_Items.length} style="vertical-align: middle;"><a>${materialRequest.materialRequestNumber}</a></td>
+                            <td><a>${materialRequest.Requested_Items[0].name}</a></td>
+                            <td><a>${materialRequest.Requested_Items[0].details}</a></td>
+                            <td><a>${materialRequest.Requested_Items[0].quantity}</a></td>
+                            <td><a>${materialRequest.Requested_Items[0].received}</a></td>
+                            <td  style="width: 20px">
+                                    <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[0].quantity - materialRequest.Requested_Items[0].received)}'>
+                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[0].id}" hidden>
+                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
+                            </td>
+                        </tr>
+                    `)).draw();
+                    
+                }else{
+                    table.row.add($(`
+                        <tr>
+                            <td hidden><a>${materialRequest.materialRequestNumber}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].name}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].details}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].quantity}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].received}</a></td>
+                            <td  style="width: 20px">
+                                    <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[i].quantity - materialRequest.Requested_Items[i].received)}'>
+                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[i].id}" hidden>
+                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
+                            </td>
+                        </tr>
+                    `)).draw();
+
+                }
+
+            }
+            
+        })
+           
+        
+         $('.prevent-max').on('keydown keyup change', function(e){
+            console.log($(this).attr('max'));
+            if ($(this).val() > parseFloat($(this).attr('max'))
+                && e.keyCode !== 46 // keycode for delete
+                && e.keyCode !== 8 // keycode for backspace
+            ) {
+                e.preventDefault();
+                $(this).val($(this).attr('max'));
+            }
+        });
+
+        span.onclick = function() {
+            model.style.display = "none";
+            mContent.innerHTML='';
+        }
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == model) {
+                model.style.display = "none";
+                mContent.innerHTML='';
+            }
+        }
+    }
     function getItems(location){
         if(location === "stock"){
             let ids = document.getElementsByName('stockId');

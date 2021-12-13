@@ -117,13 +117,15 @@ Order.createOrder = (newOrder, orderItems) => {
                     orderItems.map(item => {
                         item.OrderOrderId = created.order_id
                     })
-                    Promise.all(orderItems.map(item => {
-                        Item.createOrderItem(item).then(output =>{
-                            return output
-                        }).catch(err => {
-                            return err
+                    return new Bluebird.each(orderItems, function(item){
+                        return new Bluebird((resolve, reject) => {
+                            Item.createOrderItem(item).then(output =>{
+                                resolve(output)
+                            }).catch(err => {
+                                reject(err)
+                            })
                         })
-                    })).then(() =>{
+                    }).then(() => {
                         resolve("Order Added in system");
                     }).catch(err => {
                         reject(err);
@@ -133,6 +135,8 @@ Order.createOrder = (newOrder, orderItems) => {
                     reject(err);
                 })
             }
+        }).catch(err => {
+            reject(err);
         })
     })
 }
@@ -146,7 +150,67 @@ Order.getAllOrders = () => {
         Order.findAll({
             order: [['createdAt', 'DESC']]
         }).then(orders => {
-            resolve(orders);
+            new Bluebird.each(orders, function(order){
+                let notStarted = 0;
+                let notStartedOrder = 0;
+                return new Bluebird((resolve, reject) => {
+                    ItemCategory.getProductionItems(order.order_id).then(items => {
+                        let pending = false;
+                        let inProgress = false;
+                        items.map(item => {
+                            item.Production_Items.map(production => {
+                                console.log(production)
+                                if(production.status === "Pending Material"){
+                                    pending = true
+                                }else if(production.status === "Not Started"){
+                                    notStarted++
+                                }
+                                if(production.production_quantity !== 0 || production.produced_quantity !== 0){
+                                    inProgress = true;
+                                }
+                            })
+                            
+                            if(notStarted === item.Production_Items.length){
+                                notStartedOrder++;
+                            }
+
+                            console.log("NEXT")
+                            console.log(notStarted)
+                            console.log(item.Production_Items.length)
+                            console.log(notStartedOrder)
+                            console.log("NEXT")
+                            
+                        })
+
+                        console.log("STATUS")
+                        console.log(order.status)
+                        console.log(notStarted)
+                        console.log(pending)
+                        console.log("STATUS")
+                        if(order.status !== "Completed" && order.status !== "Pending Sales Approval" && order.status !== "Pending Production Approval"){
+                            if(pending){
+                                if(inProgress){
+                                    order.status = "In Progress/Pending Material"
+                                }else if(!inProgress){
+                                    order.status = "Pending Material"
+                                }
+                                
+                            }else if(notStarted === items.length){
+                                order.status = "Not Started"
+                            }else{
+                                order.status = "In Progress"
+                            }
+                        }
+                        resolve("Status Changed")
+                    }).catch(err => {
+                        reject(err);
+                    })
+                })
+            }).then(() => {
+                resolve(orders);
+            }).catch(err => {
+                reject(err)
+            })
         }).catch(err => {
             reject(err);
         });
@@ -216,8 +280,53 @@ Order.getOrderById = orderId => {
                     attributes: ["id", "firstName", "lastName"]
                 }).then(productionTeam => {
                     found.productionTeam = productionTeam
-                    console.log("Stuck");
+                    let notStartedOrder = 0
+                    let notStarted = 0
+                   
                     ItemCategory.getProductionItems(orderId).then(items => {
+                        
+                        let pending = false
+                        let inProgress = false
+                        items.map(item => {
+                            item.Production_Items.map(production => {
+                                if(production.status === "Pending Material" ){
+                                    pending = true
+                                }else if(production.status === "Not Started"){
+                                    notStarted++
+                                }
+
+                                if(production.production_quantity !== 0 || production.produced_quantity !== 0){
+                                    inProgress = true;
+                                }
+                            })
+                            if(notStarted === item.Production_Items.length){
+                                notStartedOrder++;
+                            }
+                            
+                        })
+
+                        console.log(found.status)
+                        console.log(pending)
+                        if(found.status !== "Completed" && found.status !== "Pending Sales Approval" && found.status !== "Pending Production Approval"){
+                            if(pending){
+                                console.log(11)
+                                console.log(inProgress)
+                                if(inProgress){
+                                    console.log(2)
+                                    found.status = "In Progress/Pending Material"
+                                }else if(!inProgress){
+                                    console.log(3)
+                                    found.status === "Pending Material"  
+                                }
+                            }else if(notStarted === items.length){
+                                console.log(4)
+                                found.status = "Not Started"
+                            }else{
+                                console.log(5)
+                                found.status = "In Progress"
+                            }
+                        }
+                        
                         found.setDataValue('items', items)
                         resolve(found);
                     }).catch(err => {
@@ -227,7 +336,55 @@ Order.getOrderById = orderId => {
                     reject(err);
                 })
             }else{
+                
+                let notStarted = 0
+                let notStartedOrder = 0
                 ItemCategory.getProductionItems(orderId).then(items => {
+                    let pending = false
+                    let inProgress = false
+                    items.map(item => {
+                        item.Production_Items.map(production => {
+                            if(production.status === "Pending Material"){
+                                pending = true
+                            }else if(production.status === "Not Started"){
+                                notStarted++
+                            }
+
+                            if(production.production_quantity !== 0 || production.produced_quantity !== 0){
+                                inProgress = true;
+                            }
+                        })
+                        if(notStarted === item.Production_Items.length){
+                            notStartedOrder++;
+                        }
+                        
+                    })
+
+
+                    console.log(found.status)
+                    console.log(pending)
+                    console.log(notStarted)
+                    console.log(items.length)
+                    if(found.status !== "Completed" && found.status !== "Pending Sales Approval" && found.status !== "Pending Production Approval"){
+                        if(pending){
+                            console.log(11)
+                            if(inProgress){
+                                console.log(2)
+                                found.setDataValue('status', "In Progress/Pending Material")
+                            }else if(!inProgress){
+                                console.log(33)
+                                found.setDataValue('status',"Pending Material")  
+                            }
+                        }else if(notStarted === items.length){
+                            console.log(4)
+                            found.setDataValue('status', "Not Started")
+                        }else{
+                            console.log(5)
+                            found.setDataValue('status',"In Progress")
+                        }
+                        
+                    }
+                    
                     found.setDataValue('items', items)
                     resolve(found);
                 }).catch(err => {
@@ -346,16 +503,27 @@ Order.setProductionEmployee = (orderId, productionId) => {
         }).then(found => {
             found.update({ productionEmployeeId: productionId });
             found.save().then(() => {
-                console.log("Saving");
-                found.reload().then(reloaded => {
-                    console.log(productionId)
-                })
                 resolve("Production Employee Assigned")
             }).catch(err => {
                 reject(err);
             })
         }).catch(err => {
             reject(err);
+        })
+    })
+}
+
+Order.setComplete = orderId => {
+    return new Bluebird((resolve, reject) => {
+        Order.update(
+            { status: "Completed"},
+            { where: 
+                { order_id: orderId }
+            } 
+        ).then(() => {
+            resolve("Status Updated")
+        }).catch(err => {
+            reject(`Error Occured ${err}`)
         })
     })
 }

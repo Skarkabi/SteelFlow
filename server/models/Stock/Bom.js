@@ -2,6 +2,7 @@ import _ from 'lodash';
 import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
+import ItemCategory from './ItemCategory';
 
 const mappings = {
     id: {
@@ -25,6 +26,13 @@ const mappings = {
     updatedAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
+    },
+    name: {
+        type: Sequelize.DataTypes.VIRTUAL,
+        async get() {
+          return await ItemCategory.findOne({ where: {id: 6} })
+            
+        }
     }
 }
 
@@ -77,6 +85,10 @@ Bom.createBom = bom => {
         
     })
     
+}
+
+Bom.getBomFromCategory = categoryId => {
+    ItemCategory.find
 }
 
 export default Bom;

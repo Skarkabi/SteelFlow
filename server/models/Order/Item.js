@@ -3,6 +3,7 @@ import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import ItemAttribute from '../Stock/ItemAttributes';
+import Reserve from './Reserve';
 
 const mappings = {
     id: {
@@ -15,7 +16,17 @@ const mappings = {
         allowNull: false,
         defaultValue: 0
     },
+    total_order_quantity: {
+        type: Sequelize.DataTypes.DOUBLE,
+        allowNull: false, 
+        defaultValue: 0
+    },
     production_quantity: {
+        type: Sequelize.DataTypes.DOUBLE,
+        allowNull: false,
+        defaultValue: 0
+    },
+    produced_quantity: {
         type: Sequelize.DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0
@@ -35,7 +46,10 @@ const mappings = {
         defaultValue: 0
     },
     stock_items: {
-        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['stock_item'])
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['stock_items'])
+    },
+    bom: {
+        type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['bom'])
     },
     createdAt: {
         type: Sequelize.DataTypes.DATE,
@@ -56,6 +70,16 @@ const Item = sequelize.define('Production_Items', mappings, {
         }, 
         {
             name: 'items_production_quantity_index',
+            method: 'BTREE',
+            fields: ['production_quantity'],
+        }, 
+        {
+            name: 'items_produced_quantity_index',
+            method: 'BTREE',
+            fields: ['produced_quantity'],
+        }, 
+        {
+            name: 'items_total_order_quantity_index',
             method: 'BTREE',
             fields: ['production_quantity'],
         }, 
@@ -89,9 +113,18 @@ const Item = sequelize.define('Production_Items', mappings, {
             method: 'BTREE',
             fields: ['updatedAt'],
         }, 
-    ]
-})
+    ],
+    hooks:{
+        beforeBulkUpdate(item){
+            console.log(item)
+            item.attributes.status = "TEST"
+                console.log("UUUPPPPRRRPRPRPRPRPRPR")
 
+            
+        } 
+    }
+})
+  
 /**
  * Funciton to add order item into system
  * @param {*} newOrderItem 
@@ -126,6 +159,80 @@ Item.getOrderItemById = itemId => {
     });
 }
 
+function updateStockCount(reserve){
+    return new Bluebird((resolve, reject) => {
+        let stockQuant = reserve.quantity;
+        if(reserve.production){
+            stockQuant = 0;
+        }
+        Item.update(
+            { 
+                stock_quantity: sequelize.fn(`${stockQuant} + `, sequelize.col('stock_quantity')),
+                balance: sequelize.fn(`${reserve.quantity} + `, sequelize.col('balance'))
+            },
+
+            { where: { id: reserve.ProductionItemId} } 
+        ).then(() => {
+            resolve("Updated")
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+Item.startProduction = (received) => {
+    return new Bluebird((resolve, reject) => {
+        let startQuant = 0
+        let finishQuant = 0
+        if(received.startQuant !== ''){
+            startQuant =  parseFloat(parseFloat(received.startQuant).toFixed(2));
+        }
+
+        if(received.finishQuant !== ''){
+            finishQuant =  parseFloat(parseFloat(received.finishQuant).toFixed(2));
+        }
+        startQuant = startQuant - finishQuant;
+        Item.findOne({
+            where: { id: received.id }
+        }).then(found => {
+            console.log("Count")
+            console.log(found.production_quantity)
+            console.log(startQuant);
+            console.log(finishQuant)
+            console.log("Count")
+            found.production_quantity = startQuant + found.production_quantity;
+            found.produced_quantity = finishQuant + found.produced_quantity;
+            found.balance = finishQuant + found.balance;
+
+            console.log("Count")
+            console.log(found.production_quantity)
+            console.log(startQuant);
+            console.log(finishQuant)
+            console.log("Count")
+            if(found.production_quantity !== 0){
+                
+                found.status = "In Progress"
+            }
+            if(found.total_order_quantity === found.balance){
+                found.status = "Completed"
+
+            }
+            found.save().then(() => {
+                resolve("Updated")
+            }).catch(err => {
+                reject(err);
+            })
+        })
+        
+    })
+}
+
+Item.reserveItem = (reserves) => {
+    return new Bluebird.each(reserves, updateStockCount).then(output => {
+        
+        return output;
+    })
+}
 /**
  * Function to retreive all for speceified order
  * @param {*} orderId 

@@ -42,7 +42,6 @@ router.post('/', async (req, res, next) =>
      
       await SaveSession(req);
       // Make sure that we are not showing the user login page, if the user already logged in.
-      console.log(user);
       res.redirect('/');
       
     }

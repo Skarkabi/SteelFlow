@@ -3,11 +3,17 @@ import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import Item from './Item';
+import RequestedItem from './RequestedItem';
 
 const mappings = {
     id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    materialRequestNumber: {
         type: Sequelize.DataTypes.STRING,
-        primaryKey: true
+        allowNull: false
     },
     invoice: {
         type: Sequelize.STRING,
@@ -33,6 +39,11 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
             name: 'material_request_id_index',
             method: 'BTREE',
             fields: ['id'],
+        },
+        {
+            name: 'material_request_materialRequestNumber_index',
+            method: 'BTREE',
+            fields: ['materialRequestNumber'],
         }, 
         {
             name: 'material_request_invoice_index',
@@ -52,6 +63,18 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
     ]
 });
 
+function checkFinished(id){
+    return new Bluebird((resolve, reject) => {
+        MaterialRequest.findOne({
+            where: {
+                id: id
+            },
+            include: [RequestedItem]
+        }).then(materialRequest => {
+            resolve(true);
+        })
+    })
+}
 /**
  * Function to add material request into system
  * @param {*} newMaterialRequest 
@@ -59,12 +82,57 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
  */
 MaterialRequest.createMaterialRequest = newMaterialRequest => {
     return new Bluebird((resolve, reject) => {
-        MaterialRequest.create(newMaterialRequest).then(() => {
-            resolve(`Material request ${newMaterialRequest.id} has been added in the system!`)
+        getLastMaterialRequestNumber().then(number => {
+            newMaterialRequest.materialRequestNumber = number;
+            MaterialRequest.create(newMaterialRequest).then(created => {
+                newMaterialRequest.items.map(item => {
+                    item.MaterialRequestId = created.id
+                })
+                RequestedItem.addItem(newMaterialRequest.items).then(() => {
+                    Item.findOne({
+                        where:{
+                            id: newMaterialRequest.ProductionItemId
+                        }
+                    }).then(orderItem => {
+                        orderItem.status = "Pending Material";
+                        orderItem.save().then(() => {
+                            resolve(`Material request ${newMaterialRequest.id} has been added in the system!`)
+                        }).catch(err => {
+                            reject(err);
+                        })
+                    }).catch(err => {
+                        reject(err);
+                    })
+                    
+                }).catch(err => {
+                    reject(err);
+                })
+                
+            }).catch(err => {
+                console.log("This Error")
+                reject(err);
+            })
         }).catch(err => {
+            console.log("Next Error")
             reject(err);
         })
 
+    })
+}
+
+function getLastMaterialRequestNumber (){
+    return new Bluebird((resolve, reject) => {
+        MaterialRequest.findOne({
+            order: [ [ 'createdAt', 'DESC' ]],
+        }).then(found => {
+            if(!found){
+                resolve(10001);
+            }
+            const materialRequestNumber = parseInt(found.materialRequestNumber) + 1
+            resolve(materialRequestNumber);
+        }).catch(err => {
+            reject(err)
+        });
     })
 }
 

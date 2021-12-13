@@ -225,6 +225,31 @@ Item.getStockForProduction = item => {
     })
 }
 
+function updateReserve(reserve){
+    return new Bluebird((resolve, reject) => {
+        console.log(5.1)
+        Item.update(
+            { reserved: sequelize.fn(`${reserve.quantity} + `, sequelize.col('reserved'))},
+            { where: {id: reserve.StockItemId} }
+        ).then(() => {
+            console.log(5.2);
+            resolve ("Updated")
+        }).catch(err => {
+            reject(err);
+        })
+    
+    })
+    
+        
+}
+
+Item.reserveItem = (reserves) => {
+    console.log(4)
+    return new Bluebird.each(reserves, updateReserve).then(output => {
+        console.log(6);
+        return output
+    })
+}
 Item.getFullStock = () => {
     return new Bluebird((resolve, reject) => {
         Item.findAll({

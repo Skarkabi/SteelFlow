@@ -11,6 +11,8 @@ import ItemAttribute from './Stock/ItemAttributes';
 import ItemCategory from './Stock/ItemCategory';
 import Supplier from './Stock/Supplier';
 import Order from './Order/Order';
+import Reserve from './Order/Reserve';
+import RequestedItem from './Order/RequestedItem';
 
 Users.hasOne(Restrictions);
 Users.hasOne(WorkFor, {foreignKey: "employeeId"});
@@ -24,26 +26,33 @@ Orders.hasMany(MaterialRequest);
 Orders.hasMany(OrderItems);
 MaterialRequest.belongsTo(Orders);
 OrderItems.belongsTo(Orders);
-MaterialRequest.hasMany(OrderItems);
-OrderItems.belongsTo(MaterialRequest);
+OrderItems.hasMany(MaterialRequest);
+MaterialRequest.hasMany(RequestedItem);
 
 ItemCategory.hasMany(StockItems);
 ItemCategory.hasMany(Attribute);
 ItemCategory.hasMany(Bom);
 ItemCategory.hasMany(OrderItems);
+ItemCategory.hasMany(RequestedItem);
 StockItems.belongsTo(ItemCategory);
 Attribute.belongsTo(ItemCategory);
 Bom.belongsTo(ItemCategory);
 OrderItems.belongsTo(ItemCategory);
 
+RequestedItem.hasMany(ItemAttribute);
 StockItems.hasMany(ItemAttribute);
 OrderItems.hasMany(ItemAttribute);
 ItemAttribute.belongsTo(StockItems);
 ItemAttribute.belongsTo(OrderItems);
 ItemAttribute.belongsTo(Attribute);
+ItemAttribute.belongsTo(RequestedItem);
 
 StockItems.belongsTo(Supplier);
 Supplier.hasMany(StockItems);
+
+OrderItems.hasMany(Reserve);
+StockItems.hasMany(Reserve);
+
 
 export default {
     Users, 

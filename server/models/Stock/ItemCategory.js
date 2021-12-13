@@ -7,6 +7,8 @@ import Bom from './Bom';
 import StockItem from './Item';
 import ItemAttribute from './ItemAttributes';
 import ProducitonItem from '../Order/Item';
+import MaterialRequest from '../Order/MaterialRequest';
+import RequestedItem from '../Order/RequestedItem';
 
 const mappings = {
     id:{
@@ -120,8 +122,6 @@ ItemCategory.createCategory = (itemCategory, categoryAttributes, categoryBom) =>
                     categoryAttributes.map(attribute => {
                         attribute.ItemCategoryId = newCategory.id
                     })
-                    console.log("MY BOM *************");
-                    console.log(categoryBom);
                     Attribute.addAttributes(categoryAttributes).then(() => {
                         Bom.createBom(categoryBom).then(() => {
                             resolve("Item Category Added to System");
@@ -181,7 +181,10 @@ ItemCategory.getDivisionCategoryStockItems = division => {
     return new Bluebird((resolve, reject) => {
         ItemCategory.findAll({
             where: {
-                division: division,
+                [Op.or]:[
+                    {division: division,},
+                    {division: "All|"}
+                ],
                 type: {
                     [Op.not]: "Raw Material"
                 }
@@ -208,76 +211,197 @@ ItemCategory.getDivisionCategoryStockItems = division => {
     })
 }
 
+function getBomCategory(items){
+    let bomCatgory = [];
+        return new Bluebird.each(items.Boms, function(bom){
+            return new Bluebird((resolve, reject) => {
+                ItemCategory.findOne({
+                    where: {id: bom.item_id},
+                    include: [
+                        {model: Attribute}
+                    ]
+                }).then(itemCategory => {
+                    ItemCategory.getSpecificStock(itemCategory.id).then(stock => {
+                      
+                       
+                        itemCategory.setDataValue('stock_item', stock.Stock_Items)
+                       
+                        bomCatgory.push(itemCategory)
+                        items.Boms = bomCatgory
+                        resolve(bomCatgory);
+                    })
+                    
+                })
+            })
+        })
+        
+    
+}
+
 ItemCategory.getCategoryAndAttributes = () => {
     return new Bluebird((resolve, reject) => {
         ItemCategory.findAll({
             include: [
-                {model: Attribute}
+                {model: Attribute},
+                {model: Bom}
             ]
         }).then(found => {
-            resolve(found)
+            return new Bluebird.each(found, getBomCategory).then(output => {
+               
+                resolve(found)
+            })
+            
         }).catch(err => {
             reject(err);
         })
     })
 }
-ItemCategory.getProductionItems = orderId => {
-    return new Bluebird((resolve, reject) => {
-        ItemCategory.findAll({
-            include: [
-                {model: Attribute},
-                {model:ProducitonItem,
-                    where: {
-                        OrderOrderId: orderId
-                    },
-                    include: [
-                        {model: ItemAttribute}
-                    ],
-                    order: ["unit", "ASC"]
-                }
-            ],
-            order: [[Attribute, "position", "ASC"]]
-        }).then(found => {
-            Promise.all(found.map(foundItems => {
-                foundItems.Production_Items.map(item => {
-                    StockItem.getStockForProduction(item).then(stockItems=>{
-                        let attributes = [];
-                        item.Item_Attributes.map(attribute => {
-                            const foundAttribute = foundItems.Attributes.find(attr => {
-                                return attr.id === attribute.AttributeId
-                            })
+
+function setProductionItems(foundItems){
+    return new Bluebird.each(foundItems.Production_Items, function(item){
+        return new Bluebird((resolve, reject) => {
+            let pendingMaterial = false;
+            let originalStatus = item.status
+            item.Material_Requests.map(materialRequest => {
+                materialRequest.Requested_Items.map(async requestedItem =>{
+                    console.log("Received");
+                    console.log(requestedItem.received);
+                    console.log("Quantity");
+                    console.log(requestedItem.quantity);
+                    if(requestedItem.quantity !== requestedItem.received){
+                        pendingMaterial = true
+                    }
+                    let attributes = [];
+                    console.log(1)
+                    const allAttributes = await Attribute.findAll({where: { ItemCategoryId: requestedItem.ItemCategoryId}});
+                    const requestedItemName = await ItemCategory.findOne({where: { id: requestedItem.ItemCategoryId}});
+                    requestedItem.setDataValue("name", requestedItemName.name)
+                    
+                    console.log(requestedItem.ItemCategoryId)
+                    requestedItem.Item_Attributes.map( attribute => {
+                        const foundAttribute = allAttributes.find(attr => {
+                            return attr.id === attribute.AttributeId
+                        })
+                       
+                        if(foundAttribute){
                             attribute.position = foundAttribute.position
                             attribute.measurment = foundAttribute.measurment
                             attributes[attribute.position - 1] = attribute
-                        })
-                        item.Item_Attributes = attributes;
-                        item.name = foundItems.name
-                        let details = ""
-                        for(let i = 0; i < attributes.length; i++){
-                            if(details !== ""){
-                                details = `${details} x ${attributes[i].unit} ${attributes[i].measurment}`
-                            }else{
-                                details = `${attributes[i].unit} ${attributes[i].measurment}`
-                            }
-                            
-                        };
-                        item.details = details
-                        console.log("Finding Stock");
-                        item.setDataValue('stock_item', stockItems)
-    
+                        }
+                        
                     })
+                    requestedItem.Item_Attributes = attributes;
+                    requestedItem.name = requestedItemName.name
+                    let details = ""
+                    for(let i = 0; i < attributes.length; i++){
+                        if(details !== ""){
+                            details = `${details} x ${attributes[i].unit} ${attributes[i].measurment}`
+                        }else{
+                            details = `${attributes[i].unit} ${attributes[i].measurment}`
+                        }
+                    
+                    };
+
+                    requestedItem.setDataValue('details', details)
                 })
-                
-            })).then(() => {
-                console.log("Resolving Stock");
-                resolve(found);
             })
+
+            console.log("Mat")
+            console.log(pendingMaterial)
+            if(pendingMaterial){
+                if(originalStatus === "In Progress"){
+                    item.status = "In Progress/Pending Material"
+                }else{
+                    item.status = "Pending Material"
+                }
+
+            }else if(item.production_quantity === 0 && item.produced_quantity === 0 && item.stock_quantity === 0){
+
+                item.status = "Not Started"
+            }else if(item.balance === item.total_order_quantity){
+                item.status = "Completed"
+            }else{
+                item.status = "In Progress"
+            }
+           
             
-            
-        }).catch(err => {
-            reject(err);
+            item.setDataValue('bom', foundItems.Boms)
+            StockItem.getStockForProduction(item).then(stockItems=>{
+                let attributes = [];
+                item.Item_Attributes.map(attribute => {
+                    const foundAttribute = foundItems.Attributes.find(attr => {
+                        return attr.id === attribute.AttributeId
+                    })
+                    attribute.position = foundAttribute.position
+                    attribute.measurment = foundAttribute.measurment
+                    attributes[attribute.position - 1] = attribute
+                })
+                item.Item_Attributes = attributes;
+                item.name = foundItems.name
+                let details = ""
+                for(let i = 0; i < attributes.length; i++){
+                    if(details !== ""){
+                        details = `${details} x ${attributes[i].unit} ${attributes[i].measurment}`
+                    }else{
+                        details = `${attributes[i].unit} ${attributes[i].measurment}`
+                    }
+                
+                };
+                item.details = details
+                console.log("Finding Stock");
+                item.setDataValue('stock_item', stockItems)
+                resolve(item)
+            }).catch(err => {
+                reject(err);
+            })
         })
+            
     })
+}
+
+ItemCategory.getProductionItems = orderId => {
+   return new Bluebird((resolve, reject) => {
+    ItemCategory.findAll({
+        include: [
+            {model: Attribute},
+            {model:ProducitonItem,
+                where: {
+                    OrderOrderId: orderId
+                },
+                include: [
+                    {model: ItemAttribute},
+                    {model: MaterialRequest,
+                        include: [
+                            {model: RequestedItem,  separate: true,
+                                include: [
+                                    
+                                    {model: ItemAttribute, separate: true,}
+                                ],
+    
+                                
+                            }
+                        ],
+                        required: false
+                    }
+                ],
+                order: ["unit", "ASC"]
+            },
+            {model: Bom}
+        ],
+        separate: true,
+        order: [[Attribute, "position", "ASC"]]
+    }).then(found => {
+        return new Bluebird.each(found, setProductionItems).then(() => {
+            return new Bluebird.each(found, getBomCategory).then(output => {
+                resolve(found)
+            })
+        })
+        
+    }).catch(err => {
+        reject (err);
+    })
+   })
+        
 }
 ItemCategory.getSpecificStock = id => {
     return new Bluebird((resolve, reject) => {

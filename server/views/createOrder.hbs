@@ -146,6 +146,8 @@
             let mContent = document.getElementById("requestContent")
             let itemAttributesArray = []
             let valid = true;
+            let quant = $("#quantity").val()
+            console.log($("#quantity").val())
             if($("#quantity").val() === ""){
                 valid = false;
             }
@@ -170,12 +172,13 @@
                     rowCount,
                     $("#itemCategory").val(),
                     itemDetails,
-                    $("#quantity").val(),
+                    quant,
                     "Action",
                 ]).draw(false);
                 modal.style.display = "none";
                 mContent.innerHTML='';
-                orderItems.push({ItemCategoryId: selectedCategory, attributes:itemAttributesArray, balance:$("#quantity").val(), status:"Not Started"});
+                
+                orderItems.push({ItemCategoryId: selectedCategory, attributes:itemAttributesArray, total_order_quantity:quant, status:"Not Started"});
             }else{
                 alert("please fill all required input")
             }

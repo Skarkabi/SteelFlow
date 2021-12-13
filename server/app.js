@@ -34,6 +34,9 @@ import StockItem from './models/Stock/Item';
 import ItemAttribute from './models/Stock/ItemAttributes';
 import Item from './models/Stock/Item';
 import Supplier from './models/Stock/Supplier';
+import OrderItem from './models/Order/Item';
+import Bluebird from 'bluebird';
+import Reserve from './models/Order/Reserve';
 
 handlebars.registerHelper("counter", function (index){
     return index + 1;
@@ -278,6 +281,32 @@ const newSupplier = {
     phone: "0506660187",
 
 }
+const reserves = [
+    {quantity: 1, ProductionItemId: 1, StockItemId: 1},
+    {quantity: 1, ProductionItemId: 2, StockItemId: 1},
+    {quantity: 1, ProductionItemId: 3, StockItemId: 1},
+    {quantity: 1, ProductionItemId: 2, StockItemId: 2},
+]
+
+/*
+console.log(1);
+
+Reserve.createReserve(reserves).then(output => {
+    console.log(10);
+    console.log(output);
+}).catch(err => {
+    console.error(err);
+})
+*/
+
+/*
+Reserve.createReserve([{ProductionItemId: 7, StockItemId: 1, cost: "800", quantity: 3, supplier: "T.M.I.", production: true}]).then(output => {
+    console.log(output)
+}).catch(err => {
+    console.error(err);
+})
+*/
+
 /*
 ItemCategory.findAll({
     where: {

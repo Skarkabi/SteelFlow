@@ -8,7 +8,6 @@ const router = express.Router();
 
 router.get('/view', (req, res,next) => {
     ItemCategory.getAllCategoryStockItems().then(stock => {
-        console.log(stock)
         res.render("displayFullStock", {
             title: "Full Stock",
             jumbotronDescription: "View total stock in the system.",
@@ -23,7 +22,6 @@ router.get('/view', (req, res,next) => {
 
 router.get('/view/:id', (req, res,next) => {
     ItemCategory.getSpecificStock(req.params.id).then(stock => {
-        console.log(stock)
         res.render("displayCategoryStock", {
             title: stock.name,
             jumbotronDescription: "View total stock in the system.",
@@ -68,7 +66,6 @@ router.get('/add', (req, res, next) => {
 })
 
 router.post('/add', (req, res, next) => {
-    console.log(req.body)
     let itemAttributes = []
     if(Array.isArray(req.body.attributes)){
         for(let i = 0; i < req.body.attributes.length; i++){
@@ -98,11 +95,9 @@ router.post('/add', (req, res, next) => {
 
     StockItem.createItem(newItem).then(output => {
         req.flash('success_msg', output);
-        console.log(output)
         res.redirect('/stock/add')
     }).catch(err => {
         req.flash('error_msg', err);
-        console.log(err)
         req.session.save(function() {
             res.redirect('/stock/add')
         });
@@ -118,13 +113,12 @@ router.post('/add/category', (req, res, next) => {
         quantity_unit: req.body.unitType,
         division: req.body.division
     }
-    console.log(req.body.BomAdded)
+
     let newBom = null;
     if(req.body.BomAdded !== ""){
         newBom = JSON.parse(req.body.BomAdded);
     }
     
-    console.log(newBom);
     let newAttribtues = [];
     if(Array.isArray(req.body.attributeName)){
         for(let i = 0; i < req.body.attributeName.length; i++){
@@ -149,13 +143,11 @@ router.post('/add/category', (req, res, next) => {
         req.flash('success_msg', output);
         res.redirect('/stock/add/category')
     }).catch(err => {
-        console.log(err);
         req.flash('error_msg', err);
         req.session.save(function() {
             res.redirect('/stock/add/category')
         });
     })
-    console.log(req.body);
 
 })
 
@@ -167,7 +159,6 @@ router.get('/add/category', (req, res, next) => {
             return item.type;
         });
         let types = [ ...new Set(categoryTypes)]
-        console.log(types);
         res.render('addItemCategory', {
             title:"Create Item Category",
             jumbotronDescription: "Add a new Item Category to System",
