@@ -10,30 +10,38 @@ const mappings = {
         primaryKey: true,
         autoIncrement: true
     },
+
     item_id:{
         type: Sequelize.DataTypes.INTEGER,
     },
+
     measurment: {
         type: Sequelize.DataTypes.STRING,
     },
+
     quantity: {
         type: Sequelize.DataTypes.DOUBLE,
     },
+
     createdAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
     },
+
     updatedAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
     },
+
     name: {
         type: Sequelize.DataTypes.VIRTUAL,
         async get() {
           return await ItemCategory.findOne({ where: {id: 6} })
             
         }
+
     }
+
 }
 
 const Bom = sequelize.define('Boms', mappings, {
@@ -43,32 +51,39 @@ const Bom = sequelize.define('Boms', mappings, {
             method: 'BTREE',
             fields: ['id'],   
         },
+
         {
             name: 'bom_item_id_index',
             method: 'BTREE',
             fields: ['item_id'],   
         },
+
         {
             name: 'bom_measurment_index',
             method: 'BTREE',
             fields: ['measurment'],   
         },
+
         {
             name: 'bom_quantity_index',
             method: 'BTREE',
             fields: ['quantity'],   
         },
+
         {
             name: 'bom_createdAt_index',
             method: 'BTREE',
             fields: ['createdAt'],   
         },
+
         {
             name: 'bom_updatedAt_index',
             method: 'BTREE',
             fields: ['updatedAt'],   
         }
+
     ]
+
 });
 
 Bom.createBom = bom => {
@@ -76,11 +91,15 @@ Bom.createBom = bom => {
         if(bom){
             Bom.bulkCreate(bom).then(() => {
                 resolve("Bom Added");
+
             }).catch(err => {
                 reject(err);
+
             })
+
         }else{
             resolve("No Bom to Add");
+            
         }
         
     })

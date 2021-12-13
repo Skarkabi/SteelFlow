@@ -12,9 +12,9 @@ router.get('/', (req, res, next) => {
             {title: 'Home Page',
             jumbotronDescription: "Welcome! This is your dashboard and you can access everything from here easily.",
             msgType: req.flash(),
+
         })
        
-
     }else{
        res.redirect('/login');
 

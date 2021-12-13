@@ -52,53 +52,62 @@
 
                     </div>
                 </div>
-                  <!-- Modal content -->
             </div>
         </div>
     </form>
 </div>
 
 <script>
-
     function requestModel(){
         var modal = document.getElementById("requestModal");
         var mContent = document.getElementById("requestContent")
-        // Get the button that opens the modal
         var btn = document.getElementById("bom");
-        // Get the <span> element that closes the modal
         var span = document.getElementsByClassName("close")[0];
-        // When the user clicks on the button, open the modal
         modal.style.display = "block";
-        mContent.insertAdjacentHTML("beforeend",`{{>createBom}}`
-        )
+        mContent.insertAdjacentHTML("beforeend",`{{>createBom}}`)
         span.onclick = function() {
             modal.style.display = "none";
             mContent.innerHTML='';
+
         }
-        // When the user clicks anywhere outside of the modal, close it
+
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
                 mContent.innerHTML='';
+
             }
+
         }
 
         if(document.getElementById("confirmBomAdded").value === "true"){
             let existingBom = JSON.parse(document.getElementById("BomAdded").value)
             existingBom.map(item => {
                 selectItem(item.name, item.id)
-            })
-            $('#materialItems').css({"border-color": "#00b300", 
-             "border-width":"1px", 
-             "border-style":"solid"});
 
-             $('#selectedItems').css({"border-color": "#C70000", 
-             "border-width":"1px", 
-             "border-style":"solid"});
-            console.log(existingBom);
+            })
+
+            $('#materialItems').css(
+                {
+                    "border-color": "#00b300", 
+                    "border-width":"1px", 
+                    "border-style":"solid"
+                }
+
+            );
+
+             $('#selectedItems').css(
+                {
+                    "border-color": "#C70000", 
+                    "border-width":"1px", 
+                    "border-style":"solid"
+                }
+            
+            );
+
         }
-        
-   }
+    
+    }
 
     $(document).ready(function(){
         $('#attributeNumber').change(function(){
@@ -107,97 +116,95 @@
             if(numAttributes > 6){
                 numAttributes = 6;
                 $(this).val(6);
+
             }
             for(let i = 0; i < numAttributes; i++){
                 $("#startSpot").append(`<div name="attribute-${i}" id="attribute-${i}" style="padding-top: 30px;" class="form-row"></div>`);
-                $(`#attribute-${i}`).append( `
-                    <div class="form-group col required" style="">
-                        <label for="attributeName">Attribute ${i + 1} Name</label>
-                        <input list="attributeName"  name="attributeName" class="form-control" required>
-                    </div>
-                    <div class="form-group col required" style="">
-                        <label for="attributeUnit">Attribute ${i + 1} Measurment Unit</label>
-                        <input list="attributeUnit"  name="attributeUnit" class="form-control" required>
-                    </div>`)
-            }
-        })
-    })
-    /*
-    $(document).ready(function(){
-        $(document).on("change", "#materialType", function(){
-            let selectedType = $("#materialType").val();
-            {{#each items}}
-             $("#materialItems").append(`
-                
-                <div class="form-row">
-                        <div class="form-group col">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                                <label class="form-check-label" for="flexCheckDefault">
-                                    {{this.name}}
-                                    {{this.type}}
-                                </label>
-                            </div>
+                $(`#attribute-${i}`).append(
+                    `
+                        <div class="form-group col required" style="">
+                            <label for="attributeName">Attribute ${i + 1} Name</label>
+                            <input list="attributeName"  name="attributeName" class="form-control" required>
                         </div>
-                    </div>
-            `);
-            {{/each}}
-           
-           
+                        <div class="form-group col required" style="">
+                            <label for="attributeUnit">Attribute ${i + 1} Measurment Unit</label>
+                            <input list="attributeUnit"  name="attributeUnit" class="form-control" required>
+                        </div>
+                    `
+                )
+
+            }
+
         })
-         
-    })*/
+
+    })
         
     function setItems(items){
         const jsonItems = JSON.parse(items);
         const type = document.getElementById("materialType").value;
         const filteredItems = jsonItems.filter(item => {
             return item.type === type;
+
         })
+
         $("#materialItems").html('');
         filteredItems.map(item => {
-             $("#materialItems").append(`
-                
-                <div class="form-row">
+             $("#materialItems").append(
+                `
+                    <div class="form-row">
                         <div class="form-group col">
                             <div class="form-control" style="border: 0;">
                                 <label value="${item.id}" id="add ${item.id}"><i class="fas fa-plus-circle" style="color: #00b300" onclick="selectItem('${item.name}', '${item.id}')"></i> ${item.name} </label>
                             </div>
                         </div>
                     </div>
-            `);
-        })
-        $('#materialItems').css({"border-color": "#00b300", 
-             "border-width":"1px", 
-             "border-style":"solid"});
+                `
+            );
 
-             $('#selectedItems').css({"border-color": "#C70000", 
-             "border-width":"1px", 
-             "border-style":"solid"});
-        console.log(filteredItems);
+        })
+
+        $('#materialItems').css(
+            {
+                "border-color": "#00b300", 
+                "border-width":"1px", 
+                "border-style":"solid"
+            }
+        
+        );
+        
+        $('#selectedItems').css(
+            {
+                "border-color": "#C70000", 
+                "border-width":"1px", 
+                "border-style":"solid"
+            }
+        
+        );
+        
     }
 
     function selectItem(name, id){
         const itemToAdd = document.getElementById(`remove ${id}`);
-        console.log(itemToAdd);
         if(itemToAdd === null){
-            $("#selectedItems").append(`
-                <div id="remove ${id} div" class="form-row">
-                    <div class="form-group col">
-                        <div class="form-control" style="border: 0;">
-                            <label value="${id}" id="remove ${id}"><i class="fas fa-times-circle" style="color: #C70000" onclick="removeItem(${id})"></i> ${name} </label>
-                            <input value="${id}" placeholder="${name}" hidden>
+            $("#selectedItems").append(
+                `
+                    <div id="remove ${id} div" class="form-row">
+                        <div class="form-group col">
+                            <div class="form-control" style="border: 0;">
+                                <label value="${id}" id="remove ${id}"><i class="fas fa-times-circle" style="color: #C70000" onclick="removeItem(${id})"></i> ${name} </label>
+                                <input value="${id}" placeholder="${name}" hidden>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `)
+                `
+            )
+
         }
 
     }
 
     function removeItem(id){
         const itemDiv = document.getElementById(`remove ${id} div`)
-        console.log(itemDiv);
         itemDiv.remove();
 
     }
@@ -207,13 +214,17 @@
         let bom = []
         for(let i = 0; i < bomMaterials.length; i++){
             bom.push({item_id: bomMaterials[i].value, name: bomMaterials[i].placeholder})
+
         }
-        console.log(bom);
+
         document.getElementById("BomAdded").value = JSON.stringify(bom)
+
         if(bom.length === 0){
             document.getElementById("confirmBomAdded").value = "";
+
         }else {
             document.getElementById("confirmBomAdded").value = "true";
+
         }
         
         var modal = document.getElementById("requestModal");
@@ -222,21 +233,5 @@
         mContent.innerHTML='';
         
     }
-    /**
-    * Displays the password
-    * Retrieved from https://www.w3schools.com/howto/howto_js_toggle_password.asp
-    */
-    function showPass()
-    {
-        let paswordField = document.getElementById("password");
 
-        if (paswordField.type === "password")
-        {
-            paswordField.type = "text";
-        }
-        else
-        {
-            paswordField.type = "password";
-        }
-    }
 </script>

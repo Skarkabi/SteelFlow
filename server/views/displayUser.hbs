@@ -2,7 +2,7 @@
     {{!-- Action Buttons --}}
     <div class="header-action-buttons pull-right">
         {{#if user.admin}}
-        <a href="/users/delete/{{existingUser.id}}" role="button" class="btn btn-danger delete" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{existingUser.id}}?"><i class="fas fa-trash" aria-hidden="true"></i> Delete</a>
+            <a href="/users/delete/{{existingUser.id}}" role="button" class="btn btn-danger delete" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{existingUser.id}}?"><i class="fas fa-trash" aria-hidden="true"></i> Delete</a>
         {{/if}}
     </div>
 
@@ -111,75 +111,38 @@
             </div>
         </div>
     </div>
-
-    {{!-- Courses --}}
-    <div class="section-wrapper" hidden>
-        <div class="section-title">
-            <h4><i class="fas fa-cogs"></i> Assigned Jobs</h4>
-            <hr class="my-3">
-        </div>
-        <div class="section-content">
-            <table id="filterable-table" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">Date Created</th>
-                        <th scope="col">Job #</th>
-                        <th scope="col">Vehicle #</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Status</th>
-                        {{#if showPii}}
-                        <th scope="col">Actions</th>
-                        {{/if}}
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each courses}}
-                    <tr>
-                        <td><a href="/courses/course/{{this._id}}" id="courseCode-{{this.code}}">{{this.code}}</a></td>
-                        <td><a href="/courses/course/{{this._id}}">{{this.section}}</a></td>
-                        <td><a href="/courses/course/{{this._id}}">{{this.instructorFullName}}</a></td>
-                        <td><a href="/courses/course/{{this._id}}">{{this.termName}}</a></td>
-                        {{#if ../showPii}}
-                        <td class="table-actions">
-                            <a href="/gradeBooks/{{this._id}}/{{../existingUser._id}}" id="viewGrade-{{this.code}}"><i class="far fa-hand-spock"></i> View Grades</a>
-                        </td>
-                        {{/if}}
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
 
 <script>
     $(document).ready(function(){
         $('.nav-link').click(function(){
-
             $('.nav-link.active').removeClass('active')
             $(this).addClass('active')
-
             const selectedOption = $(this).text()
             $("#ordersList").html("")
-
             if(selectedOption === "All"){
                 $("#ordersList").append(`{{>userAllOrders}}`)
+
             }else if(selectedOption === "Not Started"){
                 $("#ordersList").append(`{{>userNotStartedOrders}}`)
+
             }else if(selectedOption === "In Progress"){
                 $("#ordersList").append(`{{>userInProgressOrders}}`)
+
             }else if(selectedOption === "Completed"){
                 $("#ordersList").append(`{{>userCompletedOrders}}`)
+
             }else if(selectedOption === "Pending"){
                 $("#ordersList").append(`{{>userPendingOrders}}`)
+
             }else if(selectedOption === "Requested"){
                 $("#ordersList").append(`{{>userRequestedOrders}}`)
-            }
-        })
-    })
 
-    $(document).ready(function() {
-        $("#staff").click(function(){
+            }
+
+        })
+
+         $("#staff").click(function(){
             const modal = document.getElementById("requestModal");
             const mContent = document.getElementById("requestContent")
             // Get the button that opens the modal
@@ -199,22 +162,22 @@
                 if (event.target == modal) {
                     modal.style.display = "none";
                     mContent.innerHTML='';
-                }
-            }
-        })
-    })
 
-           
+                }
+
+            }
+
+        })
+
+    })   
 
 </script>
  <style>
+    .nav-item>a:hover {
+        background-color: #BF2B45;
+    }
   
-        .nav-item>a:hover {
-           background-color: #BF2B45;
-        }
-  
-        /*code to change background color*/
-        .nav-item>a.nav-link.active {
-            background-color: #BF2B45;
-        }
-    </style>
+    .nav-item>a.nav-link.active {
+        background-color: #BF2B45;
+    }
+</style>

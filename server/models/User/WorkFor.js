@@ -1,6 +1,5 @@
-import _, { reject } from 'lodash';
-import bcrypt from 'bcrypt';
-import Bluebird, { resolve } from 'bluebird';
+import _ from 'lodash';
+import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import User from './User';
@@ -10,14 +9,17 @@ const mappings = {
         type: Sequelize.DataTypes.STRING,
         allowNull: false
     },
+
     createdAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
     },
+
     updatedAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
     }
+
 }
 
 const WorkFor = sequelize.define('Work_For', mappings, {
@@ -27,12 +29,15 @@ const WorkFor = sequelize.define('Work_For', mappings, {
             method: 'BTREE',
             fields: ['createdAt'], 
         },
+
         {
             name: 'work_for_updatedAt_index',
             method: 'BTREE',
             fields: ['updatedAt'], 
         },
+
     ]
+
 });
 
 async function getManagerName(id){
@@ -44,14 +49,17 @@ async function getManagerName(id){
  * @returns 
  */
 WorkFor.setRelation = newRelation => {
-    console.log(newRelation)
     return new Bluebird((resolve, reject) => {
         WorkFor.create(newRelation).then(() => {
             resolve("Employee Relations Saved!");
+
         }).catch(err => {
             reject(err);
+
         });
+
     })
+
 }
 
 /**
@@ -87,12 +95,23 @@ WorkFor.getManager = employeeId => {
             where: {
                 employeeId: employeeId
             }
+
         }).then(found => {
             User.getUserById(found.managerId).then(manager => {
-                return {managerId: manager.id, firstName: manager.firstName,  lastName: manager.lastName}
+                resolve({managerId: manager.id, firstName: manager.firstName,  lastName: manager.lastName})
+
+            }).catch(err => {
+                reject(err)
+
             })
+
+        }).catch(err => {
+            reject(err);
+
         })
+
     });
+    
 }
 
 export default WorkFor;

@@ -9,12 +9,10 @@
 							<label>Username</label>
 							<input type="text" name="fName" data-test="fName" id="fName" id="fName" class="form-control" placeholder="Enter Username">
 						</div>
-
 						<div class="form-group">
 							<label>Password</label>
 							<input type="password" id="lName" data-test="lName" name="lName" class="form-control" placeholder="Enter Password">
 						</div>
-
 						<div class="form-group">
 							<small><a href="#">Forgot password?</a></small>
 						</div>
@@ -22,30 +20,31 @@
 					</form>
 					<div class="registration-errors">
 						{{#if error}}
-						<div class="alert alert-danger alert-dismissible fade show" role="alert">
-							{{#each error}}
-							<div><small>{{this}}</small></div>
-							{{/each}}
-							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-						</div>
+							<div class="alert alert-danger alert-dismissible fade show" role="alert">
+								{{#each error}}
+									<div><small>{{this}}</small></div>
+								{{/each}}
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
 						{{/if}}
 
 						{{#if error_msg}}
-						<div class="alert alert-danger alert-dismissible fade show" role="alert">
-							<small><strong>Error:</strong> {{error_msg}}</small>
-							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-							
-						</div>
+							<div class="alert alert-danger alert-dismissible fade show" role="alert">
+								<small><strong>Error:</strong> {{error_msg}}</small>
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
 						{{/if}}
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </section>
+
 <style>
 	body {
 		background: #36D1DC;
@@ -55,34 +54,7 @@
 		background: linear-gradient(to right, #5B86E5, #36D1DC);
 		/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 	}
-</style>
-<script src="https://code.jquery.com/jquery-3.5.1.js" crossorigin="anonymous"></script>
-<script src="/xlsx/xlsx.full.min.js"></script>
-<script src="/file-saver/FileSaver.min.js"></script>
-<script>
- var wb = XLSX.utils.book_new();
-	wb.Props = 
-    {
-        Title: "SheetJS Tutorial",
-        Subject: "Test",
-        Author: "Red Stapler",
-        CreatedDate: new Date(2017,12,19)
-    };
-        
-	wb.SheetNames.push("Test Sheet");
-	var ws_data = [['hello' , 'world']];
-	var ws = XLSX.utils.aoa_to_sheet(ws_data);
-	wb.Sheets["Test Sheet"] = ws;
-	var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
-	function s2ab(s) {
-    	var buf = new ArrayBuffer(s.length);
-    	var view = new Uint8Array(buf);
-    	for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-    	return buf;
-                
-	}
 
-	 $("#button-a").click(function(){
-                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'test.xlsx');
-        });
-</script>
+</style>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js" crossorigin="anonymous"></script>

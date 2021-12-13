@@ -11,27 +11,33 @@ const mappings = {
         primaryKey: true,
         allowNull: false
     },
+
     email: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,
         defaultValue: "N/A"
     },
+
     phone: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,
         defaultValue: "N/A"
     },
+
     items: {
         type: Sequelize.DataTypes.VIRTUAL(Sequelize.DataTypes.JSON, ['items'])
     },
+
     createdAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
     },
+
     updatedAt: {
         type: Sequelize.DataTypes.DATE,
         allowNull: true,
     }
+
 }
 
 const Supplier = sequelize.define('Suppliers', mappings, {
@@ -41,37 +47,47 @@ const Supplier = sequelize.define('Suppliers', mappings, {
             method: 'BTREE',
             fields: ['name'], 
         },
+
         {
             name: 'supplier_email_index',
             method: 'BTREE',
             fields: ['email'], 
         },
+
         {
             name: 'supplier_phone_index',
             method: 'BTREE',
             fields: ['phone'], 
         },
+
         {
             name: 'supplier_createdAt_index',
             method: 'BTREE',
             fields: ['createdAt'], 
         },
+
         {
             name: 'supplier_updatedAt_index',
             method: 'BTREE',
             fields: ['updatedAt'], 
         }
+
     ]
+
 });
 
 Supplier.addSuplier = newSupplier => {
     return new Bluebird((resolve, reject) => {
         Supplier.create(newSupplier).then(() => {
             resolve("Supplier Registered In System");
+
         }).catch(err => {
             reject(`Supplier ${newSupplier.name} has already been registered in the system`);
+
         })
+
     })
+
 }
 
 Supplier.getAllSuppliers = () => {
@@ -80,12 +96,17 @@ Supplier.getAllSuppliers = () => {
             include: [
                 {model: StockItem}
             ]
+
         }).then(found => {
             resolve(found);
+
         }).catch(err => {
-            console.log(err);
+           reject(err);
+
         })
+
     })
+
 }
 
 Supplier.getSpecificSupplier = supplierName => {
@@ -94,21 +115,28 @@ Supplier.getSpecificSupplier = supplierName => {
             where: {
                 name: supplierName
             },
+            
         }).then(found => {
             let totalValue = 0
             ItemCategory.getSupplierItems(supplierName).then(items => {
                 items.map(item => {
                     totalValue = (item.cost * item.quantity) + totalValue;
+
                 })
+
                 items.totalValue = totalValue
                 found.setDataValue('items', items)
-                
                 resolve(found);
+
             })
+
         }).catch(err => {
             reject(err);
+
         })
+
     })
+    
 }
 
 

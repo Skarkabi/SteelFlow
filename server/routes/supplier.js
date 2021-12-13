@@ -11,10 +11,18 @@ router.get('/view', (req, res, next) => {
             user: req.user,
             suppliers: suppliers,
             msgType: req.flash()
+
         })
+
     }).catch(err => {
-        console.log(err);
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
+
 })
 
 router.get('/view/:supplierName', (req, res, next) => {
@@ -25,8 +33,18 @@ router.get('/view/:supplierName', (req, res, next) => {
             supplier: supplier,
             user: req.user,
             msgType: req.flash()
+
         })
+
+    }).catch(err => {
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
+
 })
 
 router.get('/register', (req, res, next) => {
@@ -35,7 +53,9 @@ router.get('/register', (req, res, next) => {
         jumbotronDescription: "Register new supplier and details to system",
         user: req.user,
         msgType: req.flash()
+        
     })
+
 })
 
 router.post('/register', (req, res, next) => {
@@ -44,15 +64,20 @@ router.post('/register', (req, res, next) => {
         email: req.body.email,
         phone: req.body.phone
     }
+
     Supplier.addSuplier(newSupplier).then(output => {
         req.flash('success_msg', output);
         res.redirect('/supplier/register')
+
     }).catch(err => {
         req.flash('error_msg', err);
         req.session.save(function() {
             res.redirect('/supplier/register')
+
         });
+
     })
+    
 })
 
 export default router;

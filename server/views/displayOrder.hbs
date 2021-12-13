@@ -2,13 +2,13 @@
     {{!-- Action Buttons --}}
     <div class="header-action-buttons pull-right">
         {{#if user.admin}}
-        <a href="/users/delete/{{order.id}}" role="button" class="btn btn-danger delete" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{order.id}}?"><i class="fas fa-trash" aria-hidden="true"></i> Delete</a>
+            <a href="/users/delete/{{order.id}}" role="button" class="btn btn-danger delete" id="delete" class="delete"data-confirm="Are you sure to delete Employee ID# {{order.id}}?"><i class="fas fa-trash" aria-hidden="true"></i> Delete</a>
         {{/if}}
     </div>
 
     {{!-- User Information --}}
     {{#if order.productionTeam}}
-    <form action="/orders/assign/{{order.order_id}}" method="POST">
+        <form action="/orders/assign/{{order.order_id}}" method="POST">
     {{/if}}
     <div class="section-wrapper">
         <div class="section-title">
@@ -22,14 +22,12 @@
                         <div class="form-group col">
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 {{#if order.productionTeam}}
-                                        <button type="submit" id="employees" name="employees" class="btn btn-outline-success">Assign Production</button>
-                                    
+                                    <button type="submit" id="employees" name="employees" class="btn btn-outline-success">Assign Production</button> 
                                 {{else}}
-                                <form action="/orders/approved/{{order.order_id}}" method="POST">
-                                    <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
-                                </form>
+                                    <form action="/orders/approved/{{order.order_id}}" method="POST">
+                                        <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
+                                    </form>
                                 {{/if}}
-                                
                                 <button type="button" id="staff" name="staff" class="btn btn-outline-danger">Reject</button>
                             </div>
                             <div class="btn-group" id="editGroup" role="group" style="float:right" aria-label="Basic example">
@@ -37,7 +35,6 @@
                                 <button type="button" id="delete" name="delete" class="btn btn-outline-danger">Delete</button>
                             </div>
                         </div>
-                        
                     </div>
                     <div class="form-row">
                         <div class="form-group col display-user">
@@ -55,20 +52,20 @@
                             <input type="text" class="form-control" name="firstName" id="firstName" value="{{order.salesEmployeeId}}" readonly>
                         </div>
                         {{#if order.productionTeam}}
-                        <div class="form-group col display-user">
-                            <label for="lastName">Production</label>
-                            <select type="text" class="form-control" name="productionEmployee" id="productionEmployee" value="{{order.productionEmployeeId}}">
-                                <option value="">Choose One</option>
-                                {{#each order.productionTeam}}
-                                    <option value="{{this.id}}">{{this.firstName}} {{this.lastName}}</option>
-                                {{/each}}
-                            </select>
-                        </div>
-                         {{else}}
-                        <div class="form-group col display-user">
-                            <label for="lastName">Production</label>
-                            <input type="text" class="form-control" name="lastName" id="lastName" value="{{order.productionEmployeeId}}" readonly>
-                        </div>
+                            <div class="form-group col display-user">
+                                <label for="lastName">Production</label>
+                                <select type="text" class="form-control" name="productionEmployee" id="productionEmployee" value="{{order.productionEmployeeId}}">
+                                    <option value="">Choose One</option>
+                                    {{#each order.productionTeam}}
+                                        <option value="{{this.id}}">{{this.firstName}} {{this.lastName}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        {{else}}
+                            <div class="form-group col display-user">
+                                <label for="lastName">Production</label>
+                                <input type="text" class="form-control" name="lastName" id="lastName" value="{{order.productionEmployeeId}}" readonly>
+                            </div>
                         {{/if}}
                     </div>
                     <div class="form-row">
@@ -80,7 +77,6 @@
                             <label for="managerLastName">Production Manager</label>
                             <input type="text" class="form-control" name="managerLastName" id="managerLastName" value="{{order.productionManagerId}}" readonly>
                         </div>
-                        
                     </div>
                     <div class="form-row">
                         <div class="form-group col display-user">
@@ -180,47 +176,8 @@
         </div>
     </div>
     {{#if order.productionTeam}}
-    </form >
+        </form>
     {{/if}}
-
-    {{!-- Courses --}}
-    <div class="section-wrapper" hidden>
-        <div class="section-title">
-            <h4><i class="fas fa-cogs"></i> Assigned Jobs</h4>
-            <hr class="my-3">
-        </div>
-        <div class="section-content">
-            <table id="filterable-table" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">Date Created</th>
-                        <th scope="col">Job #</th>
-                        <th scope="col">Vehicle #</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Status</th>
-                        {{#if showPii}}
-                        <th scope="col">Actions</th>
-                        {{/if}}
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each courses}}
-                    <tr>
-                        <td><a href="/courses/course/{{this._id}}" id="courseCode-{{this.code}}">{{this.code}}</a></td>
-                        <td><a href="/courses/course/{{this._id}}">{{this.section}}</a></td>
-                        <td><a href="/courses/course/{{this._id}}">{{this.instructorFullName}}</a></td>
-                        <td><a href="/courses/course/{{this._id}}">{{this.termName}}</a></td>
-                        {{#if ../showPii}}
-                        <td class="table-actions">
-                            <a href="/gradeBooks/{{this._id}}/{{../order._id}}" id="viewGrade-{{this.code}}"><i class="far fa-hand-spock"></i> View Grades</a>
-                        </td>
-                        {{/if}}
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -228,42 +185,44 @@
         $('.nav-link').click(function(){
             $('.nav-link.active').removeClass('active')
             $(this).addClass('active')
-        })
-    })
 
-    $(document).ready(function(){
+        })
+
         let productionTable = $("#filterable-table").DataTable();
         let completedItems = 0;
         const completed = productionTable.rows().columns().data()[6].filter(status => {
             return status === "Completed"
+
         })
+
         if (completed.length === productionTable.rows().columns().data()[6].length){
-            $("#editGroup").prepend(`
-                <button type="submit" id="complete" name="complete" class="btn btn-outline-success">Complete</button>
-                <input type="string" id="orderId" name="orderId" class="form-control" value="{{order.order_id}}" hidden>
-            `)
+            $("#editGroup").prepend(
+                `
+                    <button type="submit" id="complete" name="complete" class="btn btn-outline-success">Complete</button>
+                    <input type="string" id="orderId" name="orderId" class="form-control" value="{{order.order_id}}" hidden>
+                `
+            )
+
             $('#complete').click(function(e){
                 e.preventDefault();
-                console.log($("#orderId").val())
                 $.ajax({
-                url: "/orders/complete",
-                type: "POST",
-                data: {orderId: $("#orderId").val()},
-                success: function (data){
-                     window.location = "/orders/complete/success"
-                },
-                error: function(){
-                    window.location = "/orders/complete/error";   
-                }
+                    url: "/orders/complete",
+                    type: "POST",
+                    data: {orderId: $("#orderId").val()},
+                    success: function (data){
+                        window.location = "/orders/complete/success"
+                    },
+
+                    error: function(){
+                        window.location = "/orders/complete/error";   
+                    }
+
+                })
+
             })
-            })
+
         }
-       
-        
-        
-        
-    })
-    $(document).ready(function(){
+
         $(document).on("change", "#location", function(){
             if($("#location").val() === "Stock"){
                 $("#stockTable").removeAttr( "hidden" )
@@ -286,18 +245,27 @@
                 let userAttributes = [];
                 for(let j = 0; j < bomStockItems[i].Attributes.length; j++){
                     userAttributes.push({id: $(`#attributeIds-${i}${j}`).val(), unit: $(`#attribtues-${i}${j}`).val()})
+
                 }  
 
                 let stockAttributes = []
                 let matchingAttributes = 0
                 bomStockItems[i].stock_item.map(stockItem => {
-                    console.log(stockItem)
-                    stockAttributes.push({attribute: stockItem.Item_Attributes, quantity: stockItem.quantity, stockItem:stockItem});
-                    
+                    stockAttributes.push(
+                        {
+                            attribute: stockItem.Item_Attributes, 
+                            quantity: stockItem.quantity, 
+                            stockItem:stockItem
+                        }
+
+                    );
+
                 })
+
                 stockItems.push(stockAttributes);
                 userItems.push({user: userAttributes, stock: stockAttributes});
                 stockItems = []
+
             }
             
             for(let z = 0; z < userItems.length; z++){
@@ -306,19 +274,22 @@
                 let stockItem = 0
                 for(let j = 0; j < userItems[z].stock.length; j++){
                     let matchingAtts = 0
-                    
                     for(let i = 0; i < userItems[z].user.length; i++){
                         const stockAttr = userItems[z].stock[j].attribute.filter(stockAttribute => {
                             return (
-                                JSON.stringify(stockAttribute.AttributeId) === userItems[z].user[i].id &&  JSON.stringify(stockAttribute.unit) === userItems[z].user[i].unit
+                                JSON.stringify(stockAttribute.AttributeId) === userItems[z].user[i].id &&  
+                                JSON.stringify(stockAttribute.unit) === userItems[z].user[i].unit
                             )
+
                         })
+
                         if(stockAttr.length > 0){
                             matchingAtts++;
                            
                         }
                         
                     }
+
                     if(matchingAtts === userItems[z].user.length ){
                         stockItem = stockItem + userItems[z].stock[j].quantity
                         $(`#availableQuantity-${z}`).val(`${stockItem}`)
@@ -326,18 +297,22 @@
                         let col = ""
                         userItems[z].stock[j].attribute.map(attr => {
                             col = `${col} <td>${attr.unit}</td>`
+
                         })
-                        $(`#filterable-table-nextt${z}`).DataTable().row.add($(`
-                            <tr>
-                                <td>${userItems[z].stock[j].stockItem.SupplierName}</td>
-                                <td>${userItems[z].stock[j].stockItem.cost}</td>
-                                <td>${userItems[z].stock[j].stockItem.quantity}</td>
-                                <td style='width: 10%'><input class="form-control" id="reserve" type="number"></td>
-                                <td>${userItems[z].stock[j].stockItem.id}</td>
-                                <td>${selectedItem.id}</td>  
-                            </tr>`
-                        
+
+                        $(`#filterable-table-nextt${z}`).DataTable().row.add($(
+                            `
+                                <tr>
+                                    <td>${userItems[z].stock[j].stockItem.SupplierName}</td>
+                                    <td>${userItems[z].stock[j].stockItem.cost}</td>
+                                    <td>${userItems[z].stock[j].stockItem.quantity}</td>
+                                    <td style='width: 10%'><input class="form-control" id="reserve" type="number"></td>
+                                    <td>${userItems[z].stock[j].stockItem.id}</td>
+                                    <td>${selectedItem.id}</td>  
+                                </tr>
+                            `
                         )).draw()
+                        
                     }
                     
                 }
@@ -345,63 +320,68 @@
             }
             
         })
-       
-    })
 
-    $(document).ready(function(){
-        $(document).on("click", "#confirmProduction", function(e){
+         $(document).on("click", "#confirmProduction", function(e){
             e.preventDefault();
             let table = document.getElementById("filterable-table-items" );
             let receivedItems = [];
             if(table.rows.length > 1){
-            for(let i = 1; i < table.rows.length; i++){
-                let row = table.rows[i]
-                let receivedQuantity = ''
-                let receivedItemId = null;
-                console.log(row.cells[5])
-                if(row.cells[5]){
-                    receivedQuantity = row.cells[5].childNodes[1].value;
-                    receivedItemId = row.cells[5].childNodes[3].value;
-                }
+                for(let i = 1; i < table.rows.length; i++){
+                    let row = table.rows[i]
+                    let receivedQuantity = ''
+                    let receivedItemId = null;
+                    if(row.cells[5]){
+                        receivedQuantity = row.cells[5].childNodes[1].value;
+                        receivedItemId = row.cells[5].childNodes[3].value;
+
+                    }
                  
-                if(receivedQuantity === ''){
-                    receivedQuantity = 0;
+                    if(receivedQuantity === ''){
+                        receivedQuantity = 0;
+
+                    }
+
+                    receivedItems.push(
+                        {
+                            id: receivedItemId,
+                            received: receivedQuantity
+                        }
+                    );
+           
                 }
 
-                receivedItems.push({
-                    id: receivedItemId,
-                    received: receivedQuantity
-                });
-           
-            }
              }else{
-                receivedItems.push({
-                    id: null,
-                    received: null
-                });
+                receivedItems.push(
+                    {
+                        id: null,
+                        received: null
+                    }
+                );
             }
+
             const produceItemId = $("#itemId").val()
             const startQuant = $('#startQuantity').val()
             const finishQuant = $('#finishQuantity').val()
             const productionItem = {id: produceItemId, startQuant: startQuant, finishQuant: finishQuant}
             const data = {items : receivedItems, production: productionItem}
-            
             $.ajax({
                 url: "/orders/start",
                 type: "POST",
                 data: data,
                 success: function (data){
                      window.location = "/orders/reserve/sucess"
+
                 },
+
                 error: function(){
                     window.location = "/orders/reserve/error";   
-                }
-            })
-            console.log(receivedItems)
-        })
-    })
 
-    $(document).ready(function(){
+                }
+
+            })
+           
+        })
+
         $(document).on("click", "#addItems", function(e){
             e.preventDefault()
             if($("#location").val() === "Stock"){
@@ -414,10 +394,18 @@
                     let itemQuantity = row.cells[6].childNodes[1].value
                     if(itemQuantity === ''){
                         itemQuantity = 0;
+
                     }
-                    reserveItems.push({quantity: itemQuantity, ProductionItemId: orderId, StockItemId: stockId})
+
+                    reserveItems.push(
+                        {
+                            quantity: itemQuantity, 
+                            ProductionItemId: orderId, 
+                            StockItemId: stockId
+                        }
+                    )
+
                 }
-                console.log(reserveItems);
 
                 $.ajax({
                     url: "/orders/reserve",
@@ -425,76 +413,88 @@
                     data: {items:  reserveItems},
                     success: function (data) {
                         window.location = "/orders/reserve/sucess"
+
                     },
+
                     error: function () {
                         window.location = "/orders/reserve/error";   
+
                     },
+
                 })
+
             }else if($("#location").val() === "Production"){
                 let bomStockItems = [];
                 let materialRequestItems = [];
                 for(let i = 0; i < originalBomStockItems.length; i++){
                     let bomTable = document.getElementById(`filterable-table-nextt${i}`)
-                    console.log(bomTable.rows[1].children[0])
-                   
                     if(bomTable.rows[1].children[0].className !== "dataTables_empty"){
                         for(let j = 1; j < bomTable.rows.length; j++){
                             if(bomTable.rows[j].cells[3].children[0].value !== "" &&  bomTable.rows[j].cells[3].children[0].value !== "0"){
-                                let newItem = {
-                                    supplier: bomTable.rows[j].cells[0].innerHTML, 
-                                    cost: bomTable.rows[j].cells[1].innerHTML,
-                                    quantity: parseFloat(bomTable.rows[j].cells[3].children[0].value).toFixed(2),
-                                    ProductionItemId: parseInt(bomTable.rows[j].cells[5].innerHTML),
-                                    StockItemId: parseInt(bomTable.rows[j].cells[4].innerHTML),
-                                    production: true
-                                }
+                                let newItem = 
+                                    {
+                                        supplier: bomTable.rows[j].cells[0].innerHTML, 
+                                        cost: bomTable.rows[j].cells[1].innerHTML,
+                                        quantity: parseFloat(bomTable.rows[j].cells[3].children[0].value).toFixed(2),
+                                        ProductionItemId: parseInt(bomTable.rows[j].cells[5].innerHTML),
+                                        StockItemId: parseInt(bomTable.rows[j].cells[4].innerHTML),
+                                        production: true
+                                    }
                             
                                 bomStockItems.push(newItem);
+
                             }
                             
                         } 
                         
-                    }else{
-                        console.log("No Data")
                     }
 
                     let itemAttributes = []
                     for(let j = 0; j < originalBomStockItems[i].Attributes.length; j++){
-                        itemAttributes.push({
-                            unit: $(`#attribtues-${i}${j}`).val(),
-                            AttributeId:  $(`#attributeIds-${i}${j}`).val() ,
+                        itemAttributes.push(
+                            {
+                                unit: $(`#attribtues-${i}${j}`).val(),
+                                AttributeId:  $(`#attributeIds-${i}${j}`).val() ,
+                            }
+                        )
+                    }
 
-                        })
-                    }
                     if($(`#quantity-${i}`).val() !== ""){
-                        materialRequestItems.push({
-                            quantity: $(`#quantity-${i}`).val(),
-                            ProductionItemId: selectedItem.id,
-                            ItemCategoryId: originalBomStockItems[i].Attributes[0].ItemCategoryId,
-                            itemAttributes: itemAttributes,
-                            name: selectedItem.name,
-                            itemPosition: (i + 1)
-                        })
+                        materialRequestItems.push(
+                            {
+                                quantity: $(`#quantity-${i}`).val(),
+                                ProductionItemId: selectedItem.id,
+                                ItemCategoryId: originalBomStockItems[i].Attributes[0].ItemCategoryId,
+                                itemAttributes: itemAttributes,
+                                name: selectedItem.name,
+                                itemPosition: (i + 1)
+                            }
+                        )
                     }
-                    
                     
                 }
+
                 let materialRequest = {ProductionItemId: selectedItem.id, items: materialRequestItems}
-                console.log(materialRequest)
-                    
                 $.ajax({
                     url: "/orders/bomMaterial",
                     type: "POST",
                     data: {items: bomStockItems, materialRequest: materialRequest},
                      success: function (data) {
                         window.location = "/orders/bomMaterial/sucess"
+
                     },
+
                     error: function () {
                         window.location = "/orders/bomMaterial/error"
+
                     },
+
                 })
+
             }
+
         })
+        
     })
 
     let originalBomStockItems;
@@ -509,127 +509,155 @@
         mContent.insertAdjacentHTML("beforeend",`{{>produceItem}}`);
         let table = $('#filterable-table-next').DataTable();
         for(let i = 0; i < items.stock_item.length; i++){
-           table.row.add($(`
-                <tr>
-                    <td hidden> <input id='stockId' name='stockId' value='${items.stock_item[i].id}'> </td>
-                     <td hidden> <input id='orderId' name='orderId' value='${items.id}'> </td>
-                    <td> ${i + 1} </td>
-                    <td> ${items.stock_item[i].SupplierName} </td>
-                    <td> ${(items.stock_item[i].quantity - items.stock_item[i].reserved)} </td>
-                    <td> ${items.stock_item[i].cost} </td>
-                    <td style='width: 10%'> <input class='form-control prevent-max' style='background: inherit; font-size: 0.86vw; text-size-adjust: auto;' id='ammountToReserve-${items.stock_item[i].id}' type='number' max='${(items.stock_item[i].quantity - items.stock_item[i].reserved)}' </td>
-                </tr>
-            `)).draw();
+           table.row.add($(
+               `
+                    <tr>
+                        <td hidden> <input id='stockId' name='stockId' value='${items.stock_item[i].id}'> </td>
+                        <td hidden> <input id='orderId' name='orderId' value='${items.id}'> </td>
+                        <td> ${i + 1} </td>
+                        <td> ${items.stock_item[i].SupplierName} </td>
+                        <td> ${(items.stock_item[i].quantity - items.stock_item[i].reserved)} </td>
+                        <td> ${items.stock_item[i].cost} </td>
+                        <td style='width: 10%'> <input class='form-control prevent-max' style='background: inherit; font-size: 0.86vw; text-size-adjust: auto;' id='ammountToReserve-${items.stock_item[i].id}' type='number' max='${(items.stock_item[i].quantity - items.stock_item[i].reserved)}' </td>
+                    </tr>
+                `
+            )).draw();
            
         }
 
         for(let i = 0; i < attributes.length; i++){
             let attributeNames = ""
-            let attributeDivs = `
-                <div class="form-row">
-                    <div class="form-group col required" style="">
-                        <label for="quantity">Quantity to Purchase</label>
-                        <input type="number" id="quantity-${i}"  name="quantity" class="form-control" required>
-                        <input list="attributeIds"  name="attributeIds" class="form-control" value="0" hidden>
+            let attributeDivs = 
+                `
+                    <div class="form-row">
+                        <div class="form-group col required" style="">
+                            <label for="quantity">Quantity to Purchase</label>
+                            <input type="number" id="quantity-${i}"  name="quantity" class="form-control" required>
+                            <input list="attributeIds"  name="attributeIds" class="form-control" value="0" hidden>
+                        </div>
+                        <div class="form-group col required" style="">
+                            <label for="availableQuantity">Available In Stock</label>
+                            <input type="number" id="availableQuantity-${i}"  name="availableQuantity" class="form-control" required readonly>
+                            <input list="attributeIds"  name="attributeIds" class="form-control" value="0" hidden>
+                        </div>
                     </div>
-                    <div class="form-group col required" style="">
-                        <label for="availableQuantity">Available In Stock</label>
-                        <input type="number" id="availableQuantity-${i}"  name="availableQuantity" class="form-control" required readonly>
-                        <input list="attributeIds"  name="attributeIds" class="form-control" value="0" hidden>
-                    </div>
-                </div>`
+                `
 
             for(let j = 0; j < attributes[i].Attributes.length; j = j + 2){
                 if( attributes[i].Attributes[j+1]){
-                    attributeDivs = `${attributeDivs}
-                        <div class="form-row">
-                            <div class="form-group col required" style="">
-                                <label for="attributes">${ attributes[i].Attributes[j].name}</label>
-                                <input type="text" id="attribtues-${i}${j}"  name="attribtues-${i}${j}"  class="form-control" required>
-                                <input type="text" id= "attributeIds-${i}${j}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j].id}" hidden>
+                    attributeDivs = 
+                        `
+                            ${attributeDivs}
+                            <div class="form-row">
+                                <div class="form-group col required" style="">
+                                    <label for="attributes">${ attributes[i].Attributes[j].name}</label>
+                                    <input type="text" id="attribtues-${i}${j}"  name="attribtues-${i}${j}"  class="form-control" required>
+                                    <input type="text" id= "attributeIds-${i}${j}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j].id}" hidden>
+                                </div>
+                                <div class="form-group col required" style="">
+                                    <label for="attributes">${ attributes[i].Attributes[j + 1].name}</label>
+                                    <input type="text" id="attribtues-${i}${j+1}"  name="attribtues-${i}" class="form-control" required>
+                                    <input type="text" id="attributeIds-${i}${j+1}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j + 1].id}" hidden>
+                                </div>
                             </div>
-                            <div class="form-group col required" style="">
-                                <label for="attributes">${ attributes[i].Attributes[j + 1].name}</label>
-                                <input type="text" id="attribtues-${i}${j+1}"  name="attribtues-${i}" class="form-control" required>
-                                <input type="text" id="attributeIds-${i}${j+1}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j + 1].id}" hidden>
-                            </div>
-                        </div>`
-                    attributeNames = `${attributeNames}
-                        <th scope="col">${ attributes[i].Attributes[j].name}</th>
-                        <th scope="col">${ attributes[i].Attributes[j + 1].name}</th>
-                    `
+                        `
+
+                    attributeNames = 
+                        `
+                            ${attributeNames}
+                            <th scope="col">${ attributes[i].Attributes[j].name}</th>
+                            <th scope="col">${ attributes[i].Attributes[j + 1].name}</th>
+                        `
+
                 }else{
-                    attributeNames = `${attributeNames}
-                        <th scope="col">${ attributes[i].Attributes[j].name}</th>
-                    `
-                    attributeDivs = `${attributeDivs}
-                        <div class="form-row">
-                            <div class="form-group col required" style="">
-                                <label for="attributes">${ attributes[i].Attributes[j].name}</label>
-                                <input type="text" id="attribtues-${i}${j}"  name="attribtues-${i}"  class="form-control" required>
-                                <input type="text" id="attributeIds-${i}${j}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j].id}" hidden>
+                    attributeNames = 
+                        `
+                            ${attributeNames}
+                            <th scope="col">${ attributes[i].Attributes[j].name}</th>
+                        `
+                    
+                    attributeDivs = 
+                        `
+                            ${attributeDivs}
+                            <div class="form-row">
+                                <div class="form-group col required" style="">
+                                    <label for="attributes">${ attributes[i].Attributes[j].name}</label>
+                                    <input type="text" id="attribtues-${i}${j}"  name="attribtues-${i}"  class="form-control" required>
+                                    <input type="text" id="attributeIds-${i}${j}"  name="attributeIds-${i}${j}" class="form-control" value="${attributes[i].Attributes[j].id}" hidden>
+                                </div>
                             </div>
-                        </div>
-                    `
+                        `
                 }  
                    
             }
-            attributeDivs = `${attributeDivs} 
-                <div class = form-row">
-                    <table id = "filterable-table-nextt${i}" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Supplier</th>
-                                <th scope="col">Cost</th>
-                                <th scope="col">Available</th>
-                                <th scope="col">Reserve</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bom-${i}">
+
+            attributeDivs = 
+                `
+                    ${attributeDivs} 
+                    <div class = form-row">
+                        <table id = "filterable-table-nextt${i}" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Supplier</th>
+                                    <th scope="col">Cost</th>
+                                    <th scope="col">Available</th>
+                                    <th scope="col">Reserve</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bom-${i}">
             
-                        </tbody>
-                    </table>
-                </div>
-            `
+                            </tbody>
+                        </table>
+                    </div>
+                `
             
-            $("#bomTable").append(`
-                <div class="form-row">
-                    ${attributes[i].name}
-                </div>
-                <div>
-                    ${attributeDivs}
-                </div>
-            `)
+            $("#bomTable").append(
+                `
+                    <div class="form-row">
+                        ${attributes[i].name}
+                    </div>
+                    <div>
+                        ${attributeDivs}
+                    </div>
+                `
+            )
 
             $(`#filterable-table-nextt${i}`).DataTable({
                 responsive: true,
                 pageLength: 10,
+
             });
+
         }
 
         $('.prevent-max').on('keydown keyup change', function(e){
-            console.log($(this).attr('max'));
             if ($(this).val() > parseFloat($(this).attr('max'))
                 && e.keyCode !== 46 // keycode for delete
                 && e.keyCode !== 8 // keycode for backspace
+
             ) {
                 e.preventDefault();
                 $(this).val($(this).attr('max'));
-            }
-        });
 
+            }
+
+        });
 
         span.onclick = function() {
             model.style.display = "none";
             mContent.innerHTML='';
+
         }
-        // When the user clicks anywhere outside of the modal, close it
+       
         window.onclick = function(event) {
             if (event.target == model) {
                 model.style.display = "none";
                 mContent.innerHTML='';
+
             }
+
         }
+
     }
 
     function getStatusModel(item){
@@ -643,79 +671,92 @@
         item.Material_Requests.map(materialRequest => {
             for(let i = 0; i < materialRequest.Requested_Items.length; i++){
                 if(i === 0){
-                    table.row.add($(`
-                        <tr>
-                            <td rowspan=${materialRequest.Requested_Items.length} style="vertical-align: middle;"><a>${materialRequest.materialRequestNumber}</a></td>
-                            <td><a>${materialRequest.Requested_Items[0].name}</a></td>
-                            <td><a>${materialRequest.Requested_Items[0].details}</a></td>
-                            <td><a>${materialRequest.Requested_Items[0].quantity}</a></td>
-                            <td><a>${materialRequest.Requested_Items[0].received}</a></td>
-                            <td  style="width: 20px">
+                    table.row.add($(
+                        `
+                            <tr>
+                                <td rowspan=${materialRequest.Requested_Items.length} style="vertical-align: middle;"><a>${materialRequest.materialRequestNumber}</a></td>
+                                <td><a>${materialRequest.Requested_Items[0].name}</a></td>
+                                <td><a>${materialRequest.Requested_Items[0].details}</a></td>
+                                <td><a>${materialRequest.Requested_Items[0].quantity}</a></td>
+                                <td><a>${materialRequest.Requested_Items[0].received}</a></td>
+                                <td  style="width: 20px">
                                     <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[0].quantity - materialRequest.Requested_Items[0].received)}'>
                                     <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[0].id}" hidden>
                                     <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
-                            </td>
-                        </tr>
-                    `)).draw();
+                                </td>
+                            </tr>
+                        `
+                    )).draw();
                     
                 }else{
-                    table.row.add($(`
-                        <tr>
-                            <td hidden><a>${materialRequest.materialRequestNumber}</a></td>
-                            <td><a>${materialRequest.Requested_Items[i].name}</a></td>
-                            <td><a>${materialRequest.Requested_Items[i].details}</a></td>
-                            <td><a>${materialRequest.Requested_Items[i].quantity}</a></td>
-                            <td><a>${materialRequest.Requested_Items[i].received}</a></td>
-                            <td  style="width: 20px">
+                    table.row.add($(
+                        `
+                            <tr>
+                                <td hidden><a>${materialRequest.materialRequestNumber}</a></td>
+                                <td><a>${materialRequest.Requested_Items[i].name}</a></td>
+                                <td><a>${materialRequest.Requested_Items[i].details}</a></td>
+                                <td><a>${materialRequest.Requested_Items[i].quantity}</a></td>
+                                <td><a>${materialRequest.Requested_Items[i].received}</a></td>
+                                <td  style="width: 20px">
                                     <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[i].quantity - materialRequest.Requested_Items[i].received)}'>
                                     <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[i].id}" hidden>
                                     <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
-                            </td>
-                        </tr>
-                    `)).draw();
+                                </td>
+                            </tr>
+                        `
+                    )).draw();
 
                 }
 
             }
             
         })
-           
         
-         $('.prevent-max').on('keydown keyup change', function(e){
-            console.log($(this).attr('max'));
+        $('.prevent-max').on('keydown keyup change', function(e){
             if ($(this).val() > parseFloat($(this).attr('max'))
                 && e.keyCode !== 46 // keycode for delete
                 && e.keyCode !== 8 // keycode for backspace
+
             ) {
                 e.preventDefault();
                 $(this).val($(this).attr('max'));
+
             }
+
         });
 
         span.onclick = function() {
             model.style.display = "none";
             mContent.innerHTML='';
+
         }
-        // When the user clicks anywhere outside of the modal, close it
+        
         window.onclick = function(event) {
             if (event.target == model) {
                 model.style.display = "none";
                 mContent.innerHTML='';
+
             }
+
         }
+
     }
+
     function getItems(location){
         if(location === "stock"){
             let ids = document.getElementsByName('stockId');
             for(let i = 0; i < ids.length; i++){
                 let reserveAmmount = document.getElementById(`ammountToReserve-${ids[i].value}`).value;
                 console.log(`id: ${ids[i].value}, reserve: ${reserveAmmount} `);
+
             }
            
         }
+
     }
     
 </script>
+
 <style>
     .nav-item>a:hover {
         background-color: #BF2B45;

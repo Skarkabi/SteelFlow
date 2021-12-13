@@ -60,31 +60,29 @@
 
                         </div>
                     </div>
-                  <!-- Modal content -->
                 </div>
             </div>
             <div class="form-row">
-                 <div class="form-group col">
-                         <table id="filterable-table-next"  class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Item</th>
-                                    <th scope="col">Details</th>
-                                    <th scope="col">Quantity</th>
-                                    <th scope="col">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="productionItems" name="productionItems">
+                <div class="form-group col">
+                    <table id="filterable-table-next"  class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Item</th>
+                                <th scope="col">Details</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productionItems" name="productionItems">
                                   
-                            </tbody>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div style="float:right;">
                 <button type="submit" id="submit" name="submit" class="btn btn-primary justfiy-content-end"><i class="far fa-save"></i> {{submitButtonText}}</button>
             </div>
-            
         </div>
     </form>
 </div>
@@ -95,49 +93,52 @@
     let selectedCategory = null
     function requestModel(category, itemAttributes, categoryId){
         attributeNumber = 0;
-         console.log("Gellp");
-         console.log(categoryId);
-         selectedCategory = categoryId;
-         let attributes = JSON.parse(itemAttributes).reverse()
-         console.log((attributes));
+        selectedCategory = categoryId;
+        let attributes = JSON.parse(itemAttributes).reverse()
         var modal = document.getElementById("requestModal");
         var mContent = document.getElementById("requestContent")
-        // Get the button that opens the modal
         var btn = document.getElementById("bom");
-        // Get the <span> element that closes the modal
         var span = document.getElementsByClassName("close")[0];
-        // When the user clicks on the button, open the modal
         modal.style.display = "block";
-        mContent.insertAdjacentHTML("beforeend",`{{>orderItemDetails}}`
-        )
+        mContent.insertAdjacentHTML("beforeend",`{{>orderItemDetails}}`)
         let count = 0;
         for(let i = 0; i < attributes.length; i++){
             if(i % 2 === 0){
                 count = i;
                 $("#startSpot").append(`<div name="attribute-${count}" id="attribute-${count}" class="form-row"></div>`);
+
             }
             let attribute = attributes[i]
-                $(`#attribute-${count}`).append( `
-                    <div class="form-group col required" style="">
-                        <label for="attributes-${attributeNumber}">${attribute.name}</label>
-                        <input type=text id="attributes-${attributeNumber}" name="attributes" class="form-control" required>
-                        <input type=text id="attributeIds-${attributeNumber}" name="attributeIds" class="form-control" value="${attribute.id}" hidden>
-                        <input type=text id="attributeMeasurment-${attributeNumber}" name="attributeMeasurment" class="form-control" value="${attribute.measurment}" hidden>
-                    </div>`)
+                $(`#attribute-${count}`).append(
+                    `
+                        <div class="form-group col required" style="">
+                            <label for="attributes-${attributeNumber}">${attribute.name}</label>
+                            <input type=text id="attributes-${attributeNumber}" name="attributes" class="form-control" required>
+                            <input type=text id="attributeIds-${attributeNumber}" name="attributeIds" class="form-control" value="${attribute.id}" hidden>
+                            <input type=text id="attributeMeasurment-${attributeNumber}" name="attributeMeasurment" class="form-control" value="${attribute.measurment}" hidden>
+                        </div>
+                    `
+                )
+            
             attributeNumber++;
         }
-        document.getElementById('itemCategory').value=category;
+
+        document.getElementById('itemCategory').value = category;
         span.onclick = function() {
             modal.style.display = "none";
             mContent.innerHTML='';
+
         }
-        // When the user clicks anywhere outside of the modal, close it
+
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
                 mContent.innerHTML='';
+
             }
+
         }
+
     }
 
     $(document).ready(function(){
@@ -150,23 +151,31 @@
             console.log($("#quantity").val())
             if($("#quantity").val() === ""){
                 valid = false;
+
             }
+
             for(let i = 0; i < attributeNumber; i++){
                 if( $(`#attributes-${i}`).val() === ""){
                     valid = false;
+
                 }
+
             }
             if(valid){
                 if( $('.dataTables_empty').length > 0){
                     $('#filterable-table-next >tbody >tr').remove();
+
                 }
+                
                 let rowCount = $('#filterable-table-next >tbody >tr').length + 1;
                 let itemDetails = $(`#attributes-${0}`).val() + " " + $(`#attributeMeasurment-${0}`).val();
                 itemAttributesArray.push({unit: $(`#attributes-${0}`).val(), AttributeId: $(`#attributeIds-${0}`).val()})
                 for(let i = 1; i < attributeNumber; i++){
                     itemDetails = itemDetails + " x " + $(`#attributes-${i}`).val() + " " + $(`#attributeMeasurment-${i}`).val();
                     itemAttributesArray.push({unit: $(`#attributes-${i}`).val(), AttributeId: $(`#attributeIds-${i}`).val()})
+
                 }
+                
                 let table = $('#filterable-table-next').DataTable();
                 table.row.add([
                     rowCount,
@@ -175,20 +184,29 @@
                     quant,
                     "Action",
                 ]).draw(false);
+
                 modal.style.display = "none";
                 mContent.innerHTML='';
-                
-                orderItems.push({ItemCategoryId: selectedCategory, attributes:itemAttributesArray, total_order_quantity:quant, status:"Not Started"});
+                orderItems.push(
+                    {
+                        ItemCategoryId: selectedCategory, 
+                        attributes:itemAttributesArray, 
+                        total_order_quantity:quant, 
+                        status:"Not Started"
+                    }
+                );
+
             }else{
                 alert("please fill all required input")
-            }
-        })
-    })
 
-      $(document).ready(function(){
-          $("#submit").click(function(e){
-                e.preventDefault();
-                var postData = { 
+            }
+
+        })
+
+        $("#submit").click(function(e){
+            e.preventDefault();
+            var postData = 
+                { 
                     orderItems: orderItems,
                     orderNumber: $("#orderNumber").val(),
                     deliverBy: $("#deliverBy").val(),
@@ -197,22 +215,26 @@
                     division: $("#division").val(),
                 };                
                
-                $.ajax({
-                   url: "/orders/request",
-                   type : "POST",
-                   data : postData,
-                   //dataType: "json",
-                   //traditional: true,
-                   //contentType: "application/json; charset=utf-8",
-                   success: function (data) {
-                        window.location = "/orders/request/sucess";
-                   },
-                   error: function () {
-                       window.location = "/orders/request/error";   
-                   }
-                });
-          })
-      })
+            $.ajax({
+                url: "/orders/request",
+                type : "POST",
+                data : postData,
+                success: function (data) {
+                    window.location = "/orders/request/sucess";
+                    
+                },
+
+                error: function () {
+                    window.location = "/orders/request/error";   
+                
+                }
+
+            });
+
+        })
+
+    })
+
 </script>
 
 <style>

@@ -61,7 +61,6 @@
 <script>
     $(document).ready(function(){
         $('#itemCategory').change(function(){
-            console.log($(this).find(':selected').attr("numberOfAttributes"));
             $("#startSpot").html("")
             let numAttributes = $(this).find(':selected').attr("numberOfAttributes");
             let atts = $(this).find(':selected').attr("attributes").split(",");
@@ -70,16 +69,25 @@
                 if(i % 2 === 0){
                     count = i
                     $("#startSpot").append(`<div name="attribute-${count}" id="attribute-${count}" class="form-row"></div>`);
+
                 }
+
                 let attribute = atts[i]
                 let attributeId = attIds[i]
-                $(`#attribute-${count}`).append( `
-                    <div class="form-group col required" style="">
-                        <label for="attributes">${attribute}</label>
-                        <input list="attributes"  name="attributes" class="form-control" required>
-                        <input list="attributeIds"  name="attributeIds" class="form-control" value="${attributeId}" hidden>
-                    </div>`)
+                $(`#attribute-${count}`).append(
+                    `
+                        <div class="form-group col required" style="">
+                            <label for="attributes">${attribute}</label>
+                            <input list="attributes"  name="attributes" class="form-control" required>
+                            <input list="attributeIds"  name="attributeIds" class="form-control" value="${attributeId}" hidden>
+                        </div>
+                    `
+                )
+
             }
+
         })
+
     })
+    
 </script>

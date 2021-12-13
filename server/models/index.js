@@ -10,7 +10,6 @@ import StockItems from './Stock/Item';
 import ItemAttribute from './Stock/ItemAttributes';
 import ItemCategory from './Stock/ItemCategory';
 import Supplier from './Stock/Supplier';
-import Order from './Order/Order';
 import Reserve from './Order/Reserve';
 import RequestedItem from './Order/RequestedItem';
 
@@ -22,12 +21,13 @@ Users.hasMany(Orders, { foreignKey: "salesManagerId", as: "salesManager" });
 Users.hasMany(Orders, { foreignKey: "productionManagerId", as: "productionManager" });
 Users.hasMany(Orders, { foreignKey: "productionEmployeeId", as: "productionEmployee" });
 Restrictions.belongsTo(Users);
+
 Orders.hasMany(MaterialRequest);
 Orders.hasMany(OrderItems);
-MaterialRequest.belongsTo(Orders);
-OrderItems.belongsTo(Orders);
 OrderItems.hasMany(MaterialRequest);
 MaterialRequest.hasMany(RequestedItem);
+MaterialRequest.belongsTo(Orders);
+OrderItems.belongsTo(Orders);
 
 ItemCategory.hasMany(StockItems);
 ItemCategory.hasMany(Attribute);
@@ -47,8 +47,9 @@ ItemAttribute.belongsTo(OrderItems);
 ItemAttribute.belongsTo(Attribute);
 ItemAttribute.belongsTo(RequestedItem);
 
-StockItems.belongsTo(Supplier);
+
 Supplier.hasMany(StockItems);
+StockItems.belongsTo(Supplier);
 
 OrderItems.hasMany(Reserve);
 StockItems.hasMany(Reserve);

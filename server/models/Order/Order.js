@@ -1,9 +1,8 @@
-import _ from 'lodash';
+import _, { reject } from 'lodash';
 import Bluebird from 'bluebird';
 import Sequelize, { Op } from 'sequelize';
 import sequelize from '../../mySQLDB';
 import Item from './Item';
-import MaterialRequest from './MaterialRequest';
 import User from '../User/User';
 import ItemCategory from '../Stock/ItemCategory';
 
@@ -116,31 +115,106 @@ Order.createOrder = (newOrder, orderItems) => {
                 Order.create(newOrder).then(created => {
                     orderItems.map(item => {
                         item.OrderOrderId = created.order_id
+                        
                     })
+
                     return new Bluebird.each(orderItems, function(item){
                         return new Bluebird((resolve, reject) => {
                             Item.createOrderItem(item).then(output =>{
                                 resolve(output)
+
                             }).catch(err => {
                                 reject(err)
+
                             })
+
                         })
+
                     }).then(() => {
                         resolve("Order Added in system");
+                        
                     }).catch(err => {
                         reject(err);
+
                     });
                     
                 }).catch(err => {
                     reject(err);
+
                 })
+
             }
+
         }).catch(err => {
             reject(err);
+
         })
+
     })
+
 }
 
+
+function getProductoinItems(order){
+    return new Bluebird((resolve, reject) => {
+        let notStarted = 0;
+        ItemCategory.getProductionItems(order.order_id).then(items => {
+            let pending = false;
+            let inProgress = false;
+            items.map(item => {
+                item.Production_Items.map(production => {
+                    if(production.status === "Pending Material"){
+                        pending = true
+
+                    }else if(production.status === "Not Started"){
+                        notStarted++
+
+                    }
+
+                    if(production.production_quantity !== 0 || production.produced_quantity !== 0){
+                        inProgress = true
+                    }
+
+                })
+
+            })
+
+            if(
+                order.status !== "Completed" && 
+                order.status !== "Pending Sales Approval" && 
+                order.status !== "Pending Production Approval"
+            ){
+                if(pending){
+                    if(inProgress){
+                        order.setDataValue('status', "In Progress/Pending Material")
+
+                    }else if(!inProgress){
+                        order.setDataValue('status', "Pending Material")
+
+                    }
+
+                }else if(notStarted === items.length){
+                    order.setDataValue('status', "Not Started")
+
+                }else{
+                    order.setDataValue('status', "In Progress")
+
+                }
+
+            }
+
+            order.setDataValue('items', items)
+            resolve("Status Changed")
+
+        }).catch(err => {
+            reject(err)
+
+        })
+
+    }).catch(err => {
+        reject(err);
+    })
+}
 /**
  * Function to retrieve all orders in system
  * @returns 
@@ -150,71 +224,21 @@ Order.getAllOrders = () => {
         Order.findAll({
             order: [['createdAt', 'DESC']]
         }).then(orders => {
-            new Bluebird.each(orders, function(order){
-                let notStarted = 0;
-                let notStartedOrder = 0;
-                return new Bluebird((resolve, reject) => {
-                    ItemCategory.getProductionItems(order.order_id).then(items => {
-                        let pending = false;
-                        let inProgress = false;
-                        items.map(item => {
-                            item.Production_Items.map(production => {
-                                console.log(production)
-                                if(production.status === "Pending Material"){
-                                    pending = true
-                                }else if(production.status === "Not Started"){
-                                    notStarted++
-                                }
-                                if(production.production_quantity !== 0 || production.produced_quantity !== 0){
-                                    inProgress = true;
-                                }
-                            })
-                            
-                            if(notStarted === item.Production_Items.length){
-                                notStartedOrder++;
-                            }
+            return new Bluebird.each(orders, getProductoinItems).then(() => {
+                resolve(orders)
 
-                            console.log("NEXT")
-                            console.log(notStarted)
-                            console.log(item.Production_Items.length)
-                            console.log(notStartedOrder)
-                            console.log("NEXT")
-                            
-                        })
-
-                        console.log("STATUS")
-                        console.log(order.status)
-                        console.log(notStarted)
-                        console.log(pending)
-                        console.log("STATUS")
-                        if(order.status !== "Completed" && order.status !== "Pending Sales Approval" && order.status !== "Pending Production Approval"){
-                            if(pending){
-                                if(inProgress){
-                                    order.status = "In Progress/Pending Material"
-                                }else if(!inProgress){
-                                    order.status = "Pending Material"
-                                }
-                                
-                            }else if(notStarted === items.length){
-                                order.status = "Not Started"
-                            }else{
-                                order.status = "In Progress"
-                            }
-                        }
-                        resolve("Status Changed")
-                    }).catch(err => {
-                        reject(err);
-                    })
-                })
-            }).then(() => {
-                resolve(orders);
             }).catch(err => {
-                reject(err)
+                reject(err);
+
             })
+
         }).catch(err => {
             reject(err);
+
         });
+
     });
+    
 }
 
 /**
@@ -241,161 +265,86 @@ Order.approveOrder = (employeeId, department, orderId) => {
     return new Bluebird((resolve, reject) => {
         Order.findOne({
             where: {order_id: orderId}
+
         }).then(found => {
             if(department === "Sales" ){
                 found.approved = true;
                 found.status = "Pending Production Approval"
+
             }else if(department === "Production"){
                 found.productionManagerId = employeeId
                 found.status = "Not Started"
+
             }
+
             found.save().then(() => {
                 resolve("Order Status has been updated");
+
             }).catch(err => {
                 reject(err);
+
             })
+
         }).catch(err => {
             reject(err);
+
         })
+
+    })
+
+}
+
+function getProductionTeam(order){
+    return new Bluebird((resolve, reject) => {
+        if(order.productionManagerId && !order.productionEmployeeId){
+            User.findAll({
+                where: {
+                    department: "Production",
+                    division: order.department
+                },
+                attributes: ["id", "firstName", "lastName"]
+            }).then(productionTeam => {
+                order.productionTeam = productionTeam
+                resolve("Production Team Set");
+            
+            }).catch(err => {
+                reject(err);
+
+            })
+
+        }else{
+            resolve("No Production Team Assigned");
+        }
     })
 }
-/**
- * Function to retrieve specific order in system
- * @param {*} orderId 
- * @returns 
- */
+
 Order.getOrderById = orderId => {
     return new Bluebird((resolve, reject) => {
         Order.findOne({
             where: {
                 order_id: orderId
-            },
-        }).then(found => {
-            if(found.productionManagerId && !found.productionEmployeeId){
-                User.findAll({
-                    where: {
-                        department: "Production",
-                        division: found.department
-                    },
-                    attributes: ["id", "firstName", "lastName"]
-                }).then(productionTeam => {
-                    found.productionTeam = productionTeam
-                    let notStartedOrder = 0
-                    let notStarted = 0
-                   
-                    ItemCategory.getProductionItems(orderId).then(items => {
-                        
-                        let pending = false
-                        let inProgress = false
-                        items.map(item => {
-                            item.Production_Items.map(production => {
-                                if(production.status === "Pending Material" ){
-                                    pending = true
-                                }else if(production.status === "Not Started"){
-                                    notStarted++
-                                }
-
-                                if(production.production_quantity !== 0 || production.produced_quantity !== 0){
-                                    inProgress = true;
-                                }
-                            })
-                            if(notStarted === item.Production_Items.length){
-                                notStartedOrder++;
-                            }
-                            
-                        })
-
-                        console.log(found.status)
-                        console.log(pending)
-                        if(found.status !== "Completed" && found.status !== "Pending Sales Approval" && found.status !== "Pending Production Approval"){
-                            if(pending){
-                                console.log(11)
-                                console.log(inProgress)
-                                if(inProgress){
-                                    console.log(2)
-                                    found.status = "In Progress/Pending Material"
-                                }else if(!inProgress){
-                                    console.log(3)
-                                    found.status === "Pending Material"  
-                                }
-                            }else if(notStarted === items.length){
-                                console.log(4)
-                                found.status = "Not Started"
-                            }else{
-                                console.log(5)
-                                found.status = "In Progress"
-                            }
-                        }
-                        
-                        found.setDataValue('items', items)
-                        resolve(found);
-                    }).catch(err => {
-                        reject(err);
-                    })
-                }).catch(err => {
-                    reject(err);
-                })
-            }else{
-                
-                let notStarted = 0
-                let notStartedOrder = 0
-                ItemCategory.getProductionItems(orderId).then(items => {
-                    let pending = false
-                    let inProgress = false
-                    items.map(item => {
-                        item.Production_Items.map(production => {
-                            if(production.status === "Pending Material"){
-                                pending = true
-                            }else if(production.status === "Not Started"){
-                                notStarted++
-                            }
-
-                            if(production.production_quantity !== 0 || production.produced_quantity !== 0){
-                                inProgress = true;
-                            }
-                        })
-                        if(notStarted === item.Production_Items.length){
-                            notStartedOrder++;
-                        }
-                        
-                    })
-
-
-                    console.log(found.status)
-                    console.log(pending)
-                    console.log(notStarted)
-                    console.log(items.length)
-                    if(found.status !== "Completed" && found.status !== "Pending Sales Approval" && found.status !== "Pending Production Approval"){
-                        if(pending){
-                            console.log(11)
-                            if(inProgress){
-                                console.log(2)
-                                found.setDataValue('status', "In Progress/Pending Material")
-                            }else if(!inProgress){
-                                console.log(33)
-                                found.setDataValue('status',"Pending Material")  
-                            }
-                        }else if(notStarted === items.length){
-                            console.log(4)
-                            found.setDataValue('status', "Not Started")
-                        }else{
-                            console.log(5)
-                            found.setDataValue('status',"In Progress")
-                        }
-                        
-                    }
-                    
-                    found.setDataValue('items', items)
-                    resolve(found);
-                }).catch(err => {
-                    reject(err);
-                })
             }
-            
+        }).then(found => {
+            getProductoinItems(found).then(() => {
+                getProductionTeam(found).then(() => {
+                    resolve(found)
+
+                }).catch(err => {
+                    reject(err);
+
+                })
+
+            }).catch(err => {
+                reject(err);
+
+            })
         }).catch(err => {
             reject(err);
+
         })
-    });
+
+    })
+
 }
 
 /**
@@ -441,14 +390,20 @@ Order.getPendingOrders = (employeeId, position, division, department) => {
                         [Op.or]: {
                             productionManagerId: employeeId,
                             salesManagerId: employeeId,
+
                         },
                         status: "Pending Sales Approval"
+
                     }
+
                 }).then(found => {
                     resolve(found);
+
                 }).catch(err => {
                     reject(err);
+
                 })
+
             }else{
                 Order.findAll({
                     where:{
@@ -456,16 +411,22 @@ Order.getPendingOrders = (employeeId, position, division, department) => {
                         approved: true,
                         productionManagerId: null
                     }
+
                 }).then(found => {
                     resolve(found);
+
                 }).catch(err => {
                     reject(err);
+
                 })
+
             }
            
         }else{
             reject("Employee is can not approve any orders");
+
         }
+
     })
 }
 Order.getOrderByEmployee = (employeeId, department, position) => {
@@ -474,24 +435,36 @@ Order.getOrderByEmployee = (employeeId, department, position) => {
         if(department === "sales"){
             if(position === "manager"){
                 condition = {salesManagerId: employeeId}
+
             }else{
                 condition = {salesEmployeeId: employeeId}
+
             }
+            
         }else if(department === "production"){
             if(position === "manager"){
                 condition = {productionManagerId: employeeId}
+
             }else{
                 condition = {productionEmployeeId: employeeId}
+
             }
+
         }
+
         Order.findAll({
             where: condition
+
         }).then(found => {
             resolve(found)
+
         }).catch(err => {
             reject(err);
+
         })
+
     })
+
 }
 
 Order.setProductionEmployee = (orderId, productionId) => {
@@ -500,17 +473,24 @@ Order.setProductionEmployee = (orderId, productionId) => {
             where: {
                 order_id: orderId
             }
+
         }).then(found => {
             found.update({ productionEmployeeId: productionId });
             found.save().then(() => {
                 resolve("Production Employee Assigned")
+
             }).catch(err => {
                 reject(err);
+
             })
+
         }).catch(err => {
             reject(err);
+
         })
+
     })
+
 }
 
 Order.setComplete = orderId => {
@@ -520,12 +500,17 @@ Order.setComplete = orderId => {
             { where: 
                 { order_id: orderId }
             } 
+
         ).then(() => {
             resolve("Status Updated")
+
         }).catch(err => {
             reject(`Error Occured ${err}`)
+
         })
+
     })
+    
 }
 /**
  * Function to set all material requests for specefied order

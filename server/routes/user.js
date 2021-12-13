@@ -12,8 +12,18 @@ router.get('/view', (req,res,next) => {
             users: users,
             user: req.user,
             msgType: req.flash()
+
         });
+
+    }).catch(err => {
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
+
 });
 
 //Express Route to view specific user
@@ -25,10 +35,18 @@ router.get('/view/:id', (req,res,next) => {
             jumbotronDescription: `This is Employee # ${user.id}'s profile page.`,
             existingUser: user,
             msgType: msg
+
         })
+
     }).catch(err => {
-        console.log(err)
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
+
 });
 
 //Express Route to view all employees of manager
@@ -60,17 +78,23 @@ router.post('/create', (req, res, next) => {
         department: req.body.department,
         managerId: req.body.manager
     }
+
     User.createUser(newUser).then(output => {
         req.flash('success_msg', output);
         res.redirect('/users/create')
+
     }).catch(err => {
         console.error(err);
         req.flash('error_msg', err);
         req.session.save(function() {
             res.redirect('/users/create')
+
         });
+
     })
+
 })
+
 //Express route to create user
 router.get('/create', (req,res,next) => {
     res.render('createUpdateUser', {
@@ -79,7 +103,9 @@ router.get('/create', (req,res,next) => {
         submitButtonText: 'Create',
         action: "/users/create",
         msgType: req.flash()
+        
     });
+    
 })
 
 export default router;

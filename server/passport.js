@@ -9,13 +9,16 @@ module.exports = (passport) => {
   passport.deserializeUser((id, done) => Bluebird.resolve()
     .then(async () => {
       const dbUser = await userQueries.getUserById(id);
-      const user = { username: dbUser.username, }
-      user.id = id;
-      user.profilePicture = dbUser.profilePicture;
-      user.manager = dbUser.Work_For.managerId
-      user.accountType = dbUser.accountType
-      user.department = dbUser.department
-      user.division = dbUser.division
+      const user = 
+        { 
+          username: dbUser.username,
+          id: id,
+          profilePicture : dbUser.profilePicture,
+          manager : dbUser.Work_For.managerId,
+          accountType : dbUser.accountType,
+          department : dbUser.department,
+          division : dbUser.division,
+        } 
       Object.assign(user, getUserType(dbUser))
       done(null, user);
     })

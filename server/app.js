@@ -18,7 +18,6 @@ import { allowInsecurePrototypeAccess } from '@handlebars/allow-prototype-access
 require('./models/Session');
 require('dotenv').config
 require('./models/index');
-import User from './models/User/User'
 import signInRouter from './routes/sign-in';
 import signOutRouter from './routes/sign-out';
 import homePageRouter from './routes/homePage';
@@ -26,58 +25,57 @@ import userRouter from './routes/user';
 import orderRouter from './routes/order';
 import stockRouter from './routes/stock';
 import supplierRouter from './routes/supplier';
-import Order from './models/Order/Order';
-import ItemCategory from './models/Stock/ItemCategory';
-import { reject } from 'lodash';
-import Attribute from './models/Stock/Attribute';
-import StockItem from './models/Stock/Item';
-import ItemAttribute from './models/Stock/ItemAttributes';
-import Item from './models/Stock/Item';
-import Supplier from './models/Stock/Supplier';
-import OrderItem from './models/Order/Item';
-import Bluebird from 'bluebird';
-import Reserve from './models/Order/Reserve';
 
 handlebars.registerHelper("counter", function (index){
     return index + 1;
+
 });
 
 handlebars.registerHelper("getElement", function (array, index, property){
     return array[parseInt(index)][property];
+
 });
 
 handlebars.registerHelper("add", function (a, b){
     return a + b;
+
 });
 
 handlebars.registerHelper("multiply", function (a, b){
     return a + b;
+
 });
 
 
 handlebars.registerHelper('isdefined', function (value, compare) {
     return value === compare;
-  });
+
+});
 
   handlebars.registerHelper('console', function (value){
     return console.log("Outputting " + JSON.stringify(value));
+
 })
 
 handlebars.registerHelper('stringify', function (value){
     return JSON.stringify(value);
+
 })
 
 handlebars.registerHelper('formatDate', function (value){
     if(value){
         return value.toLocaleString(undefined, {year: 'numeric', month: 'long', day: '2-digit'})
+
     }else{
         return "Pending Confirmation"
+
     }
     
 })
 
 handlebars.registerHelper("getArray", function(array, spot){
     return (array[parseInt(spot)]);
+
 })
 
 const app = express();
@@ -85,9 +83,20 @@ const app = express();
 const multiHelpers = hbshelpers()
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.engine('hbs', hbs({helpers: multiHelpers, extname: 'hbs', defaultLayout: 'layout', layoutsDir: __dirname + '/views/', handlebars: allowInsecurePrototypeAccess(handlebars)}))
-app.set('view engine', 'hbs');
+app.engine(
+    'hbs', 
+    hbs(
+        {
+            helpers: multiHelpers,
+            extname: 'hbs', 
+            defaultLayout: 'layout', 
+            layoutsDir: __dirname + '/views/', 
+            handlebars: allowInsecurePrototypeAccess(handlebars)
+        }
+    )
+)
 
+app.set('view engine', 'hbs');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({limit: '50mb', extended: true}));
@@ -95,9 +104,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 const SequelizeStore = sequelizeStore(session.Store);
-
 app.use(session(
     {
         secret: 'secret',
@@ -105,21 +112,21 @@ app.use(session(
         resave: false,
         cookie : {maxAge: 120 * 60 * 1000},
         store: new SequelizeStore({ db: sequelize, table: 'Session'}),
-    })
-);
-app.use(flash());
+    }
+));
 
+app.use(flash());
 app.use(function(req, res, next){
-    // if there's a flash message in the session request, make it available in the response, then delete it
     res.locals.sessionFlash = req.session.sessionFlash;
     delete req.session.sessionFlash;
     next();
+
 });
+
 
 passportConfig(passport);
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use('/login', signInRouter);
 app.use('/', homePageRouter);
 app.use('/users', userRouter);
@@ -127,31 +134,28 @@ app.use('/orders', orderRouter);
 app.use('/stock', stockRouter);
 app.use('/supplier', supplierRouter);
 app.use('/logout', signOutRouter);
-
-
 app.use(function (req, res, next){
     app.locals.user = req.user;
     next();
+
 })
 
-app.use((req, res, next) =>
-{
+app.use((req, res, next) => {
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
     res.locals.validation_error_msg = req.flash('validation_error_msg');
     res.locals.error = req.flash('error');
     next();
+
 });
 
 app.use(breadcrumbs.init());
 app.use(breadcrumbs.setHome({name: 'Dashboard', url: '/'}));
-
 app.use('/bootstrap', express.static(path.join(__dirname, '../node_modules/bootstrap/dist')));
 app.use('/jquery', express.static(path.join(__dirname, '../node_modules/jquery/dist')));
 app.use('/file-saver', express.static(path.join(__dirname,'../node_modules/file-saver/dist')));
 app.use('/xlsx', express.static(path.join(__dirname,'../node_modules/xlsx/dist')));
 app.use('/exceljs', express.static(path.join(__dirname,'../node_modules/exceljs/dist')));
-
 app.use((req, res, next) =>
 {
     next(createError(404));
@@ -170,8 +174,10 @@ app.use((err, req, res, next) =>
     // render the error page
     res.status(err.status || 500);
     res.render('error');
+    
 });
 
+/*
 const secondUser = {
     id: "100944655",
     password: "123456789",
@@ -213,13 +219,12 @@ const newOrder = {
 
 }
 
-/*
 Order.createOrder(newOrder).then(output => {
     console.log(output)
 }).catch(err => {
     console.log(err);
 })
-*/
+
 
 
 const newCategory = {
@@ -297,17 +302,13 @@ Reserve.createReserve(reserves).then(output => {
 }).catch(err => {
     console.error(err);
 })
-*/
 
-/*
 Reserve.createReserve([{ProductionItemId: 7, StockItemId: 1, cost: "800", quantity: 3, supplier: "T.M.I.", production: true}]).then(output => {
     console.log(output)
 }).catch(err => {
     console.error(err);
 })
-*/
 
-/*
 ItemCategory.findAll({
     where: {
         name: "GI Steel Coil"
@@ -323,6 +324,7 @@ ItemCategory.findAll({
     order: [[Attribute, "position", "ASC"]]
 }).then(found => {
     console.log(found[0].Stock_Items[0].Item_Attributes);
-})*/
+})
+*/
 
 export default app;

@@ -63,18 +63,6 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
     ]
 });
 
-function checkFinished(id){
-    return new Bluebird((resolve, reject) => {
-        MaterialRequest.findOne({
-            where: {
-                id: id
-            },
-            include: [RequestedItem]
-        }).then(materialRequest => {
-            resolve(true);
-        })
-    })
-}
 /**
  * Function to add material request into system
  * @param {*} newMaterialRequest 

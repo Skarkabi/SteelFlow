@@ -3,7 +3,6 @@ import Bluebird from 'bluebird';
 import Sequelize from 'sequelize';
 import sequelize from '../../mySQLDB';
 import ItemAttribute from '../Stock/ItemAttributes';
-import Reserve from './Reserve';
 
 const mappings = {
     id: {
@@ -114,15 +113,7 @@ const Item = sequelize.define('Production_Items', mappings, {
             fields: ['updatedAt'],
         }, 
     ],
-    hooks:{
-        beforeBulkUpdate(item){
-            console.log(item)
-            item.attributes.status = "TEST"
-                console.log("UUUPPPPRRRPRPRPRPRPRPR")
-
-            
-        } 
-    }
+    
 })
   
 /**
@@ -195,20 +186,10 @@ Item.startProduction = (received) => {
         Item.findOne({
             where: { id: received.id }
         }).then(found => {
-            console.log("Count")
-            console.log(found.production_quantity)
-            console.log(startQuant);
-            console.log(finishQuant)
-            console.log("Count")
             found.production_quantity = startQuant + found.production_quantity;
             found.produced_quantity = finishQuant + found.produced_quantity;
             found.balance = finishQuant + found.balance;
 
-            console.log("Count")
-            console.log(found.production_quantity)
-            console.log(startQuant);
-            console.log(finishQuant)
-            console.log("Count")
             if(found.production_quantity !== 0){
                 
                 found.status = "In Progress"
@@ -219,12 +200,16 @@ Item.startProduction = (received) => {
             }
             found.save().then(() => {
                 resolve("Updated")
+
             }).catch(err => {
                 reject(err);
+
             })
+
         })
         
     })
+    
 }
 
 Item.reserveItem = (reserves) => {

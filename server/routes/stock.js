@@ -1,12 +1,11 @@
 import express from 'express';
-import { reject } from 'lodash';
 import ItemCategory from '../models/Stock/ItemCategory';
 import Supplier from '../models/Stock/Supplier';
 import StockItem from '../models/Stock/Item';
 
 const router = express.Router();
 
-router.get('/view', (req, res,next) => {
+router.get('/view', (req, res, next) => {
     ItemCategory.getAllCategoryStockItems().then(stock => {
         res.render("displayFullStock", {
             title: "Full Stock",
@@ -14,10 +13,18 @@ router.get('/view', (req, res,next) => {
             stock: stock,
             user: req.user,
             msgType: req.flash()
+
         })
+        
     }).catch(err => {
-        console.log(err);
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
+
 })
 
 router.get('/view/:id', (req, res,next) => {
@@ -29,10 +36,18 @@ router.get('/view/:id', (req, res,next) => {
             attribute: stock.Attributes,
             user: req.user,
             msgType: req.flash()
+
         })
+
     }).catch(err => {
-        console.log(err);
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
+
 })
 
 router.get('/add', (req, res, next) => {
@@ -43,10 +58,14 @@ router.get('/add', (req, res, next) => {
             item.Attributes.map(attribute => {
                 names.push(`${attribute.name} (${attribute.measurment})`)
                 attributeIds.push(attribute.id)
+
             })
+
             item.names = names
             item.attributeIds = attributeIds
+
         })
+
         Supplier.getAllSuppliers().then(suppliers => {
             res.render('addStock', {
                 title: "Add Stock",
@@ -55,14 +74,27 @@ router.get('/add', (req, res, next) => {
                 user: req.user,
                 suppliers: suppliers,
                 msgType: req.flash()
+
             })
+            
         }).catch(err => {
-            console.log(err);
+            req.flash(`error_msg', "An Error has occured ${err}`);
+            req.session.save(function() {
+                res.redirect('/orders/view')
+    
+            });
+    
         })
         
     }).catch(err => {
-        console.log(err);
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
+
 })
 
 router.post('/add', (req, res, next) => {
@@ -74,15 +106,20 @@ router.post('/add', (req, res, next) => {
                 AttributeId: req.body.attributeIds[i],
                 ProductionItemId: null
             }
+
             itemAttributes.push(newAttribute);
+
         }
+
     }else{
         const newAttribute = {
             unit: req.body.attributes,
             AttributeId: req.body.attributeIds,
             ProductionItemId: null
         }
+
         itemAttributes.push(newAttribute);
+
     }
 
     const newItem = {
@@ -96,16 +133,19 @@ router.post('/add', (req, res, next) => {
     StockItem.createItem(newItem).then(output => {
         req.flash('success_msg', output);
         res.redirect('/stock/add')
+
     }).catch(err => {
         req.flash('error_msg', err);
         req.session.save(function() {
             res.redirect('/stock/add')
+
         });
-    })
+
+    });
+
 })
 
 router.post('/add/category', (req, res, next) => {
-    console.log("THISSSSS");
     const newCategory = {
         type: req.body.itemType,
         name: req.body.categoryName,
@@ -117,6 +157,7 @@ router.post('/add/category', (req, res, next) => {
     let newBom = null;
     if(req.body.BomAdded !== ""){
         newBom = JSON.parse(req.body.BomAdded);
+
     }
     
     let newAttribtues = [];
@@ -127,26 +168,31 @@ router.post('/add/category', (req, res, next) => {
                 name: req.body.attributeName[i],
                 measurment: req.body.attributeUnit[i]
             }
+
             newAttribtues.push(newAttribute)
         }
+
     }else{
         const newAttribute = {
             position: 1,
             name: req.body.attributeName,
             measurment: req.body.attributeUnit
         }
+
         newAttribtues.push(newAttribute);
     }
-    
 
     ItemCategory.createCategory(newCategory, newAttribtues, newBom).then(output => {
         req.flash('success_msg', output);
         res.redirect('/stock/add/category')
+
     }).catch(err => {
         req.flash('error_msg', err);
         req.session.save(function() {
             res.redirect('/stock/add/category')
+
         });
+
     })
 
 })
@@ -157,7 +203,9 @@ router.get('/add/category', (req, res, next) => {
         let categoryTypes = items.map(item => {
             jsonItems.push({name: item.name, id: item.id, type: item.type});
             return item.type;
+
         });
+        
         let types = [ ...new Set(categoryTypes)]
         res.render('addItemCategory', {
             title:"Create Item Category",
@@ -166,7 +214,16 @@ router.get('/add/category', (req, res, next) => {
             items: JSON.stringify(jsonItems),
             types: types,
             msgType: req.flash()
+
         });
+
+    }).catch(err => {
+        req.flash(`error_msg', "An Error has occured ${err}`);
+        req.session.save(function() {
+            res.redirect('/orders/view')
+
+        });
+
     })
     
 })
