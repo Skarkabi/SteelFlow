@@ -33,8 +33,15 @@
                         <input type="text" id="division" name="division" class="form-control" required>
                     </div>
                     <div class="form-group col">
-                        <input type="text" id="BomAdded" name="BomAdded" class="form-control"  style="border: 0;" value="">
-                        <input type="text" id="confirmBomAdded" name="confirmBomAdded"  class="form-control"  style="border: 0;" value="">
+                          <label for="tester">B.O.M.</label>
+                        <div class="input-group mb-2">
+                            <input type="text" id="bomText" name="bomText" class="form-control" placeholder="No B.O.M. Added" style="border: 0;" readonly>
+                            <div class="input-group-append">
+                            <button type="button" id="bom" name="bom" class="btn btn-primary justfiy-content-end" onclick="requestModel()"> <i id="bomIcon" class="fas fa-plus fa-lg"></i></button>
+                            </div>
+                        </div>
+                        <input type="text" id="BomAdded" name="BomAdded" class="form-control"  style="border: 0;" value="" hidden>
+                        <input type="text" id="confirmBomAdded" name="confirmBomAdded"  class="form-control"  style="border: 0;" value="" hidden>
                     </div>
                 </div>
                 <div id="startSpot" name="startSpot">
@@ -42,7 +49,6 @@
                 </div>
                  <div style="float:right;">
                 <button type="submit" id="submit" name="submit" class="btn btn-primary justfiy-content-end"><i class="far fa-save"></i> Confirm</button>
-                <button type="button" id="bom" name="bom" class="btn btn-primary justfiy-content-end" onclick="requestModel()"><i class="far fa-save"></i> B.O.M.</button>
                 
             </div>
                 <div id="requestModal" class="modal">
@@ -91,7 +97,9 @@
                 {
                     "border-color": "#00b300", 
                     "border-width":"1px", 
-                    "border-style":"solid"
+                    "border-style":"dotted",
+                    "border-radius": "12px",
+                    "padding": "5px",
                 }
 
             );
@@ -100,7 +108,9 @@
                 {
                     "border-color": "#C70000", 
                     "border-width":"1px", 
-                    "border-style":"solid"
+                    "border-style":"solid",
+                    "border-radius": "12px",
+                    "padding": "5px",
                 }
             
             );
@@ -167,7 +177,10 @@
             {
                 "border-color": "#00b300", 
                 "border-width":"1px", 
-                "border-style":"solid"
+                "border-style":"solid",
+                    "border-radius": "12px",
+                    "padding": "5px",
+                
             }
         
         );
@@ -176,7 +189,9 @@
             {
                 "border-color": "#C70000", 
                 "border-width":"1px", 
-                "border-style":"solid"
+                "border-style":"solid",
+                    "border-radius": "12px",
+                    "padding": "5px",
             }
         
         );
@@ -221,9 +236,19 @@
 
         if(bom.length === 0){
             document.getElementById("confirmBomAdded").value = "";
-
+            document.getElementById("bomText").value = "No B.O.M. Added"
+            document.getElementById("bom").classList.add("btn-primary");
+            document.getElementById("bom").classList.remove("btn-success");
+            document.getElementById("bomIcon").classList.add("fa-plus");
+            document.getElementById("bomIcon").classList.remove("fa-check");
+            
         }else {
             document.getElementById("confirmBomAdded").value = "true";
+            document.getElementById("bomText").value = "B.O.M. Attached"
+            document.getElementById("bom").classList.remove("btn-primary");
+            document.getElementById("bom").classList.add("btn-success");
+            document.getElementById("bomIcon").classList.remove("fa-plus");
+            document.getElementById("bomIcon").classList.add("fa-check");
 
         }
         

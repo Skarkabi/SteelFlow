@@ -240,7 +240,8 @@ ItemCategory.getDivisionCategoryStockItems = division => {
                 {model: StockItem},
                 {model: Attribute}
 
-            ]
+            ],
+            order: [[Attribute, "position", "DESC"]]
 
         }).then(found => {
             found.map(category => {
@@ -303,7 +304,8 @@ ItemCategory.getCategoryAndAttributes = () => {
             include: [
                 {model: Attribute},
                 {model: Bom}
-            ]
+            ],
+            order: [[Attribute, "position", "ASC"]]
 
         }).then(found => {
             return new Bluebird.each(found, getBomCategory).then(output => {

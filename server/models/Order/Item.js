@@ -189,15 +189,14 @@ Item.startProduction = (received) => {
             found.production_quantity = startQuant + found.production_quantity;
             found.produced_quantity = finishQuant + found.produced_quantity;
             found.balance = finishQuant + found.balance;
-
             if(found.production_quantity !== 0){
-                
                 found.status = "In Progress"
             }
             if(found.total_order_quantity === found.balance){
                 found.status = "Completed"
 
             }
+            
             found.save().then(() => {
                 resolve("Updated")
 

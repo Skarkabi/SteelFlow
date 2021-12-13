@@ -19,27 +19,36 @@
         </thead>
         <tbody>
             {{#each orders}}
-                <tr
-                    {{#if (isdefined this.status "In Progress")}}
-                        style="background-color:#7EC8E3; color:black; font-weight:bold"
-                    {{/if}}
-                    {{#if (isdefined this.status "Completed")}}
-                        style="background-color:#8AFF8A; color:black; font-weight:bold"
-                    {{/if}}
-                    {{#if (isdefined this.status "Pending Material")}}
-                        style=" background-color:#D396FF; color:black; font-weight:bold"
-                    {{/if}}
-                    {{#if (isdefined this.status "Not Started")}}
-                        style="background-color:#FBCEB1; color:black; font-weight:bold"
-                    {{/if}}
-                >
+                <tr>
                     <td><a href="/orders/view/{{this.order_id}}"> {{counter @index}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}" id="orderId-{{this.order_id}}">{{this.order_id}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{this.department}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{formatDate this.createdAt}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{formatDate this.delivery_date}}</a></td>
                     <td><a href="/orders/view/{{this.order_id}}">{{this.priority}}</a></td>
-                    <td><a href="/orders/view/{{this.order_id}}">{{this.status}}</a></td>
+                    <td 
+                        {{#if (isdefined this.status "In Progress")}}
+                        style="background-color:#93d1e8;  color:black; font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined this.status "Completed")}}
+                        style="background-color:#8AFF8A; color:black; font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined this.status "Pending Material")}}
+                        style=" background-color:#f7ff96; color:black; font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined this.status "Not Started")}}
+                        style="background-color:#FBCEB1; color:black; font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined this.status "In Progress/Pending Material")}}
+                        style="background-color:#e5e3ff; color:black; font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined this.status "Pending Sales Approval")}}
+                        style="background-color:#c9d0c9; color:black; font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined this.status "Pending Production Approval")}}
+                        style="background-color:#ff9aa2; color:black; font-weight:900"
+                    {{/if}}
+                    ><a href="/orders/view/{{this.order_id}}">{{this.status}}</a></td>
                 </tr>
             {{/each}}
         </tbody>

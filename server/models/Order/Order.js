@@ -179,6 +179,10 @@ function getProductoinItems(order){
 
             })
 
+            if(order.order_id === "10007"){
+                console.log("*****jhjj*********************")
+                console.log(order.status)
+            }
             if(
                 order.status !== "Completed" && 
                 order.status !== "Pending Sales Approval" && 
@@ -202,6 +206,7 @@ function getProductoinItems(order){
                 }
 
             }
+           
 
             order.setDataValue('items', items)
             resolve("Status Changed")
@@ -224,6 +229,7 @@ Order.getAllOrders = () => {
         Order.findAll({
             order: [['createdAt', 'DESC']]
         }).then(orders => {
+            console.log(orders)
             return new Bluebird.each(orders, getProductoinItems).then(() => {
                 resolve(orders)
 

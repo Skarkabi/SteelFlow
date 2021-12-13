@@ -39,7 +39,28 @@
                     <div class="form-row">
                         <div class="form-group col display-user">
                             <label for="id">Status</label>
-                            <input type="text" class="form-control" name="id" id="id" value="{{order.status}}" readonly>
+                            <input type="text" class="form-control" name="id" id="id" value="{{order.status}}" 
+                                  {{#if (isdefined order.status "In Progress")}}
+                        style="color:#0000b3;   font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined order.status "Completed")}}
+                        style="color:#00b300;  font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined order.status "Pending Material")}}
+                        style=" color:#9a9a00;  font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined order.status "Not Started")}}
+                        style="color:#fd914a;  font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined order.status "In Progress/Pending Material")}}
+                        style="color:#7870f3;  font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined order.status "Pending Sales Approval")}}
+                        style="color:#888888;  font-weight:900"
+                    {{/if}}
+                    {{#if (isdefined order.status "Pending Production Approval")}}
+                        style="color:#e06f79;  font-weight:900"
+                    {{/if}} readonly>
                         </div>
                         <div class="form-group col display-user">
                             <label for="managerId">Division</label>
@@ -613,11 +634,13 @@
             
             $("#bomTable").append(
                 `
-                    <div class="form-row">
-                        ${attributes[i].name}
-                    </div>
-                    <div>
+                <div style="padding: 20px">
+                    <fieldset>
+                     <legend style="width: auto">${attributes[i].name}</legend>
+                    <div style="padding: 30px">
                         ${attributeDivs}
+                    </div>
+                    </fieldset>
                     </div>
                 `
             )
@@ -669,44 +692,39 @@
         let table = $('#filterable-table-items').DataTable();
         document.getElementById("itemId").value = item.id
         item.Material_Requests.map(materialRequest => {
-            for(let i = 0; i < materialRequest.Requested_Items.length; i++){
-                if(i === 0){
-                    table.row.add($(
-                        `
-                            <tr>
-                                <td rowspan=${materialRequest.Requested_Items.length} style="vertical-align: middle;"><a>${materialRequest.materialRequestNumber}</a></td>
-                                <td><a>${materialRequest.Requested_Items[0].name}</a></td>
-                                <td><a>${materialRequest.Requested_Items[0].details}</a></td>
-                                <td><a>${materialRequest.Requested_Items[0].quantity}</a></td>
-                                <td><a>${materialRequest.Requested_Items[0].received}</a></td>
-                                <td  style="width: 20px">
-                                    <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[0].quantity - materialRequest.Requested_Items[0].received)}'>
-                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[0].id}" hidden>
-                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
-                                </td>
-                            </tr>
-                        `
-                    )).draw();
-                    
-                }else{
-                    table.row.add($(
-                        `
-                            <tr>
-                                <td hidden><a>${materialRequest.materialRequestNumber}</a></td>
-                                <td><a>${materialRequest.Requested_Items[i].name}</a></td>
-                                <td><a>${materialRequest.Requested_Items[i].details}</a></td>
-                                <td><a>${materialRequest.Requested_Items[i].quantity}</a></td>
-                                <td><a>${materialRequest.Requested_Items[i].received}</a></td>
-                                <td  style="width: 20px">
-                                    <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[i].quantity - materialRequest.Requested_Items[i].received)}'>
-                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[i].id}" hidden>
-                                    <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
-                                </td>
-                            </tr>
-                        `
-                    )).draw();
-
-                }
+            table.row.add($(
+                `
+                    <tr>
+                        <td rowspan=${materialRequest.Requested_Items.length} style="vertical-align: middle;"><a>${materialRequest.materialRequestNumber}</a></td>
+                        <td><a>${materialRequest.Requested_Items[0].name}</a></td>
+                        <td><a>${materialRequest.Requested_Items[0].details}</a></td>
+                        <td><a>${materialRequest.Requested_Items[0].quantity}</a></td>
+                        <td><a>${materialRequest.Requested_Items[0].received}</a></td>
+                        <td  style="width: 20px">
+                            <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[0].quantity - materialRequest.Requested_Items[0].received)}'>
+                            <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[0].id}" hidden>
+                            <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
+                        </td>
+                    </tr>
+                `
+            )).draw();
+            for(let i = 1; i < materialRequest.Requested_Items.length; i++){
+                table.row.add($(
+                    `
+                        <tr>
+                            <td hidden><a>${materialRequest.materialRequestNumber}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].name}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].details}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].quantity}</a></td>
+                            <td><a>${materialRequest.Requested_Items[i].received}</a></td>
+                            <td  style="width: 20px">
+                                <input type="number" class="form-control  prevent-max" placeholder="0"  max='${(materialRequest.Requested_Items[i].quantity - materialRequest.Requested_Items[i].received)}'>
+                                <input type="text" class="form-control" placeholder="0" value="${materialRequest.Requested_Items[i].id}" hidden>
+                                <input type="text" class="form-control" placeholder="0" value="${materialRequest.ProductionItemId}" hidden>
+                            </td>
+                        </tr>
+                    `
+                )).draw();    
 
             }
             
@@ -773,5 +791,10 @@
         background-color:#BF2B45;
         transition: background-color 0.3s;
     }
+    fieldset {
+    border: 1px dashed #000;
+     border-radius: 12px;
+  padding: 5px;
+}
 
 </style>

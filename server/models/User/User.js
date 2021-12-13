@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import bcrypt from 'bcrypt';
-import Bluebird, { resolve } from 'bluebird';
+import Bluebird from 'bluebird';
 import Sequelize, { Op } from 'sequelize';
 import sequelize from '../../mySQLDB';
 import WorkFor from './WorkFor';
@@ -316,7 +316,7 @@ User.getUserById = userId => {
                     ...found.productionEmployee, 
                     ...found.requestEmployee
                 );
-                
+
                 delete found.salesEmployee;
                 delete found.salesManager;
                 delete found.productionManager;

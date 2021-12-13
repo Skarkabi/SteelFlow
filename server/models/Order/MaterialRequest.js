@@ -75,37 +75,49 @@ MaterialRequest.createMaterialRequest = newMaterialRequest => {
             MaterialRequest.create(newMaterialRequest).then(created => {
                 newMaterialRequest.items.map(item => {
                     item.MaterialRequestId = created.id
+
                 })
+
                 RequestedItem.addItem(newMaterialRequest.items).then(() => {
                     Item.findOne({
                         where:{
                             id: newMaterialRequest.ProductionItemId
                         }
+                        
                     }).then(orderItem => {
                         orderItem.status = "Pending Material";
                         orderItem.save().then(() => {
                             resolve(`Material request ${newMaterialRequest.id} has been added in the system!`)
+
                         }).catch(err => {
                             reject(err);
+
                         })
+
                     }).catch(err => {
                         reject(err);
+                        
                     })
                     
                 }).catch(err => {
                     reject(err);
+
                 })
                 
             }).catch(err => {
                 console.log("This Error")
                 reject(err);
+
             })
+
         }).catch(err => {
             console.log("Next Error")
             reject(err);
+
         })
 
     })
+
 }
 
 function getLastMaterialRequestNumber (){
@@ -115,13 +127,18 @@ function getLastMaterialRequestNumber (){
         }).then(found => {
             if(!found){
                 resolve(10001);
+
             }
             const materialRequestNumber = parseInt(found.materialRequestNumber) + 1
             resolve(materialRequestNumber);
+
         }).catch(err => {
             reject(err)
+
         });
+
     })
+
 }
 
 /**
