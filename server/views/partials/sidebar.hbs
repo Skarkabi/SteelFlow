@@ -5,7 +5,7 @@
     <div class="sidebar-header sticky-top" id="sidebarHeader" onclick="home()">
       <h3 class="font-effect-shadow-multiple">STEEL-FLOW</h3>
     </div>
-    
+    {{#ifCond user.restrictions.view_production '||' user.restrictions.request_production}}
     <a
       id="headingJob"
       class="btn btn-link collapsed"
@@ -26,16 +26,24 @@
       aria-labelledby="headingJob" 
       data-parent="#accordion"
     >
+      {{#if user.restrictions.request_production}}
       <li class="list-group-item py-1">
-        <a href="/orders/request" id="createJob"><i class="fas fa-plus"></i>Create New Order Request</a>
+        <a href="/orders/request"  id="createJob"><i class="fas fa-plus"></i>Create New Order Request</a>
       </li>
+      {{/if}}
+      {{#if user.restrictions.view_production}}
       <li class="list-group-item py-1">
         <a href="/orders/view"><i class="fab fa-buffer"></i>View Order Requests</a>
       </li>
+      {{/if}}
+      {{#if user.restrictions.approve_production}}
       <li class="list-group-item py-1">
         <a href="/orders/view/approval"><i class="fab fa-buffer"></i>Approve Pending Requests</a>
       </li>
+      {{/if}}
     </ul>
+    {{/ifCond}}
+    {{#ifCond user.restrictions.create_users '||' user.restrictions.view_users}}
     <a
       id="headingUser"
       class="btn btn-link collapsed"
@@ -56,14 +64,20 @@
       aria-labelledby="headingUser" 
       data-parent="#accordion"
     >
+     {{#if user.restrictions.create_users}}
       <li class="list-group-item py-1">
         <a href="/users/create" id="createUser"><i class="fas fa-plus"></i> Create New User</a>
       </li>
+      {{/if}}
+      {{#if user.restrictions.view_users}}
       <li class="list-group-item py-1">
         <a href="/users/view"><i class="fab fa-buffer"></i> View All Users</a>
       </li>
+      {{/if}}
     </ul>
+    {{/ifCond}}
     <!-- Collapse 2 -->
+    {{#ifCond user.restrictions.view_stock '||' user.restrictions.edit_stock }}
     <a
       id="headingConsumable"
       class="btn btn-link collapsed"
@@ -82,16 +96,24 @@
       aria-labelledby="headingConsumable" 
       data-parent="#accordion"
     >
+      {{#if user.restrictions.edit_item_category}}
       <li class="list-group-item py-1">
         <a href="/stock/add/category" id="addConsumable"><i class="fas fa-plus"></i> Create New Item Category</a>
       </li>
+      {{/if}}
+      {{#if user.restrictions.edit_stock}}
       <li class="list-group-item py-1">
         <a href="/stock/add" id="addConsumable"><i class="fas fa-plus"></i> Add New Stock Item</a>
       </li>
+      {{/if}}
+      {{#if user.restrictions.view_stock}}
       <li class="list-group-item py-1">
         <a href="/stock/view"><i class="fab fa-buffer"></i>View Stock</a>
       </li>
+      {{/if}}
     </ul>
+    {{/ifCond}}
+    {{#ifCond user.restrictions.register_supplier '||' user.restrictions.view_supplier}}
     <a
       id="headingSupplier"
       class="btn btn-link collapsed"
@@ -112,13 +134,18 @@
       aria-labelledby="headingJob" 
       data-parent="#accordion"
     >
+      {{#if user.restrictions.register_supplier}}
       <li class="list-group-item py-1">
         <a href="/supplier/register" id="addSupplier"><i class="fas fa-plus"></i> Register New Supplier</a>
       </li>
+      {{/if}}
+      {{#if user.restrictions.view_supplier}}
       <li class="list-group-item py-1">
         <a href="/supplier/view"><i class="fab fa-buffer"></i>View Suppliers</a>
       </li>
+      {{/if}}
     </ul>
+    {{/ifCond}}
     <a
       id="headingSupplier"
       class="btn btn-link collapsed"

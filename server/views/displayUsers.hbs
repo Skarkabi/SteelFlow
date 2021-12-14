@@ -1,8 +1,10 @@
+{{#if user.restrictions.create_users}}
 <div class="col-md-12">
     <div class="table-buttons" id="table-buttons">
         <a href="/users/create" role="button" class="btn btn-outline-dark" id="create-new"><i class="fas fa-plus"></i>  Create New User</a>
     </div>
 </div>
+{{/if}}
 {{!-- Displays all users --}}
 <div class="col-md-12">
     <table id="filterable-table" class="table table-bordered table-striped">
@@ -44,9 +46,9 @@
             window.location.href = "users/delete/" + id;
 
         }
-
+        
     }
-    
+
 </script>
 
 <style>

@@ -1,8 +1,10 @@
+{{#if user.restrictions.edit_stock}}
 <div class="col-md-12">
     <div class="table-buttons" id="table-buttons">
-        <a href="/users/create" role="button" class="btn btn-outline-dark" id="create-new"><i class="fas fa-plus"></i> Add Stock</a>
+        <a href="/stock/add" role="button" class="btn btn-outline-dark" id="create-new"><i class="fas fa-plus"></i> Add Stock</a>
     </div>
 </div>
+{{/if}}
 {{!-- Displays all users --}}
 <div class="col-md-12">
     <table id="filterable-table" class="table table-bordered table-striped">

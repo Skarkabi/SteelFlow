@@ -32,6 +32,14 @@ handlebars.registerHelper("counter", function (index){
 
 });
 
+handlebars.registerHelper("greaterThan", function(x, y){
+    if(x > y){
+        return true;
+    }else{
+        return false;
+    }
+})
+
 handlebars.registerHelper("getElement", function (array, index, property){
     return array[parseInt(index)][property];
 
@@ -79,6 +87,46 @@ handlebars.registerHelper("getArray", function(array, spot){
 
 })
 
+handlebars.registerHelper("inarray", function(array, value){
+    if(array){
+        const found = array.find(arr => {
+            return arr.id === value
+        })
+    
+        return found
+    }
+
+    return false
+    
+
+})
+handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+
+    switch (operator) {
+        case '==':
+            return (v1 == v2) ? options.fn(this) : options.inverse(this);
+        case '===':
+            return (v1 === v2) ? options.fn(this) : options.inverse(this);
+        case '!=':
+            return (v1 != v2) ? options.fn(this) : options.inverse(this);
+        case '!==':
+            return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+        case '<':
+            return (v1 < v2) ? options.fn(this) : options.inverse(this);
+        case '<=':
+            return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+        case '>':
+            return (v1 > v2) ? options.fn(this) : options.inverse(this);
+        case '>=':
+            return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+        case '&&':
+            return (v1 && v2) ? options.fn(this) : options.inverse(this);
+        case '||':
+            return (v1 || v2) ? options.fn(this) : options.inverse(this);
+        default:
+            return options.inverse(this);
+    }
+});
 const app = express();
 
 const multiHelpers = hbshelpers()

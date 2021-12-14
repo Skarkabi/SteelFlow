@@ -88,7 +88,7 @@ router.get('/view/:supplierName', (req, res, next) => {
 
 router.get('/register', (req, res, next) => {
     if(req.user){
-        if(req.user.restrictions.view_supplier){
+        if(req.user.restrictions.register_supplier){
             res.render('createUpdateSupplier', {
                 title: "Register New Supplier",
                 jumbotronDescription: "Register new supplier and details to system",

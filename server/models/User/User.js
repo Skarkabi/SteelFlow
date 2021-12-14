@@ -233,10 +233,22 @@ User.createUser = newUser => {
  * Function to retreive all users in the system
  * @returns All Users In System
  */
-User.getAllUsers = () => {
+User.getAllUsers = user => {
     return new Bluebird((resolve, reject) => {
-        User.findAll().then(found => {
-            resolve(found)
+        User.findAll({
+            include: [
+                {model: WorkFor}
+            ]
+        }).then(found => {
+            let allUsers = found
+            if(user.accountType !== "admin"){
+                console.log(allUsers)
+                allUsers = found.filter(foundUser => (
+                    foundUser.Work_For.managerId === user.id ||
+                    foundUser.id === user.id
+                ))
+            }
+            resolve(allUsers)
 
         }).catch(err => {
             reject(err);

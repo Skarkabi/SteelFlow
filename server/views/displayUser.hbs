@@ -17,11 +17,15 @@
                 <div class="form-group col-md-4">
                     <div class="form-row" style="padding-bottom: 15px;">
                         <div class="form-group col">
+                            {{#if (greaterThan existingUser.employees.length 0)}}
                             <button type="button" id="staff" name="staff" class="btn btn-outline-primary" style="margin-right: 15px;">View Staff</button>
-                            <div class="btn-group" role="group" style="float:right" aria-label="Basic example">
-                                <button type="button" id="update" name="update" class="btn btn-outline-success">Update</button>
-                                <button type="button" id="delete" name="delete" class="btn btn-outline-danger">Delete</button>
-                            </div>
+                            {{/if}}
+                             {{#if loggedUser.restrictions.edit_users}}
+                                <div class="btn-group" role="group" style="float:right" aria-label="Basic example">
+                                    <button type="button" id="update" name="update" class="btn btn-outline-success">Update</button>
+                                    <button type="button" id="delete" name="delete" class="btn btn-outline-danger">Delete</button>
+                                </div>
+                            {{/if}}
                         </div>
                         
                     </div>

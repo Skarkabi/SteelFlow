@@ -39,6 +39,18 @@ const mappings = {
         defaultValue: false
     },
 
+    update_production:{
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+
+    delete_production:{
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+
     view_stock:{
         type: Sequelize.DataTypes.BOOLEAN,
         allowNull: false,
@@ -52,6 +64,12 @@ const mappings = {
     },
 
     edit_supplier:{
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+
+    register_supplier:{
         type: Sequelize.DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
@@ -143,10 +161,29 @@ const Restrictions = sequelize.define('Restrictions', mappings, {
         },
 
         {
+            name: 'restrictions_register_supplier_index',
+            method: 'BTREE',
+            fields: ['register_supplier'],
+        },
+
+        {
             name: 'restrictions_view_production_index',
             method: 'BTREE',
             fields: ['view_production'],
         },
+
+        {
+            name: 'restrictions_delete_production_index',
+            method: 'BTREE',
+            fields: ['delete_production'],
+        },
+
+        {
+            name: 'restrictions_update_production_index',
+            method: 'BTREE',
+            fields: ['update_production'],
+        },
+
 
         {
             name: 'restrictions_approve_production_index',

@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/view', (req,res,next) => {
     if(req.user){
         if(req.user.restrictions.view_users){
-            User.getAllUsers().then(users => {
+            User.getAllUsers(req.user).then(users => {
                 res.render("displayUsers", {
                     title: "Users",
                     jumbotronDescription: "View all user accounts for registered in the system.",
@@ -20,7 +20,7 @@ router.get('/view', (req,res,next) => {
             }).catch(err => {
                 req.flash('error_msg', `An Error has occured ${err}`);
                 req.session.save(function() {
-                    res.redirect('/orders/view')
+                    res.redirect('/')
         
                 });
         
@@ -57,9 +57,11 @@ router.get('/view/:id', (req,res,next) => {
                         title: `Employee # ${user.id}'s Page`,
                         jumbotronDescription: `This is Employee # ${user.id}'s profile page.`,
                         existingUser: user,
-                        msgType: msg
+                        msgType: msg,
+                        loggedUser: req.user
     
                     })
+                    
                 }else{
                     req.flash('error_msg', `You do not have access to that page`);
                     req.session.save(function() {

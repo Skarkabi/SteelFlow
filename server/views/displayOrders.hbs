@@ -1,8 +1,10 @@
+{{#if user.restrictions.request_production}}
 <div class="col-md-12">
     <div class="table-buttons" id="table-buttons">
         <a href="/orders/request" role="button" class="btn btn-outline-dark" id="create-new"><i class="fas fa-plus"></i>  Request New Order</a>
     </div>
 </div>
+{{/if}}
 {{!-- Displays all users --}}
 <div class="col-md-12">
     <table id="filterable-table" class="table table-bordered table-striped">

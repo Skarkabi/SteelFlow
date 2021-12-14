@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/view', (req,res,next) => {
     if(req.user){
         if(req.user.restrictions.view_production){
-            Order.getAllOrders().then(orders => {
+            Order.getAllOrders(req.user).then(orders => {
                 res.render('displayOrders', {
                     title: "Orders",
                     jumbotronDescription: "View all order requests in the the system.",
@@ -99,13 +99,31 @@ router.get('/view/:id', (req,res,next) => {
     if(req.user){
         if(req.user.restrictions.view_production){
             Order.getOrderById(req.params.id).then(order => {
-                res.render("displayOrder", {
-                    title: `Order # ${order.order_id}`,
-                    jumbotronDescription: `Details for  Order # ${order.order_id}.`,
-                    order: order,
-                    msgType: req.flash(),
+                if(
+                    req.user.id === order.salesEmployeeId || 
+                    req.user.id === order.salesManagerId || 
+                    req.user.id === order.productionEmployeeId || 
+                    req.user.id === order.productionManagerId ||
+                    req.user.id === order.requestedBy ||
+                    req.user.accountType === "admin"
+                ){
+                    res.render("displayOrder", {
+                        title: `Order # ${order.order_id}`,
+                        jumbotronDescription: `Details for  Order # ${order.order_id}.`,
+                        order: order,
+                        msgType: req.flash(),
+                        user: req.user
         
-                })
+                    })
+                
+                }else{
+                    req.flash('error_msg', `You do not have access to that page`);
+                    req.session.save(function() {
+                        res.redirect('/login')
+        
+                    });
+
+                }
                
             }).catch(err => {
                 req.flash('error_msg', `An Error has occured ${err}`);
@@ -294,6 +312,7 @@ router.post('/request', (req,res,next) => {
     if(req.user.accountType !== "employee"){
         newOrder.salesManagerId = req.user.id
         newOrder.approved = true
+        newOrder.status = "Pending Production Approval"
         if(req.user.department === "Production"){
             newOrder.productionManagerId = req.user.id
             newOrder.status = "Not Started"

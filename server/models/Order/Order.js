@@ -224,14 +224,25 @@ function getProductoinItems(order){
  * Function to retrieve all orders in system
  * @returns 
  */
-Order.getAllOrders = () => {
+Order.getAllOrders = user => {
     return new Bluebird((resolve, reject) => {
         Order.findAll({
             order: [['createdAt', 'DESC']]
         }).then(orders => {
-            console.log(orders)
-            return new Bluebird.each(orders, getProductoinItems).then(() => {
-                resolve(orders)
+            let allOrders = orders
+            if(user.accountType !== "admin"){
+                allOrders = orders.filter(order =>  (
+                        order.productionEmployeeId === user.id ||
+                        order.salesEmployeeId === user.id ||
+                        order.productionManagerId === user.id ||
+                        order.salesManagerId === user.id ||
+                        order.requestedBy === user.id
+                    )
+                )
+            }
+            console.log(allOrders)
+            return new Bluebird.each(allOrders, getProductoinItems).then(() => {
+                resolve(allOrders)
 
             }).catch(err => {
                 reject(err);
