@@ -5,6 +5,7 @@ import Sequelize, { Op } from 'sequelize';
 import sequelize from '../../mySQLDB';
 import WorkFor from './WorkFor';
 import Order from '../Order/Order';
+import Restrictions from './Restrictions';
 
 const mappings = {
     id: {
@@ -259,6 +260,7 @@ User.getUserById = userId => {
             },
             include:[
                 { model: WorkFor },
+                { model: Restrictions, required: false},
                 { model: Order, as: "salesEmployee", required:false,
                     where: {
                         requestedBy: {

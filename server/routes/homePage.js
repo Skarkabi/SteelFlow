@@ -8,10 +8,11 @@ const router = express.Router();
 router.get('/', (req, res, next) => {
     //Checking if a user is already logged in
     if (req.user){
-            res.render('dashboardForAdmins', 
+        res.render("dashboardForAdmins", 
             {title: 'Home Page',
             jumbotronDescription: "Welcome! This is your dashboard and you can access everything from here easily.",
             msgType: req.flash(),
+            user: req.user
 
         })
        

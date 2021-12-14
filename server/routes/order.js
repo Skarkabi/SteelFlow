@@ -10,68 +10,129 @@ const router = express.Router();
 
 //Express Route to view all orders
 router.get('/view', (req,res,next) => {
-    Order.getAllOrders().then(orders => {
-        res.render('displayOrders', {
-            title: "Orders",
-            jumbotronDescription: "View all order requests in the the system.",
-            user: req.user,
-            orders: orders,
-            msgType: req.flash()
-        });
+    if(req.user){
+        if(req.user.restrictions.view_production){
+            Order.getAllOrders().then(orders => {
+                res.render('displayOrders', {
+                    title: "Orders",
+                    jumbotronDescription: "View all order requests in the the system.",
+                    user: req.user,
+                    orders: orders,
+                    msgType: req.flash()
+                });
+        
+            }).catch(err => {
+                req.flash('error_msg', `An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
+            })
+            
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/login')
+        
+            });
 
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
-        req.session.save(function() {
-            res.redirect('/orders/view')
+        }
 
-        });
-
-    })
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/login')
+    
+            });
+    }
+   
+    
 
 });
 
 //Express Route to view all orders
 router.get('/view/approval', (req,res,next) => {
-    Order.getPendingOrders(req.user.id, req.user.accountType, req.user.division, req.user.department).then(orders => {
-        res.render('displayOrders', {
-            title: "Orders",
-            jumbotronDescription: "View all order requests in the the system.",
-            user: req.user,
-            orders: orders,
-            msgType: req.flash()
+    if(req.user){
+        if(req.user.restrictions.approve_production){
+            Order.getPendingOrders(req.user.id, req.user.accountType, req.user.division, req.user.department).then(orders => {
+                res.render('displayOrders', {
+                    title: "Orders",
+                    jumbotronDescription: "View all order requests in the the system.",
+                    user: req.user,
+                    orders: orders,
+                    msgType: req.flash()
+        
+                });
+        
+            }).catch(err => {
+                req.flash('error_msg', `An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
+            })
 
-        });
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/')
+        
+            });
 
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
+        }
+        
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
         req.session.save(function() {
-            res.redirect('/orders/view')
-
+            res.redirect('/login')
+    
         });
 
-    })
-
+    }
+    
 });
 
 //Express Route to view specefic order
 router.get('/view/:id', (req,res,next) => {
-    Order.getOrderById(req.params.id).then(order => {
-        res.render("displayOrder", {
-            title: `Order # ${order.order_id}`,
-            jumbotronDescription: `Details for  Order # ${order.order_id}.`,
-            order: order,
-            msgType: req.flash(),
+    if(req.user){
+        if(req.user.restrictions.view_production){
+            Order.getOrderById(req.params.id).then(order => {
+                res.render("displayOrder", {
+                    title: `Order # ${order.order_id}`,
+                    jumbotronDescription: `Details for  Order # ${order.order_id}.`,
+                    order: order,
+                    msgType: req.flash(),
+        
+                })
+               
+            }).catch(err => {
+                req.flash('error_msg', `An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
+            })
 
-        })
-       
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/login')
+        
+            });
+
+        }
+
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
         req.session.save(function() {
-            res.redirect('/orders/view')
-
+            res.redirect('/login')
+    
         });
 
-    })
+    }
 
 });
 
@@ -115,38 +176,58 @@ router.post('/start', (req, res, next) => {
 })
 
 router.get('/request', (req, res, next) => {
-    ItemCategory.getDivisionCategoryStockItems("Mesh").then(output => {
-        Order.getLastOrderId().then(orderNumber => {
-            output.map(item => {
-                item.Attributes = JSON.stringify(item.Attributes);
-
+    if(req.user){
+        if(req.user.restrictions.request_production){
+            ItemCategory.getDivisionCategoryStockItems("Mesh").then(output => {
+                Order.getLastOrderId().then(orderNumber => {
+                    output.map(item => {
+                        item.Attributes = JSON.stringify(item.Attributes);
+        
+                    })
+        
+                    res.render("createOrder", {
+                        title: `Request New Order`,
+                        jumbotronDescription: 'Creating a new order request',
+                        items: output,
+                        orderNumber: orderNumber,
+                        msgType: req.flash()
+                    }) 
+        
+                }).catch(err => {
+                    req.flash('error_msg', `An Error has occured ${err}`);
+                    req.session.save(function() {
+                        res.redirect('/orders/view')
+            
+                    });
+                })
+                
+            }).catch(err => {
+                req.flash('error_msg', `An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
             })
 
-            res.render("createOrder", {
-                title: `Request New Order`,
-                jumbotronDescription: 'Creating a new order request',
-                items: output,
-                orderNumber: orderNumber,
-                msgType: req.flash()
-            }) 
-
-        }).catch(err => {
-            req.flash(`error_msg', "An Error has occured ${err}`);
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
             req.session.save(function() {
-                res.redirect('/orders/view')
+                res.redirect('/')
     
             });
-        })
-        
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
-        req.session.save(function() {
-            res.redirect('/orders/view')
 
+        }
+
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
+        req.session.save(function() {
+            res.redirect('/login')
+    
         });
 
-    })
-   
+    }
+    
 })
 
 router.post('/bomMaterial', (req, res, next) =>{
@@ -242,21 +323,61 @@ router.post('/request', (req,res,next) => {
 });
 
 router.get('/request/sucess', (req, res, next) =>{
-    req.flash('success_msg', "Order Has Been Added To The System");
-    req.session.save(function() {
-        res.redirect('/orders/view')
+    if(req.user){
+        if(req.user.restrictions.request_production){
+            req.flash('success_msg', "Order Has Been Added To The System");
+            req.session.save(function() {
+                res.redirect('/orders/view')
 
-    });
+            });
+
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/')
+    
+            });
+
+        }
+
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
+        req.session.save(function() {
+            res.redirect('/login')
+    
+        });
+    
+    }
 
 })
 
 router.get('/complete/success', (req, res, next) =>{
-    req.flash('success_msg', "Order Status Changed to completed");
-    req.session.save(function() {
-        res.redirect('back')
+    if(req.user){
+        if(req.user.restrictions.request_production){
+            req.flash('success_msg', "Order Status Changed to completed");
+            req.session.save(function() {
+                res.redirect('back')
 
-    });
+            });
 
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/')
+    
+            });
+
+        }
+    
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
+        req.session.save(function() {
+            res.redirect('/login')
+    
+        });
+
+    }
+    
 })
 
 router.get('/reserve/sucess', (req, res, next) =>{

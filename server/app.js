@@ -25,7 +25,8 @@ import userRouter from './routes/user';
 import orderRouter from './routes/order';
 import stockRouter from './routes/stock';
 import supplierRouter from './routes/supplier';
-
+import restrictions from './models/User/Restrictions'
+import Restrictions from './models/User/Restrictions';
 handlebars.registerHelper("counter", function (index){
     return index + 1;
 
@@ -178,6 +179,27 @@ app.use((err, req, res, next) =>
 });
 
 /*
+const newRestriction = {
+    user_id: "100944655",
+    view_users: true,
+    edit_users: true,
+    view_production: true,
+    edit_production: true,
+    view_stock: true,
+    edit_stock: true,
+    view_material_request: true,
+    edit_material_request: true,
+    request_production: true,
+    UserId: "100944655",
+    edit_item_category: true
+}
+
+Restrictions.createRestriction(newRestriction).then(output => {
+    console.log(output)
+}).catch(err => {
+    console.error(err)
+})
+
 const secondUser = {
     id: "100944655",
     password: "123456789",

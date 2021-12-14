@@ -11,47 +11,85 @@ const mappings = {
 
     view_users:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
 
     edit_users:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
+    },
+
+    create_users:{
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     },
 
     view_production:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
 
     edit_production:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
 
     view_stock:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
 
+    view_supplier:{
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+
+    edit_supplier:{
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+
+    edit_item_category: {
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
     edit_stock:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
 
     view_material_request:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
 
     edit_material_request:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
 
     request_production:{
         type: Sequelize.DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
+    },
+
+    approve_production:{
+        type: Sequelize.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     },
 
     createdAt: {
@@ -81,15 +119,39 @@ const Restrictions = sequelize.define('Restrictions', mappings, {
         },
 
         {
+            name: 'restrictions_create_users_index',
+            method: 'BTREE',
+            fields: ['create_users'],
+        },
+
+        {
             name: 'restrictions_edit_users_index',
             method: 'BTREE',
             fields: ['edit_users'],
         },
 
         {
+            name: 'restrictions_view_supplier_index',
+            method: 'BTREE',
+            fields: ['view_supplier'],
+        },
+
+        {
+            name: 'restrictions_edit_supplier_index',
+            method: 'BTREE',
+            fields: ['edit_supplier'],
+        },
+
+        {
             name: 'restrictions_view_production_index',
             method: 'BTREE',
             fields: ['view_production'],
+        },
+
+        {
+            name: 'restrictions_approve_production_index',
+            method: 'BTREE',
+            fields: ['approve_production'],
         },
 
         {
@@ -102,6 +164,12 @@ const Restrictions = sequelize.define('Restrictions', mappings, {
             name: 'restrictions_view_stock_index',
             method: 'BTREE',
             fields: ['view_stock'],
+        },
+
+        {
+            name: 'restrictions_edit_item_category_index',
+            method: 'BTREE',
+            fields: ['edit_item_category'],
         },
 
         {

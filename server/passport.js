@@ -18,6 +18,7 @@ module.exports = (passport) => {
           accountType : dbUser.accountType,
           department : dbUser.department,
           division : dbUser.division,
+          restrictions: dbUser.Restriction
         } 
       Object.assign(user, getUserType(dbUser))
       done(null, user);

@@ -6,94 +6,153 @@ import StockItem from '../models/Stock/Item';
 const router = express.Router();
 
 router.get('/view', (req, res, next) => {
-    ItemCategory.getAllCategoryStockItems().then(stock => {
-        res.render("displayFullStock", {
-            title: "Full Stock",
-            jumbotronDescription: "View total stock in the system.",
-            stock: stock,
-            user: req.user,
-            msgType: req.flash()
-
-        })
+    if(req.user){
+        if(req.user.restrictions.view_stock){
+            ItemCategory.getAllCategoryStockItems().then(stock => {
+                res.render("displayFullStock", {
+                    title: "Full Stock",
+                    jumbotronDescription: "View total stock in the system.",
+                    stock: stock,
+                    user: req.user,
+                    msgType: req.flash()
         
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
-        req.session.save(function() {
-            res.redirect('/orders/view')
+                })
+                
+            }).catch(err => {
+                req.flash(`error_msg', "An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
+            })
 
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/')
+        
+            });
+
+        }
+
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
+        req.session.save(function() {
+            res.redirect('/login')
+        
         });
 
-    })
-
+    }
+    
 })
 
 router.get('/view/:id', (req, res,next) => {
-    ItemCategory.getSpecificStock(req.params.id).then(stock => {
-        res.render("displayCategoryStock", {
-            title: stock.name,
-            jumbotronDescription: "View total stock in the system.",
-            stock: stock.Stock_Items,
-            attribute: stock.Attributes,
-            user: req.user,
-            msgType: req.flash()
+    if(req.user){
+        if(req.user.restrictions.view_stock){
+            ItemCategory.getSpecificStock(req.params.id).then(stock => {
+                res.render("displayCategoryStock", {
+                    title: stock.name,
+                    jumbotronDescription: "View total stock in the system.",
+                    stock: stock.Stock_Items,
+                    attribute: stock.Attributes,
+                    user: req.user,
+                    msgType: req.flash()
+        
+                })
+        
+            }).catch(err => {
+                req.flash(`error_msg', "An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
+            })
 
-        })
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/')
+        
+            });
 
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
+        }
+
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
         req.session.save(function() {
-            res.redirect('/orders/view')
-
+            res.redirect('/')
+    
         });
 
-    })
+    }
 
 })
 
 router.get('/add', (req, res, next) => {
-    ItemCategory.getCategoryAndAttributes().then(stock => {
-        stock.map(item => {
-            let names = []
-            let attributeIds = []
-            item.Attributes.map(attribute => {
-                names.push(`${attribute.name} (${attribute.measurment})`)
-                attributeIds.push(attribute.id)
-
-            })
-
-            item.names = names
-            item.attributeIds = attributeIds
-
-        })
-
-        Supplier.getAllSuppliers().then(suppliers => {
-            res.render('addStock', {
-                title: "Add Stock",
-                jumbotronDescription: "Add New Item to Stock",
-                item: stock,
-                user: req.user,
-                suppliers: suppliers,
-                msgType: req.flash()
-
-            })
-            
-        }).catch(err => {
-            req.flash(`error_msg', "An Error has occured ${err}`);
-            req.session.save(function() {
-                res.redirect('/orders/view')
-    
-            });
-    
-        })
+    if(req.user){
+        if(req.user.restrictions.edit_stock){
+            ItemCategory.getCategoryAndAttributes().then(stock => {
+                stock.map(item => {
+                    let names = []
+                    let attributeIds = []
+                    item.Attributes.map(attribute => {
+                        names.push(`${attribute.name} (${attribute.measurment})`)
+                        attributeIds.push(attribute.id)
         
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
-        req.session.save(function() {
-            res.redirect('/orders/view')
+                    })
+        
+                    item.names = names
+                    item.attributeIds = attributeIds
+        
+                })
+        
+                Supplier.getAllSuppliers().then(suppliers => {
+                    res.render('addStock', {
+                        title: "Add Stock",
+                        jumbotronDescription: "Add New Item to Stock",
+                        item: stock,
+                        user: req.user,
+                        suppliers: suppliers,
+                        msgType: req.flash()
+        
+                    })
+                    
+                }).catch(err => {
+                    req.flash(`error_msg', "An Error has occured ${err}`);
+                    req.session.save(function() {
+                        res.redirect('/orders/view')
+            
+                    });
+            
+                })
+                
+            }).catch(err => {
+                req.flash(`error_msg', "An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
+            })
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/')
+        
+            });
 
+        }
+
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
+        req.session.save(function() {
+            res.redirect('/')
+    
         });
 
-    })
+    }
 
 })
 
@@ -198,33 +257,53 @@ router.post('/add/category', (req, res, next) => {
 })
 
 router.get('/add/category', (req, res, next) => {
-    ItemCategory.getAllCategoryStockItems().then(items => {
-        let jsonItems = [];
-        let categoryTypes = items.map(item => {
-            jsonItems.push({name: item.name, id: item.id, type: item.type});
-            return item.type;
-
-        });
+    if(req.user){
+        if(req.user.restrictions.edit_item_category){
+            ItemCategory.getAllCategoryStockItems().then(items => {
+                let jsonItems = [];
+                let categoryTypes = items.map(item => {
+                    jsonItems.push({name: item.name, id: item.id, type: item.type});
+                    return item.type;
         
-        let types = [ ...new Set(categoryTypes)]
-        res.render('addItemCategory', {
-            title:"Create Item Category",
-            jumbotronDescription: "Add a new Item Category to System",
-            user: req.user,
-            items: JSON.stringify(jsonItems),
-            types: types,
-            msgType: req.flash()
+                });
+                
+                let types = [ ...new Set(categoryTypes)]
+                res.render('addItemCategory', {
+                    title:"Create Item Category",
+                    jumbotronDescription: "Add a new Item Category to System",
+                    user: req.user,
+                    items: JSON.stringify(jsonItems),
+                    types: types,
+                    msgType: req.flash()
+        
+                });
+        
+            }).catch(err => {
+                req.flash(`error_msg', "An Error has occured ${err}`);
+                req.session.save(function() {
+                    res.redirect('/orders/view')
+        
+                });
+        
+            })
+            
+        }else{
+            req.flash('error_msg', `You do not have access to that page`);
+            req.session.save(function() {
+                res.redirect('/')
+        
+            });
+    
+        }
 
-        });
-
-    }).catch(err => {
-        req.flash(`error_msg', "An Error has occured ${err}`);
+    }else{
+        req.flash('error_msg', `You do not have access to that page`);
         req.session.save(function() {
-            res.redirect('/orders/view')
-
+            res.redirect('/')
+    
         });
 
-    })
+    }
     
 })
 
