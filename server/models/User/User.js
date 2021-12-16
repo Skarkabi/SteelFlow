@@ -196,8 +196,21 @@ User.createUser = newUser => {
                         newUser.password = hash;
                         User.create(newUser).then(addedUser => {
                             WorkFor.setRelation({employeeId: newUser.id, managerId: newUser.managerId}).then(output => {
-                                resolve("Emplyee With ID# " + newUser.id + " Was Sucessfully Added!");
-                    
+                                Restrictions.createRestriction(newUser.restrictions).then(() => {
+                                    resolve("Emplyee With ID# " + newUser.id + " Was Sucessfully Added!");
+
+                                }).catch(err => {
+                                    addedUser.destroy().then(() => {
+                                        reject(err);
+    
+                                    }).catch(err => {
+                                        reject(err);
+    
+                                    })
+    
+                                })
+                                
+                                
                             }).catch(err => {
                                 addedUser.destroy().then(() => {
                                     reject(err);
@@ -408,10 +421,63 @@ function setRequestedBy(orders){
  * @param {*} userId 
  * @returns 
  */
-User.updateUser = userId => {
+User.updateUser = user => {
     return new Bluebird((resolve, reject) => {
+        User.findOne({
+            where: {
+                id: user.id
+            }
+        }).then(found => {
+            if(user.password === ""){
+                delete user.password
+            }
+            console.log(user)
+            if(user.accountType){
+                found.accountType = user.accountType;
+            }
+            
+            found.firstName = user.firstName;
+            found.lastName = user.lastName;
+            found.division = user.division;
+            found.department = user.department;
+            found.jobTitle = user.jobTitle;
+            WorkFor.update({managerId: user.managerId},
+                {
+                where: {
+                    employeeId: user.id
+                }
+            }).then(() => {
+                found.save().then(() => {
+                    Restrictions.update(user.restrictions, {
+                        where: {
+                            UserId: user.id
+                        }
+                    }).then(() => {
+                            resolve("User Updated");
+
+
+                    }).catch(err => {
+                        reject(`User Restrictions not found ${err}`)
+
+                    })
+
+                }).catch(err => {
+                    reject(`User not updated ${err}`)
+
+                })
+                
+            }).catch(err => {
+                reject(`Manager not updated ${err}`)
+
+            })
+
+        }).catch(err => {
+            reject(`User not found ${err}`)
+
+        })
 
     });
+
 }
 
 /**

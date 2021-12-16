@@ -22,7 +22,7 @@
                             {{/if}}
                              {{#if loggedUser.restrictions.edit_users}}
                                 <div class="btn-group" role="group" style="float:right" aria-label="Basic example">
-                                    <button type="button" id="update" name="update" class="btn btn-outline-success">Update</button>
+                                    <a href="/users/update/{{existingUser.id}}" role="button" class="btn btn-outline-success" id="update">Update</a>
                                     <button type="button" id="delete" name="delete" class="btn btn-outline-danger">Delete</button>
                                 </div>
                             {{/if}}

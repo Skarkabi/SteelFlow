@@ -271,8 +271,10 @@ Item.getStockForProduction = item => {
 
 function updateReserve(reserve){
     return new Bluebird((resolve, reject) => {
+        console.log(reserve)
+        console.log(parseFloat(parseFloat(reserve.quantity).toFixed(2)))
         Item.update(
-            { reserved: sequelize.fn(`${reserve.quantity} + `, sequelize.col('reserved'))},
+            { quantity: sequelize.literal(`quantity - ${parseFloat(parseFloat(reserve.quantity).toFixed(2))}`)},
             { where: {id: reserve.StockItemId} }
 
         ).then(() => {

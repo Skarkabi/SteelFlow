@@ -82,14 +82,8 @@ Reserve.createReserve = reserves => {
 function addReserve(reserves) {
     return new Bluebird((resolve, reject) => {
         StockItem.reserveItem(reserves).then(output => {
-            OrderItem.reserveItem(reserves).then(o => {
                 Reserve.bulkCreate(reserves).then(() => {
-                    resolve (o);
-
-                }).catch(err => {
-                    reject(err);
-
-                })
+                    resolve (output);
 
             }).catch(err => {
                 reject(err);

@@ -15,6 +15,7 @@ const mySQLDB = new Sequelize(dbName, dbUserName,process.env.DB_PASSWORD, {
     host: "localhost",
     port: dbPort,
     dialect: 'postgres',
+    logging: false
 });
 
 mySQLDB.sync().then(() => {

@@ -70,54 +70,59 @@ const MaterialRequest = sequelize.define('Material_Requests', mappings, {
  */
 MaterialRequest.createMaterialRequest = newMaterialRequest => {
     return new Bluebird((resolve, reject) => {
-        getLastMaterialRequestNumber().then(number => {
-            newMaterialRequest.materialRequestNumber = number;
-            MaterialRequest.create(newMaterialRequest).then(created => {
-                newMaterialRequest.items.map(item => {
-                    item.MaterialRequestId = created.id
-
-                })
-
-                RequestedItem.addItem(newMaterialRequest.items).then(() => {
-                    Item.findOne({
-                        where:{
-                            id: newMaterialRequest.ProductionItemId
-                        }
-                        
-                    }).then(orderItem => {
-                        orderItem.status = "Pending Material";
-                        orderItem.save().then(() => {
-                            resolve(`Material request ${newMaterialRequest.id} has been added in the system!`)
-
+        console.log(newMaterialRequest)
+        if(newMaterialRequest.items){
+            getLastMaterialRequestNumber().then(number => {
+                newMaterialRequest.materialRequestNumber = number;
+                MaterialRequest.create(newMaterialRequest).then(created => {
+                    newMaterialRequest.items.map(item => {
+                        item.MaterialRequestId = created.id
+    
+                    })
+    
+                    RequestedItem.addItem(newMaterialRequest.items).then(() => {
+                        Item.findOne({
+                            where:{
+                                id: newMaterialRequest.ProductionItemId
+                            }
+                            
+                        }).then(orderItem => {
+                            orderItem.status = "Pending Material";
+                            orderItem.save().then(() => {
+                                resolve(`Material request ${newMaterialRequest.id} has been added in the system!`)
+    
+                            }).catch(err => {
+                                reject(err);
+    
+                            })
+    
                         }).catch(err => {
                             reject(err);
-
+                            
                         })
-
+                        
                     }).catch(err => {
                         reject(err);
-                        
+    
                     })
                     
                 }).catch(err => {
+                    console.log("This Error")
                     reject(err);
-
+    
                 })
-                
+    
             }).catch(err => {
-                console.log("This Error")
+                console.log("Next Error")
                 reject(err);
-
+    
             })
-
-        }).catch(err => {
-            console.log("Next Error")
-            reject(err);
-
-        })
-
+    
+        }else{
+            resolve("No Material Request")
+        }
+        
     })
-
 }
 
 function getLastMaterialRequestNumber (){

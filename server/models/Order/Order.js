@@ -236,11 +236,11 @@ Order.getAllOrders = user => {
                         order.salesEmployeeId === user.id ||
                         order.productionManagerId === user.id ||
                         order.salesManagerId === user.id ||
-                        order.requestedBy === user.id
+                        order.requestedBy === user.id || 
+                        (order.department === user.division && user.accountType === "manager" && user.department === "Production")
                     )
                 )
             }
-            console.log(allOrders)
             return new Bluebird.each(allOrders, getProductoinItems).then(() => {
                 resolve(allOrders)
 

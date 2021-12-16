@@ -100,6 +100,10 @@ handlebars.registerHelper("inarray", function(array, value){
     
 
 })
+
+handlebars.registerHelper("upperCaseFirst", function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  })
 handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 
     switch (operator) {

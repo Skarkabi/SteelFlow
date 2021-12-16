@@ -45,9 +45,15 @@
                                         {{/unless}}
                                     {{else}}
                                         {{#if (inarray order.productionTeam user.id)}}
-                                            <form action="/orders/approved/{{order.order_id}}" method="POST">
-                                                <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
-                                            </form>
+                                            {{#if order.productionTeam}}
+                                                <button type="submit" id="employees" name="employees" class="btn btn-outline-success">Assign Production</button> 
+                                                <button type="button" id="staff" name="staff" class="btn btn-outline-danger">Reject</button>
+                                            {{else}}
+                                                <form action="/orders/approved/{{order.order_id}}" method="POST">
+                                                    <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
+                                                </form>
+                                        
+                                            {{/if}}
                                             {{#if (isdefined order.productionManagerId user.id)}}
                                                 {{#if user.restrictions.approve_production}}
                                                     {{#unless order.approved}}
@@ -273,8 +279,10 @@
         if (completed.length === productionTable.rows().columns().data()[6].length){
             $("#editGroup").prepend(
                 `
+                    {{#if user.restrictions.update_production}}
                     <button type="submit" id="complete" name="complete" class="btn btn-outline-success">Complete</button>
                     <input type="string" id="orderId" name="orderId" class="form-control" value="{{order.order_id}}" hidden>
+                    {{/if}}
                 `
             )
 
@@ -380,10 +388,10 @@
                                 <tr>
                                     <td>${userItems[z].stock[j].stockItem.SupplierName}</td>
                                     <td>${userItems[z].stock[j].stockItem.cost}</td>
-                                    <td>${userItems[z].stock[j].stockItem.quantity}</td>
+                                    <td>${userItems[z].stock[j].stockItem.quantity - userItems[z].stock[j].stockItem.reserved }</td>
                                     <td style='width: 10%'><input class="form-control" id="reserve" type="number"></td>
-                                    <td>${userItems[z].stock[j].stockItem.id}</td>
-                                    <td>${selectedItem.id}</td>  
+                                    <td hidden>${userItems[z].stock[j].stockItem.id}</td>
+                                    <td hidden>${selectedItem.id}</td>  
                                 </tr>
                             `
                         )).draw()
@@ -515,7 +523,7 @@
                                         StockItemId: parseInt(bomTable.rows[j].cells[4].innerHTML),
                                         production: true
                                     }
-                            
+
                                 bomStockItems.push(newItem);
 
                             }
@@ -550,6 +558,8 @@
                 }
 
                 let materialRequest = {ProductionItemId: selectedItem.id, items: materialRequestItems}
+                console.log(materialRequest)
+                
                 $.ajax({
                     url: "/orders/bomMaterial",
                     type: "POST",
@@ -565,6 +575,7 @@
                     },
 
                 })
+                
 
             }
 

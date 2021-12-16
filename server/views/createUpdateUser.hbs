@@ -10,26 +10,27 @@
                 <div class="form-row">
                     <div class="form-group col required">
                         <label for="userType">Account Type</label>
-                        <select type="text" id="userType" name="userType" class="form-control" value="userType" required>
-                            <option value="" disabled selected hidden>Choose One</option>
+                        <select type="text" id="userType" name="userType" class="form-control" required>
+                            {{#if existingUser}}
+                                <option value={{upperCaseFirst existingUser.accountType}} disabled selected hidden>{{upperCaseFirst existingUser.accountType}}</option>
+                            {{else}}
+                                <option value="" disabled selected hidden>Choose One</option>
+                            {{/if}}
                             <option value="admin">Admin</option>
                             <option value="manager">Manager</option>
                             <option value="employee">Employee</option>
                         </select>
                     </div>
-                    <div class="form-group col required">
+                    
+                    <div class="form-group col">
                         <label for="id">Employee ID</label>
-                        {{#if isUpdate}}
-                        <input type="text" value="{{existingUser.id}}" class="form-control" readonly>
-                        {{else}}
-                        <input type="text" placeholder = "Employee ID #" id="eID" name="eID" class="form-control" required>
-                        {{/if}}
+                        <input type="text" placeholder = "Employee ID #" id="eID" value="{{existingUser.id}}" name="eID" class="form-control" {{#if existingUser}} readonly {{/if}} required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col required">
                         <label for="firstName">First Name</label>
-                        <input type="text" placeholder="First Name" id="firstName" name="firstName" class="form-control" value="{{existingUser.firstName}}" required>
+                            <input type="text" placeholder="First Name" id="firstName" name="firstName" class="form-control" value="{{existingUser.firstName}}" required>
                     </div>
                     <div class="form-group col required">
                         <label for="lastName">Last Name</label>
@@ -39,32 +40,32 @@
                 <div class="form-row">
                     <div class="form-group col required">
                         <label for="division">Division</label>
-                        <input type="text" placeholder="Division" id="division" name="division" class="form-control" required>
+                        <input type="text" placeholder="Division" id="division" value="{{existingUser.division}}" name="division" class="form-control" required>
                     </div>
                     <div class="form-group col required">
                         <label for="department">Department</label>
-                        <input type="text" placeholder="Deparment" id="department" name="department" class="form-control" required> 
+                        <input type="text" placeholder="Deparment" id="department" value="{{existingUser.department}}" name="department" class="form-control" required> 
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col required">
                         <label for="jobTitle">Job Title</label>
-                        <input type="text" placeholder="Job Title" id="jobTitle" name="jobTitle" class="form-control" required> 
+                        <input type="text" placeholder="Job Title" id="jobTitle" value="{{existingUser.jobTitle}}" name="jobTitle" class="form-control" required> 
                     </div>
                     <div class="form-group col required">
                         <label for="manager">Manager</label>
-                        <input type="text" placeholder="Manager ID" id="manager" name="manager" class="form-control" required> 
+                        <input type="text" placeholder="Manager ID" id="manager" value="{{existingUser.Work_For.managerId}}" name="manager" class="form-control" required> 
                     </div>
                 </div>
                 <div class="form-row">
                      <div class="form-group col required">
                         <label for="email">E-mail</label>
-                        <input type="text" placeholder="email" id="email" name="email" class="form-control" required>
+                        <input type="text" placeholder="email" id="email" value="{{existingUser.email}}" name="email" class="form-control" required>
                     </div>
-                    <div class="form-group col {{#unless isUpdate}}required{{/unless}}">
+                    <div class="form-group col {{#unless existingUser}}required{{/unless}}">
                         <label for="password">Password</label>
                         <div class="input-group">
-                            <input type="password" placeholder="{{#unless isUpdate}}Enter Password{{else}}Update Password{{/unless}}" id="password" name="password" class="form-control" {{#unless isUpdate}}required{{/unless}}>
+                            <input type="password" placeholder="{{#unless existingUser}}Enter Password{{else}}Update Password{{/unless}}" id="password" name="password" class="form-control" {{#unless existingUser}}required{{/unless}}>
                             <div class="input-group-append">
                                 <div onclick="showPass()" class="btn btn-secondary"><i onclick="showPass()" class="far fa-eye" style="margin-right: 0px;"></i></div>
                             </div>
@@ -72,21 +73,83 @@
                     </div>
                 </div>
             </div>
+            <input type="text" id="selectedRestrictions"  value="{{stringify existingUser.Restriction}}" name="selectedRestrictions" hidden>
             <div style="float:right;">
                 <button type="button" id="restrictions" name="restrictions" class="btn btn-outline-primary">Set Restrictions</button>
                 <button type="submit" id="submit" name="submit" class="btn btn-primary justfiy-content-end"><i class="far fa-save"></i> {{submitButtonText}}</button>
             </div>
             
         </div>
+         <div id="requestModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="requestContent"></div>
+                </div>
+            </div>
     </form>
 </div>
 
 <script>
     $(document).ready(function(){
-        $(document).on("click", "#restrictions", function(e){
-            e.preventDefault();
+        $("#restrictions").click(function(){
+            const modal = document.getElementById("requestModal");
+            const mContent = document.getElementById("requestContent")
+            // Get the button that opens the modal
+      
+            // Get the <span> element that closes the modal
+            const span = document.getElementsByClassName("close")[0];
+            // When the user clicks on the button, open the modal
+            modal.style.display = "block";
+            mContent.insertAdjacentHTML("beforeend",`{{>setRestrictions}}`)
+
+            span.onclick = function() {
+                modal.style.display = "none";
+                mContent.innerHTML='';
+            }
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                    mContent.innerHTML='';
+
+                }
+
+            }
+
+            $("#setRestrictions").click(function(){
+                const restriction = {
+                    view_users: $("#viewUsers").is(":checked"),
+                    edit_users: $("#editUsers").is(":checked"),
+                    create_users: $("#createUsers").is(":checked"),
+                    view_supplier: $("#viewSuppliers").is(":checked"),
+                    edit_supplier: $("#editSuppliers").is(":checked"),
+                    register_supplier: $("#registerSuppliers").is(":checked"),
+                    view_stock: $("#viewStock").is(":checked"),
+                    edit_stock:$("#editStock").is(":checked"),
+                    edit_item_category: $("#addCategory").is(":checked"),
+                    view_production: $("#viewProduction").is(":checked"),
+                    edit_production:$("#editProduction").is(":checked"),
+                    update_production: $("#updateProduction").is(":checked"),
+                    delete_production:$("#rejectProduction").is(":checked"),
+                    request_production: $("#requestProduction").is(":checked"),
+                    approve_production: $("#approveProduction").is(":checked"),
+                    view_material_request: $("#viewMaterialReq").is(":checked"),
+                    edit_material_request: $("#editMaterialReq").is(":checked"),
+
+                }
+                $("#restrictions").removeClass('btn-outline-primary')
+                $("#restrictions").addClass('btn-success')
+                $("#selectedRestrictions").val('')
+                $("#selectedRestrictions").val(JSON.stringify(restriction))
+                modal.style.display = "none";
+                mContent.innerHTML='';
+                console.log(restriction)
+
+            })
 
         })
+
+        
 
     })
     

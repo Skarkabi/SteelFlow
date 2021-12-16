@@ -51,7 +51,6 @@ router.get('/view/:id', (req,res,next) => {
         if(req.user.restrictions.view_users || req.user.id === req.params.id){
             let msg = req.flash();
             User.getUserById(req.params.id).then(user => {
-                console.log(user.Work_For)
                 if(req.user.accountType === "admin" || req.user.id === user.Work_For.managerId || req.user.id === req.params.id){
                     res.render("displayUser", {
                         title: `Employee # ${user.id}'s Page`,
@@ -106,17 +105,32 @@ router.get('/view/staff/:id', (req, res, next) => {
 });
 
 //Express Route to update user
-router.post('/update/:id', (req,res,next) => {
-
+router.get('/update/:id', (req,res,next) => {
+    User.getUserById(req.params.id).then(user => {
+        res.render('createUpdateUser', {
+            title: `Edit ${req.params.id}'s Info`,
+            jumbotronDescription: `Register a new user account.`,
+            submitButtonText: 'Create',
+            action: `/users/update/${req.params.id}`,
+            msgType: req.flash(),
+            update: true,
+            existingUser: user
+            
+        });
+    }).catch(err => {
+        req.flash('error_msg', `${err}`);
+        req.session.save(function() {
+            res.redirect('/')
+            
+        });
+    })
 });
 
-//Expres route to delete user
-router.post('/delete/:id', (req,res,next) => {
-
-});
-
-//Express route to create a new user
-router.post('/create', (req, res, next) => {
+router.post('/update/:id', (req, res, next) => {
+    let restrictions = JSON.parse(req.body.selectedRestrictions)
+    console.log(restrictions)
+    restrictions.user_id = req.body.eID;
+    restrictions.UserId = req.body.eID;
     const newUser = {
         id: req.body.eID,
         password: req.body.password,
@@ -127,9 +141,50 @@ router.post('/create', (req, res, next) => {
         division: req.body.division,
         accountType: req.body.userType,
         department: req.body.department,
-        managerId: req.body.manager
+        managerId: req.body.manager,
+        restrictions: restrictions
     }
+    
+    User.updateUser(newUser).then(output => {
+        req.flash('success_msg', output);
+        res.redirect(`/users/view/${req.params.id}`)
 
+    }).catch(err => {
+        console.error(err);
+        req.flash('error_msg', err);
+        req.session.save(function() {
+            res.redirect(`/users/view/${req.params.id}`)
+
+        });
+
+    })
+
+})
+
+//Expres route to delete user
+router.post('/delete/:id', (req,res,next) => {
+
+});
+
+//Express route to create a new user
+router.post('/create', (req, res, next) => {
+    let restrictions = JSON.parse(req.body.selectedRestrictions)
+    restrictions.user_id = req.body.eID;
+    restrictions.UserId = req.body.eID;
+    const newUser = {
+        id: req.body.eID,
+        password: req.body.password,
+        email: req.body.email,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        jobTitle: req.body.jobTitle,
+        division: req.body.division,
+        accountType: req.body.userType,
+        department: req.body.department,
+        managerId: req.body.manager,
+        restrictions: restrictions
+    }
+    
     User.createUser(newUser).then(output => {
         req.flash('success_msg', output);
         res.redirect('/users/create')

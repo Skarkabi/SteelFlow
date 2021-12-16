@@ -105,7 +105,8 @@ router.get('/view/:id', (req,res,next) => {
                     req.user.id === order.productionEmployeeId || 
                     req.user.id === order.productionManagerId ||
                     req.user.id === order.requestedBy ||
-                    req.user.accountType === "admin"
+                    req.user.accountType === "admin" || 
+                    (order.department === req.user.division && req.user.accountType === "manager" && req.user.department === "Production")
                 ){
                     res.render("displayOrder", {
                         title: `Order # ${order.order_id}`,
@@ -249,13 +250,17 @@ router.get('/request', (req, res, next) => {
 })
 
 router.post('/bomMaterial', (req, res, next) =>{
+    console.log(req)
     let bomItems = req.body.items;
     let materialRequest = req.body.materialRequest
-    materialRequest.items.map(item => {
-        item.quantity = parseFloat(item.quantity).toFixed(2);
-
-    })
+    if(materialRequest.items){
+        materialRequest.items.map(item => {
+            item.quantity = parseFloat(item.quantity).toFixed(2);
     
+        })
+    }
+    
+   
     MaterialRequest.createMaterialRequest(materialRequest).then(() => {
         Reserve.createReserve(bomItems).then(() => {
             req.flash('success_msg', "Items have been reserved");

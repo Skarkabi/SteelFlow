@@ -150,27 +150,6 @@ Item.getOrderItemById = itemId => {
     });
 }
 
-function updateStockCount(reserve){
-    return new Bluebird((resolve, reject) => {
-        let stockQuant = reserve.quantity;
-        if(reserve.production){
-            stockQuant = 0;
-        }
-        Item.update(
-            { 
-                stock_quantity: sequelize.fn(`${stockQuant} + `, sequelize.col('stock_quantity')),
-                balance: sequelize.fn(`${reserve.quantity} + `, sequelize.col('balance'))
-            },
-
-            { where: { id: reserve.ProductionItemId} } 
-        ).then(() => {
-            resolve("Updated")
-        }).catch(err => {
-            reject(err);
-        })
-    })
-}
-
 Item.startProduction = (received) => {
     return new Bluebird((resolve, reject) => {
         let startQuant = 0
@@ -209,13 +188,6 @@ Item.startProduction = (received) => {
         
     })
     
-}
-
-Item.reserveItem = (reserves) => {
-    return new Bluebird.each(reserves, updateStockCount).then(output => {
-        
-        return output;
-    })
 }
 /**
  * Function to retreive all for speceified order
