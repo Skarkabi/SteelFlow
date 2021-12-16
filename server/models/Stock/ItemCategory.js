@@ -223,18 +223,30 @@ ItemCategory.getAllCategoryStockItems = () => {
 
 ItemCategory.getDivisionCategoryStockItems = division => {
     return new Bluebird((resolve, reject) => {
-        ItemCategory.findAll({
-            where: {
+        let cond = {
+            type: {
+                [Op.not]: "Raw Material"
+            }        
+    
+        }
+        
+        if(division !== "Administration"){
+            cond = {
                 [Op.or]:[
                     {division: division},
-                    {division: "All|"}
+                    {division: "All"}
                 ],
-
                 type: {
                     [Op.not]: "Raw Material"
+                
                 }
+                
+            }
+        
+        }
 
-            },
+        ItemCategory.findAll({
+            where: cond,
 
             include: [
                 {model: StockItem},

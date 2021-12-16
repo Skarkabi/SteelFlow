@@ -14,7 +14,16 @@
                     </div>
                     <div class="form-group col required">
                         <label for="id">Division</label>
-                        <input type="text" id="division" name="division" class="form-control" value="Mesh" readonly required>
+                        {{#if (isdefined 1 divisions.length)}}
+                            <input type="text" id="division" name="division" class="form-control" value="Mesh" readonly required>
+                            {{else}}
+                                <select type="text" id="division" name="division" class="form-control" required>
+                                    <option value="All" selected>All</option>
+                                    {{#each divisions}}
+                                        <option value="{{this}}">{{this}}</option>
+                                    {{/each}}
+                                </select>
+                        {{/if}}
                     </div>
                 </div>
                 <div class="form-row">
@@ -39,6 +48,7 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Type</th>
                                     <th scope="col">Category</th>
+                                    <th scopr="col">Division</th>
         
                                 </tr>
                             </thead>
@@ -48,6 +58,7 @@
                                         <td><a> {{counter @index}}</a></td>
                                         <td><a id="userId-{{this.id}}">{{this.type}}</a></td>
                                         <td><a >{{this.name}}</a></td>
+                                        <td><a >{{this.division}}</a></td>
                                     </tr>
                                 {{/each}}
                             </tbody>
@@ -141,7 +152,23 @@
 
     }
 
+
     $(document).ready(function(){
+        $("#division").change(function(){
+            console.log($("#division").val())
+            $('#filterable-table > tbody  > tr').each(function() {
+                console.log($(this).find('td:eq(3)').text())
+                if($("#division").val() === "All"){
+                    $(this).show();
+                }else if($(this).find('td:eq(3)').text() === $("#division").val()){
+                    $(this).show();
+                }else{
+                    $(this).hide();
+                }
+
+            });
+
+        })
         $(document).on("click", "#confirmDetails", function(e){
             let modal = document.getElementById("requestModal");
             let mContent = document.getElementById("requestContent")

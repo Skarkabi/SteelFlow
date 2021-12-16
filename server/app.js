@@ -33,6 +33,8 @@ handlebars.registerHelper("counter", function (index){
 });
 
 handlebars.registerHelper("greaterThan", function(x, y){
+    console.log(x)
+    console.log(y)
     if(x > y){
         return true;
     }else{

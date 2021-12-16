@@ -197,7 +197,14 @@ router.post('/start', (req, res, next) => {
 router.get('/request', (req, res, next) => {
     if(req.user){
         if(req.user.restrictions.request_production){
-            ItemCategory.getDivisionCategoryStockItems("Mesh").then(output => {
+            let division = req.user.division
+            ItemCategory.getDivisionCategoryStockItems(division).then(output => {
+                let divisionSelections = [];
+                output.map(item => {
+                    divisionSelections.push(item.division)
+                })
+                divisionSelections = [...new Set(divisionSelections)];
+                console.log(divisionSelections)
                 Order.getLastOrderId().then(orderNumber => {
                     output.map(item => {
                         item.Attributes = JSON.stringify(item.Attributes);
@@ -209,7 +216,8 @@ router.get('/request', (req, res, next) => {
                         jumbotronDescription: 'Creating a new order request',
                         items: output,
                         orderNumber: orderNumber,
-                        msgType: req.flash()
+                        msgType: req.flash(),
+                        divisions: divisionSelections
                     }) 
         
                 }).catch(err => {
