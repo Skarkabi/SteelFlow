@@ -54,7 +54,7 @@
                             </thead>
                             <tbody>
                                 {{#each items}}
-                                    <tr onclick="requestModel('{{this.name}}', '{{this.Attributes}}', '{{this.id}}')">
+                                    <tr id="category-{{this.id}}" onclick="requestModel('{{this.name}}', '{{this.Attributes}}', '{{this.id}}')">
                                         <td><a> {{counter @index}}</a></td>
                                         <td><a id="userId-{{this.id}}">{{this.type}}</a></td>
                                         <td><a >{{this.name}}</a></td>
@@ -211,6 +211,9 @@
                     quant,
                     "Action",
                 ]).draw(false);
+
+                $('#filterable-table-next >tbody > tr').attr('id', `row-${rowCount}`)
+
 
                 modal.style.display = "none";
                 mContent.innerHTML='';

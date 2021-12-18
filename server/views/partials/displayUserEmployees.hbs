@@ -5,7 +5,7 @@
 </div>
 {{!-- Displays all users --}}
 <div class="col-md-12">
-    <table id="filterable-table" class="table table-bordered table-striped">
+    <table id="filterable-table" name="employeesTable" class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -20,7 +20,7 @@
         </thead>
         <tbody>
             {{#each existingUser.employees}}
-                <tr>
+                <tr id="row-{{this.id}}">
                     <td><a href="/users/view/{{this.id}}" id="userId-{{this.id}}"> {{counter @index}}</a></td>
                     <td><a href="/users/view/{{this.id}}" id="userId-{{this.id}}">{{this.id}}</a></td>
                     <td><a href="/users/view/{{this.id}}">{{this.firstName}}</a></td>

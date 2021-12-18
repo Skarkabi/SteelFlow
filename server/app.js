@@ -25,8 +25,10 @@ import userRouter from './routes/user';
 import orderRouter from './routes/order';
 import stockRouter from './routes/stock';
 import supplierRouter from './routes/supplier';
-import restrictions from './models/User/Restrictions'
 import Restrictions from './models/User/Restrictions';
+import Users from './models/User/User';
+import User from './models/User/User';
+
 handlebars.registerHelper("counter", function (index){
     return index + 1;
 
@@ -234,7 +236,7 @@ app.use((err, req, res, next) =>
 
 /*
 const newRestriction = {
-    user_id: "100944655",
+    user_id: "100944661",
     view_users: true,
     edit_users: true,
     view_production: true,
@@ -244,18 +246,27 @@ const newRestriction = {
     view_material_request: true,
     edit_material_request: true,
     request_production: true,
-    UserId: "100944655",
+    UserId: "100944661",
     edit_item_category: true
 }
 
-Restrictions.createRestriction(newRestriction).then(output => {
-    console.log(output)
-}).catch(err => {
-    console.error(err)
-})
+const secondRestriction = {
+    user_id: "100944662",
+    view_users: true,
+    edit_users: true,
+    view_production: true,
+    edit_production: true,
+    view_stock: true,
+    edit_stock: true,
+    view_material_request: true,
+    edit_material_request: true,
+    request_production: true,
+    UserId: "100944662",
+    edit_item_category: true
+}
 
 const secondUser = {
-    id: "100944655",
+    id: "100944662",
     password: "123456789",
     email: "saleemkarkabi@cmail.carleton.ca",
     firstName: "Saleem",
@@ -264,11 +275,12 @@ const secondUser = {
     division: "Administration",
     accountType: "admin",
     department: "Administration",
-    managerId: "100944655"
+    managerId: "100944661",
+    restrictions: secondRestriction
 }
 
 const newUser = {
-    id: "100944656",
+    id: "100944661",
     password: "123456789",
     email: "saleemkarkabi@test.com",
     firstName: "John",
@@ -277,130 +289,23 @@ const newUser = {
     division: "Mesh",
     accountType: "employee",
     department: "production",
-    managerId: "100944657"
+    managerId: "100944661",
+    restrictions: newRestriction
 }
 
+User.createUser(newUser).then(() => {
+    User.createUser(secondUser).then(() => {
+        console.log("Users Created")
+    }).catch(err => {
+        console.log(err)
+    })
 
-const newOrder = {
-    order_id: "10002",
-    priority: "High",
-    status: "In Progress",
-    invoiced_amount: 12312.98,
-    department: "Mesh",
-    requestedBy: "100944655",
-    salesEmployeeId: "100944655",
-    salesManagerId: "100944655",
-    productionEmployeeId: "100944656",
-    productionManagerId: "100944657",
-
-}
-
-Order.createOrder(newOrder).then(output => {
-    console.log(output)
 }).catch(err => {
-    console.log(err);
+    console.log(err)
+
 })
 
-
-
-const newCategory = {
-    type: "Raw Material",
-    name: "GI Steel Coil",
-    attribute_amount: 3,
-    quantity_unit: "Tons"
-}
-
-const attributeOne = {
-    ItemCategoryId: 1,
-    position: 1,
-    name: "width",
-    measurment: "mm"
-}
-
-const attributeTwo = {
-    ItemCategoryId: 1,
-    position: 2,
-    name: "length",
-    measurment: "mm"
-}
-
-const attributeThree = {
-    ItemCategoryId: 1,
-    position: 3,
-    name: "thickness",
-    measurment: "mm"
-}
-
-const itemA1 = {
-    unit: 1220,
-    AttributeId: 1,
-    ProductionItemId: null
-}
-
-const itemA2 = {
-    unit: 400,
-    AttributeId: 2,
-    ProductionItemId: null
-}
-     
-const itemA3 = {
-    unit: 3,
-    AttributeId: 3,
-    ProductionItemId: null
-}
-
-const newItem = {
-    cost: 10,
-    ItemCategoryId: 1,
-    quantity: 20,
-    itemAttributes: [itemA1, itemA2, itemA3]
-}
-
-const newSupplier = {
-    name: "T.M.I.",
-    email: "skarkabi@tmico.ae",
-    phone: "0506660187",
-
-}
-const reserves = [
-    {quantity: 1, ProductionItemId: 1, StockItemId: 1},
-    {quantity: 1, ProductionItemId: 2, StockItemId: 1},
-    {quantity: 1, ProductionItemId: 3, StockItemId: 1},
-    {quantity: 1, ProductionItemId: 2, StockItemId: 2},
-]
-
-/*
-console.log(1);
-
-Reserve.createReserve(reserves).then(output => {
-    console.log(10);
-    console.log(output);
-}).catch(err => {
-    console.error(err);
-})
-
-Reserve.createReserve([{ProductionItemId: 7, StockItemId: 1, cost: "800", quantity: 3, supplier: "T.M.I.", production: true}]).then(output => {
-    console.log(output)
-}).catch(err => {
-    console.error(err);
-})
-
-ItemCategory.findAll({
-    where: {
-        name: "GI Steel Coil"
-    },
-    include: [
-        {model: Attribute},
-        {model: StockItem, 
-        include: [
-            {model: ItemAttribute, order: [Attribute, "position", "ASC"],
-            }
-        ]},
-    ],
-    order: [[Attribute, "position", "ASC"]]
-}).then(found => {
-    console.log(found[0].Stock_Items[0].Item_Attributes);
-})
 */
+
 
 export default app;

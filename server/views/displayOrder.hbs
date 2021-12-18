@@ -20,7 +20,7 @@
                                         <button type="button" id="staff" name="staff" class="btn btn-outline-danger">Reject</button>
                                     {{else}}
                                         <form action="/orders/approved/{{order.order_id}}" method="POST">
-                                            <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
+                                            <button type="submit" id="approve" name="approve" class="btn btn-outline-success">Approve</button>
                                         </form>
                                         
                                     {{/if}}
@@ -32,7 +32,7 @@
                                         {{#if user.restrictions.approve_production}}
                                             <form action="/orders/approved/{{order.order_id}}" method="POST">
                                                 {{#unless order.approved}}
-                                                    <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
+                                                    <button type="submit" id="approve" name="approve" class="btn btn-outline-success">Approve</button>
                                                 {{/unless}}
                                             </form>
                                         {{/if}}
@@ -50,7 +50,7 @@
                                                 <button type="button" id="staff" name="staff" class="btn btn-outline-danger">Reject</button>
                                             {{else}}
                                                 <form action="/orders/approved/{{order.order_id}}" method="POST">
-                                                    <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
+                                                    <button type="submit" id="approve" name="approve" class="btn btn-outline-success">Approve</button>
                                                 </form>
                                         
                                             {{/if}}
@@ -65,7 +65,7 @@
                                             {{#if (isdefined user.division order.department)}}
                                                  {{#if user.restrictions.approve_production}}
                                                     <form action="/orders/approved/{{order.order_id}}" method="POST">
-                                                            <button type="submit" id="staff" name="staff" class="btn btn-outline-success">Approve</button>
+                                                            <button type="submit" id="approve" name="approve" class="btn btn-outline-success">Approve</button>
                                                     </form>
                                                     <button type="button" id="staff" name="staff" class="btn btn-outline-danger">Reject</button>
                                                 {{/if}}
@@ -94,8 +94,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group col display-user">
-                            <label for="id">Status</label>
-                            <input type="text" class="form-control" name="id" id="id" value="{{order.status}}" 
+                            <label for="status">Status</label>
+                            <input type="text" class="form-control" name="status" id="status" value="{{order.status}}" 
                                   {{#if (isdefined order.status "In Progress")}}
                         style="color:#0000b3;   font-weight:900"
                     {{/if}}
